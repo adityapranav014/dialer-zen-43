@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { PhoneCall, TrendingUp, Users, Clock, Bell } from "lucide-react";
 import BentoCard from "@/components/BentoCard";
@@ -6,8 +5,11 @@ import TalkTimeChart from "@/components/TalkTimeChart";
 import LeadConversionChart from "@/components/LeadConversionChart";
 import ActiveBDAs from "@/components/ActiveBDAs";
 import BottomNav from "@/components/BottomNav";
+import { useAuth } from "@/hooks/useAuth";
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const displayName = user?.user_metadata?.display_name?.split(" ")[0] || "there";
   return (
     <div className="min-h-screen pb-24 md:pb-8">
       {/* Header */}
@@ -34,7 +36,7 @@ const Dashboard = () => {
       {/* Content */}
       <main className="max-w-6xl mx-auto px-4 py-6">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
-          <h2 className="text-xl font-bold text-foreground mb-1">Good morning, Arjun</h2>
+          <h2 className="text-xl font-bold text-foreground mb-1">Good morning, {displayName}</h2>
           <p className="text-sm text-muted-foreground mb-6">Here's your team's performance today</p>
         </motion.div>
 
