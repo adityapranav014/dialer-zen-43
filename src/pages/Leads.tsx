@@ -1,34 +1,58 @@
-import { useState } from "react";
-import { Search, Filter } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search } from "lucide-react";
 import { motion } from "framer-motion";
 import LeadCard, { LeadStatus } from "@/components/LeadCard";
 import PostCallModal from "@/components/PostCallModal";
 import BottomNav from "@/components/BottomNav";
 import { PhoneCall } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-const mockLeads = [
-  { id: 1, name: "Priya Sharma", phone: "+91 98765 43210", status: "new" as LeadStatus, lastActivity: "Just now" },
-  { id: 2, name: "Rajesh Kumar", phone: "+91 87654 32109", status: "contacted" as LeadStatus, lastActivity: "2h ago" },
-  { id: 3, name: "Anita Desai", phone: "+91 76543 21098", status: "interested" as LeadStatus, lastActivity: "Yesterday" },
-  { id: 4, name: "Vikram Singh", phone: "+91 65432 10987", status: "new" as LeadStatus, lastActivity: "3h ago" },
-  { id: 5, name: "Meera Joshi", phone: "+91 54321 09876", status: "closed" as LeadStatus, lastActivity: "2 days ago" },
-  { id: 6, name: "Arjun Reddy", phone: "+91 43210 98765", status: "contacted" as LeadStatus, lastActivity: "5h ago" },
-];
+interface Lead {
+  id: string;
+  name: string;
+  phone: string;
+  status: LeadStatus;
+  updated_at: string;
+}
 
 const filters: LeadStatus[] = ["new", "contacted", "interested", "closed"];
 
+const timeAgo = (date: string) => {
+  const diff = Date.now() - new Date(date).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+};
+
 const Leads = () => {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<LeadStatus | "all">("all");
   const [modalOpen, setModalOpen] = useState(false);
   const [callingLead, setCallingLead] = useState<string>("");
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const fetchLeads = async () => {
+      const { data, error } = await supabase
+        .from("leads")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (data) setLeads(data as unknown as Lead[]);
+      setLoading(false);
+    };
+    fetchLeads();
+  }, []);
 
   const handleCall = (name: string) => {
     setCallingLead(name);
     setTimeout(() => setModalOpen(true), 2000);
   };
 
-  const filteredLeads = mockLeads.filter((l) => {
+  const filteredLeads = leads.filter((l) => {
     const matchesFilter = activeFilter === "all" || l.status === activeFilter;
     const matchesSearch = l.name.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
@@ -49,7 +73,6 @@ const Leads = () => {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-4">
-        {/* Search */}
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
@@ -60,7 +83,6 @@ const Leads = () => {
           />
         </div>
 
-        {/* Filters */}
         <div className="flex gap-2 mb-5 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveFilter("all")}
@@ -87,19 +109,27 @@ const Leads = () => {
           ))}
         </div>
 
-        {/* Lead list */}
-        <div className="space-y-3">
-          {filteredLeads.map((lead) => (
-            <LeadCard
-              key={lead.id}
-              name={lead.name}
-              phone={lead.phone}
-              status={lead.status}
-              lastActivity={lead.lastActivity}
-              onCall={() => handleCall(lead.name)}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredLeads.map((lead) => (
+              <LeadCard
+                key={lead.id}
+                name={lead.name}
+                phone={lead.phone}
+                status={lead.status}
+                lastActivity={timeAgo(lead.updated_at)}
+                onCall={() => handleCall(lead.name)}
+              />
+            ))}
+            {filteredLeads.length === 0 && (
+              <p className="text-center text-sm text-muted-foreground py-12">No leads found</p>
+            )}
+          </div>
+        )}
       </main>
 
       <PostCallModal
