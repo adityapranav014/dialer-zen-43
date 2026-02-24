@@ -1,10 +1,15 @@
 import { motion } from "framer-motion";
 import { PhoneCall, User, LogOut, Shield, Bell, Moon, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import BottomNav from "@/components/BottomNav";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const displayName = user?.user_metadata?.display_name || user?.email || "User";
+  const initials = displayName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase();
 
   const menuItems = [
     { label: "Account Settings", icon: User },
@@ -12,6 +17,11 @@ const Profile = () => {
     { label: "Security", icon: Shield },
     { label: "Appearance", icon: Moon },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen pb-24 md:pb-8">
@@ -31,12 +41,12 @@ const Profile = () => {
           className="flex items-center gap-4 mb-8"
         >
           <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center text-lg font-bold text-primary">
-            AM
+            {initials}
           </div>
           <div>
-            <h2 className="text-lg font-bold text-foreground">Arjun Mehta</h2>
-            <p className="text-sm text-muted-foreground">Super Admin · TechCorp Inc.</p>
-            <p className="text-xs text-primary mt-0.5">arjun@techcorp.io</p>
+            <h2 className="text-lg font-bold text-foreground">{displayName}</h2>
+            <p className="text-sm text-muted-foreground">BDA</p>
+            <p className="text-xs text-primary mt-0.5">{user?.email}</p>
           </div>
         </motion.div>
 
@@ -57,7 +67,7 @@ const Profile = () => {
 
         <div className="mt-8 pt-6 border-t border-border">
           <button
-            onClick={() => navigate("/")}
+            onClick={handleSignOut}
             className="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
           >
             <LogOut className="h-4 w-4" />
