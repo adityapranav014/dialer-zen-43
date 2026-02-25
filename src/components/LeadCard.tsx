@@ -1,5 +1,4 @@
 import { Phone, Clock, MessageSquare } from "lucide-react";
-import { motion } from "framer-motion";
 import { useState } from "react";
 
 export type LeadStatus = "new" | "contacted" | "interested" | "closed";
@@ -15,34 +14,34 @@ interface LeadCardProps {
 const statusConfig: Record<LeadStatus, { label: string; className: string; dot: string }> = {
   new: {
     label: "New",
-    className: "bg-primary/15 text-primary border border-primary/25",
-    dot: "bg-primary",
+    className: "bg-[#f6f7ed] text-[#1f1f1f] border border-black/[0.06]",
+    dot: "bg-[#1f1f1f]",
   },
   contacted: {
     label: "Contacted",
-    className: "bg-muted text-muted-foreground border border-border",
-    dot: "bg-muted-foreground",
+    className: "bg-blue-50 text-blue-600 border border-blue-200/60",
+    dot: "bg-blue-500",
   },
   interested: {
     label: "Interested",
-    className: "bg-success/15 text-success border border-success/25",
-    dot: "bg-success",
+    className: "bg-emerald-50 text-emerald-600 border border-emerald-200/60",
+    dot: "bg-emerald-500",
   },
   closed: {
     label: "Closed",
-    className: "bg-destructive/15 text-destructive border border-destructive/25",
-    dot: "bg-destructive",
+    className: "bg-purple-50 text-purple-600 border border-purple-200/60",
+    dot: "bg-purple-500",
   },
 };
 
 // Color hash for avatar backgrounds
 const avatarColors = [
-  "from-violet-500 to-purple-600",
-  "from-blue-500 to-indigo-600",
-  "from-emerald-500 to-teal-600",
-  "from-orange-500 to-amber-600",
-  "from-pink-500 to-rose-600",
-  "from-cyan-500 to-blue-600",
+  "bg-violet-100 text-violet-600",
+  "bg-blue-100 text-blue-600",
+  "bg-emerald-100 text-emerald-600",
+  "bg-orange-100 text-orange-600",
+  "bg-pink-100 text-pink-600",
+  "bg-cyan-100 text-cyan-600",
 ];
 
 const getAvatarColor = (name: string) => {
@@ -65,16 +64,12 @@ const LeadCard = ({ name, phone, status, lastActivity, onCall }: LeadCardProps) 
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.2 }}
-      className="bento-card flex items-center gap-4 cursor-default"
+    <div
+      className="surface-card flex items-center gap-4 cursor-default hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] transition-all"
     >
       {/* Avatar */}
       <div
-        className={`h-11 w-11 rounded-xl bg-gradient-to-br ${avatarGradient} flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-lg`}
+        className={`h-11 w-11 rounded-xl ${avatarGradient} flex items-center justify-center text-xs font-bold shrink-0`}
       >
         {getInitials(name)}
       </div>
@@ -82,13 +77,13 @@ const LeadCard = ({ name, phone, status, lastActivity, onCall }: LeadCardProps) 
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1 flex-wrap">
-          <h3 className="font-semibold text-foreground text-sm truncate">{name}</h3>
-          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize ${cfg.className}`}>
+          <h3 className="font-semibold text-[#1f1f1f] text-sm truncate">{name}</h3>
+          <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full capitalize ${cfg.className}`}>
             <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
             {cfg.label}
           </span>
         </div>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-3 text-xs text-[#1f1f1f]/40">
           <span className="flex items-center gap-1">
             <Phone className="h-3 w-3" />
             {phone}
@@ -103,26 +98,20 @@ const LeadCard = ({ name, phone, status, lastActivity, onCall }: LeadCardProps) 
       {/* Actions */}
       <div className="flex items-center gap-2 shrink-0">
         <button
-          className="h-8 w-8 rounded-lg bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground"
+          className="h-8 w-8 rounded-lg bg-[#f4f4f4] hover:bg-[#f6f7ed] flex items-center justify-center transition-colors text-[#1f1f1f]/40 hover:text-[#1f1f1f]"
           title="Add note"
         >
           <MessageSquare className="h-3.5 w-3.5" />
         </button>
         <button
           onClick={handleCall}
-          className="relative flex items-center justify-center h-10 w-10 rounded-xl bg-success text-white shrink-0 transition-all duration-200 hover:scale-105 active:scale-95 glow-success"
+          className="relative flex items-center justify-center h-10 w-10 rounded-xl bg-[#1f1f1f] text-white shrink-0 transition-all duration-200 hover:scale-105 active:scale-95"
           title="Call lead"
         >
-          {calling && (
-            <>
-              <span className="absolute inset-0 rounded-xl bg-success animate-pulse-ring opacity-60" />
-              <span className="absolute inset-0 rounded-xl bg-success animate-pulse-ring opacity-40" style={{ animationDelay: "0.4s" }} />
-            </>
-          )}
           <Phone className="h-4 w-4 relative z-10" />
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

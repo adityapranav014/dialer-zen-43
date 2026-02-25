@@ -10,7 +10,7 @@ import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
 import Analytics from "./pages/Analytics";
-import Profile from "./pages/Profile";
+import Team from "./pages/Team";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,8 +27,8 @@ const App = () => (
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
+            <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

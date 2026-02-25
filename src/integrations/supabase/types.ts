@@ -131,6 +131,50 @@ export type Database = {
           },
         ]
       }
+      team_members: {
+        Row: {
+          id: string
+          tenant_id: string
+          linked_user_id: string | null
+          name: string
+          email: string
+          phone: string
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          linked_user_id?: string | null
+          name: string
+          email: string
+          phone?: string
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          linked_user_id?: string | null
+          name?: string
+          email?: string
+          phone?: string
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenants: {
         Row: {
           api_config: Json | null

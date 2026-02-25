@@ -1,18 +1,12 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import {
     PhoneCall,
     TrendingUp,
     Clock,
     Star,
-    Bell,
-    ArrowUpRight,
-    MoreHorizontal,
     Trophy,
-    Flame,
-    ChevronUp,
-    ChevronDown,
-    Minus,
+    ArrowUpRight,
+    Inbox,
 } from "lucide-react";
 import BentoCard from "@/components/BentoCard";
 import TalkTimeChart from "@/components/TalkTimeChart";
@@ -20,25 +14,57 @@ import PostCallModal from "@/components/PostCallModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { useLeads } from "@/hooks/useLeads";
-import { formatDistanceToNow } from "date-fns";
 
-const trendIcon = (trend: string) => {
-    if (trend === "up") return <ChevronUp className="h-3 w-3 text-success" />;
-    if (trend === "down") return <ChevronDown className="h-3 w-3 text-destructive" />;
-    return <Minus className="h-3 w-3 text-muted-foreground" />;
+/* ─── Hardcoded activity feed (human-centric) ─── */
+const hardcodedActivities = [
+    {
+        id: "a1",
+        text: "You converted Priya Sharma to a qualified lead",
+        time: "Just now",
+        type: "success" as const,
+    },
+    {
+        id: "a2",
+        text: "Called Rahul Verma — no answer, scheduled follow-up",
+        time: "12 minutes ago",
+        type: "neutral" as const,
+    },
+    {
+        id: "a3",
+        text: "New lead assigned: Meena Kapoor from inbound campaign",
+        time: "34 minutes ago",
+        type: "info" as const,
+    },
+    {
+        id: "a4",
+        text: "Completed 5-minute call with Arjun Nair — interested in demo",
+        time: "1 hour ago",
+        type: "success" as const,
+    },
+    {
+        id: "a5",
+        text: "You moved Deepak Gupta to 'Follow-up' stage",
+        time: "2 hours ago",
+        type: "neutral" as const,
+    },
+    {
+        id: "a6",
+        text: "Daily target reached: 20 calls completed",
+        time: "3 hours ago",
+        type: "milestone" as const,
+    },
+];
+
+const activityDotClass: Record<string, string> = {
+    success: "bg-emerald-500",
+    neutral: "bg-[#1f1f1f]/25",
+    info: "bg-blue-500",
+    milestone: "bg-amber-500",
 };
-
-const rankColors: Record<number, string> = {
-    1: "text-yellow-400",
-    2: "text-slate-300",
-    3: "text-amber-600",
-};
-
-const rankEmoji: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 
 const BdaDashboard = () => {
     const { user } = useAuth();
-    const { stats, leaderboard, activities, loading } = useDashboardStats();
+    const { stats, leaderboard, loading } = useDashboardStats();
     const { myLeads } = useLeads();
 
     const [calling, setCalling] = useState(false);
@@ -54,28 +80,25 @@ const BdaDashboard = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center p-20">
-                <p className="text-muted-foreground animate-pulse">Loading your performance data...</p>
+                <p className="text-[#1f1f1f]/40 text-sm font-medium">Loading your data…</p>
             </div>
         );
     }
 
     const myRank = leaderboard.findIndex(b => b.id === user?.id) + 1;
-    const topPercentage = Math.round((myRank / leaderboard.length) * 100) || 100;
 
     const myStatsDisplay = [
-        { label: "My Calls Today", value: stats?.totalCalls ?? 0, icon: PhoneCall, iconBg: "bg-primary/15", iconColor: "text-primary" },
-        { label: "My Talk Time", value: `${stats?.totalMinutes ?? 0}m`, icon: Clock, iconBg: "bg-accent/15", iconColor: "text-accent" },
-        { label: "My Conversions", value: stats?.conversions ?? 0, icon: TrendingUp, iconBg: "bg-success/15", iconColor: "text-success" },
-        { label: "My Rank", value: `#${myRank}`, icon: Star, iconBg: "bg-warning/15", iconColor: "text-warning" },
+        { label: "Calls Today", value: stats?.totalCalls ?? 0, icon: PhoneCall },
+        { label: "Talk Time", value: `${stats?.totalMinutes ?? 0}m`, icon: Clock },
+        { label: "Conversions", value: stats?.conversions ?? 0, icon: TrendingUp },
+        { label: "Rank", value: `#${myRank || "—"}`, icon: Star },
     ];
 
     const handleQuickCall = () => {
-        const nextLead = myLeads[0]; // Pick first lead for simulation
+        const nextLead = myLeads[0];
         if (!nextLead) return;
-
         setActiveLead({ id: nextLead.id, name: nextLead.name });
         setCalling(true);
-
         setTimeout(() => {
             setCalling(false);
             setModalOpen(true);
@@ -84,37 +107,30 @@ const BdaDashboard = () => {
 
     return (
         <>
-            {/* Heading */}
-            <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="mb-8 flex items-start justify-between flex-wrap gap-4"
-            >
+            {/* Heading row */}
+            <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
                 <div>
-                    <h2 className="text-3xl font-extrabold text-foreground tracking-tight">
-                        {greeting}, {firstName} 👋
+                    <h2 className="text-xl font-semibold text-[#1f1f1f] tracking-tight">
+                        {greeting}, {firstName}
                     </h2>
-                    <p className="text-base text-muted-foreground mt-1.5 flex items-center gap-1.5 font-medium">
+                    <p className="text-sm text-[#1f1f1f]/40 mt-1 flex items-center gap-1.5">
                         <span className="status-dot-live inline-block" />
-                        {dateStr} · Your performance today
+                        {dateStr}
                     </p>
                 </div>
                 <button
                     onClick={handleQuickCall}
                     disabled={calling || myLeads.length === 0}
-                    className={`relative flex items-center gap-2.5 px-6 py-3 rounded-xl shadow-lg transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] border ${calling
-                        ? "bg-emerald-500 text-white border-emerald-400/50 shadow-emerald-500/20"
-                        : "bg-primary text-white border-primary/20 shadow-primary/20 hover:bg-primary/90"
-                        }`}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
+                        calling
+                            ? "bg-emerald-500 text-white"
+                            : "bg-[#1f1f1f] text-white hover:bg-[#1f1f1f]/90 active:scale-[0.98]"
+                    }`}
                 >
-                    {calling && (
-                        <span className="absolute inset-0 rounded-xl bg-emerald-400 animate-pulse opacity-30" />
-                    )}
-                    <PhoneCall className={`h-4 w-4 relative z-10 ${calling ? "animate-bounce" : ""}`} />
-                    <span className="relative z-10">{calling ? `Calling ${activeLead?.name}...` : "Quick Call"}</span>
+                    <PhoneCall className={`h-3.5 w-3.5 ${calling ? "animate-pulse" : ""}`} />
+                    {calling ? `Calling ${activeLead?.name}…` : "Quick Call"}
                 </button>
-            </motion.div>
+            </div>
 
             <PostCallModal
                 open={modalOpen}
@@ -124,123 +140,116 @@ const BdaDashboard = () => {
                 duration={184}
             />
 
-            {/* Motivational Banner */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.97 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="mb-6 relative overflow-hidden rounded-xl border border-primary/30 px-5 py-4"
-                style={{
-                    background: "linear-gradient(120deg, hsl(var(--primary) / 0.12), hsl(var(--accent) / 0.08))",
-                }}
-            >
-                <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-gradient-brand flex items-center justify-center shrink-0 glow-primary">
-                        <Flame className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                        <p className="text-sm font-bold text-foreground">You're ranked #{myRank} this week — Top {topPercentage}%! 🔥</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                            {myRank === 1
-                                ? "You're at the top of the leaderboard! Keep it up! 👑"
-                                : `You're doing great! Keep pushing to climb higher!`}
-                        </p>
-                    </div>
-                </div>
-            </motion.div>
-
-            {/* My Stats */}
+            {/* Stats row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-                {myStatsDisplay.map((stat, i) => (
-                    <BentoCard key={stat.label} delay={i * 0.06 + 0.2}>
-                        <div className="flex items-start justify-between mb-4">
-                            <div className={`h-9 w-9 rounded-lg ${stat.iconBg} flex items-center justify-center`}>
-                                <stat.icon className={`h-4 w-4 ${stat.iconColor}`} />
+                {myStatsDisplay.map((stat) => (
+                    <BentoCard key={stat.label}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="h-8 w-8 rounded-lg bg-[#f6f7ed] flex items-center justify-center">
+                                <stat.icon className="h-4 w-4 text-[#1f1f1f]" strokeWidth={1.5} />
                             </div>
                         </div>
-                        <p className="text-3xl font-bold text-foreground stat-number tracking-tight">{stat.value}</p>
-                        <p className="text-xs text-muted-foreground mt-1 font-medium">{stat.label}</p>
+                        <p className="text-2xl font-semibold text-[#1f1f1f] stat-number">{stat.value}</p>
+                        <p className="text-xs text-[#1f1f1f]/40 mt-1 font-medium">{stat.label}</p>
                     </BentoCard>
                 ))}
             </div>
 
-            {/* Leaderboard + Talk Time + Activity */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <BentoCard className="md:col-span-2" delay={0.44}>
-                    <div className="flex items-center justify-between mb-5">
-                        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                            <Trophy className="h-4 w-4 text-yellow-400" />
-                            Top Performers — This Week
+            {/* Main content grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* Leaderboard */}
+                <BentoCard className="lg:col-span-2">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-semibold text-[#1f1f1f] flex items-center gap-2">
+                            <Trophy className="h-4 w-4 text-amber-500" />
+                            Top Performers
                         </h3>
+                        <span className="text-[11px] text-[#1f1f1f]/30 font-medium">This week</span>
                     </div>
-                    <div className="space-y-1">
-                        {leaderboard.map((entry, i) => (
-                            <motion.div
-                                key={entry.id}
-                                initial={{ opacity: 0, x: -8 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.5 + i * 0.05 }}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${entry.id === user?.id
-                                    ? "bg-primary/10 border border-primary/25"
-                                    : "hover:bg-sidebar-accent/50"
+                    <div className="space-y-0.5">
+                        {leaderboard.map((entry, i) => {
+                            const isMe = entry.id === user?.id;
+                            return (
+                                <div
+                                    key={entry.id}
+                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                                        isMe
+                                            ? "bg-[#f6f7ed]"
+                                            : "hover:bg-[#f4f4f4]"
                                     }`}
-                            >
-                                <span className={`text-sm font-bold w-6 text-center shrink-0 ${rankColors[i + 1] || "text-muted-foreground"}`}>
-                                    {rankEmoji[i + 1] || `#${i + 1}`}
-                                </span>
-
-                                <div className={`h-8 w-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 ${entry.id === user?.id ? "bg-gradient-brand glow-primary" : "bg-muted"}`}>
-                                    {entry.initials}
+                                >
+                                    <span className="text-xs font-semibold w-5 text-center text-[#1f1f1f]/40">
+                                        {i + 1}
+                                    </span>
+                                    <div className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 ${
+                                        isMe
+                                            ? "bg-[#1f1f1f] text-white"
+                                            : "bg-[#f4f4f4] text-[#1f1f1f]/60"
+                                    }`}>
+                                        {entry.initials}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-[13px] font-medium text-[#1f1f1f] truncate">
+                                            {entry.name}
+                                            {isMe && <span className="ml-1 text-[11px] text-[#1f1f1f]/35">(You)</span>}
+                                        </p>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                        <p className="text-xs font-semibold text-[#1f1f1f]">{entry.calls} calls</p>
+                                        <p className="text-[10px] text-emerald-600 font-medium">{entry.conversions} conv.</p>
+                                    </div>
                                 </div>
-
-                                <div className="flex-1 min-w-0">
-                                    <p className={`text-xs font-semibold truncate ${entry.id === user?.id ? "text-primary" : "text-foreground"}`}>
-                                        {entry.name}
-                                        {entry.id === user?.id && <span className="ml-1.5 text-[10px] font-bold text-primary/70">(You)</span>}
-                                    </p>
-                                </div>
-
-                                <div className="text-right shrink-0">
-                                    <p className="text-xs font-bold text-foreground">{entry.calls} calls</p>
-                                    <p className="text-[10px] text-success font-semibold">{entry.conversions} conv.</p>
-                                </div>
-                            </motion.div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </BentoCard>
 
+                {/* Right column */}
                 <div className="flex flex-col gap-4">
-                    <BentoCard delay={0.5}>
-                        <div className="flex items-center justify-between mb-5">
-                            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                                <Clock className="h-4 w-4 text-primary" />
-                                My Talk Time
+                    {/* Talk Time */}
+                    <BentoCard>
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-sm font-semibold text-[#1f1f1f] flex items-center gap-2">
+                                <Clock className="h-4 w-4 text-[#1f1f1f]/40" />
+                                Talk Time
                             </h3>
-                            <span className="text-[10px] text-muted-foreground font-medium">Goal: 60m</span>
+                            <span className="text-[11px] text-[#1f1f1f]/30 font-medium">Goal: 60m</span>
                         </div>
                         <TalkTimeChart minutes={stats?.totalMinutes ?? 0} goal={60} />
                     </BentoCard>
 
-                    <BentoCard delay={0.56}>
-                        <div className="flex items-center justify-between mb-5">
-                            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                                <Bell className="h-4 w-4 text-primary" />
+                    {/* My Activity — redesigned with hardcoded data */}
+                    <BentoCard>
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-sm font-semibold text-[#1f1f1f] flex items-center gap-2">
+                                <Inbox className="h-4 w-4 text-[#1f1f1f]/40" />
                                 My Activity
                             </h3>
+                            <span className="text-[11px] text-[#1f1f1f]/30 font-medium">{hardcodedActivities.length}</span>
                         </div>
-                        <div className="space-y-4">
-                            {activities.map((activity, i) => (
-                                <div key={activity.id} className="flex items-start gap-3">
-                                    <div className={`h-2 w-2 mt-1.5 rounded-full ${activity.dot} shrink-0`} />
-                                    <div className="min-w-0">
-                                        <p className="text-xs text-foreground leading-relaxed">{activity.text}</p>
-                                        <p className="text-[10px] text-muted-foreground mt-0.5">
-                                            {formatDistanceToNow(new Date(activity.time), { addSuffix: true })}
-                                        </p>
-                                    </div>
+
+                        {hardcodedActivities.length === 0 ? (
+                            /* Empty state */
+                            <div className="empty-state py-8">
+                                <div className="empty-state-icon">
+                                    <Inbox className="h-5 w-5" />
                                 </div>
-                            ))}
-                        </div>
+                                <p className="text-sm font-medium text-[#1f1f1f]/60">No activity yet</p>
+                                <p className="text-xs text-[#1f1f1f]/30 mt-1">Make your first call to get started</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3.5">
+                                {hardcodedActivities.map((activity) => (
+                                    <div key={activity.id} className="flex items-start gap-3 group">
+                                        <div className={`h-2 w-2 mt-[7px] rounded-full shrink-0 ${activityDotClass[activity.type]}`} />
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-[13px] text-[#1f1f1f] leading-snug">{activity.text}</p>
+                                            <p className="text-[11px] text-[#1f1f1f]/30 mt-0.5 font-medium">{activity.time}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </BentoCard>
                 </div>
             </div>

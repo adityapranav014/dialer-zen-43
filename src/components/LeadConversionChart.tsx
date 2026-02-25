@@ -8,21 +8,20 @@ const data = [
 ];
 
 const barColors = [
-  "hsl(243, 75%, 65%)",
-  "hsl(252, 78%, 60%)",
-  "hsl(261, 82%, 58%)",
-  "hsl(158, 64%, 52%)",
+  "#1f1f1f",
+  "#4a4a4a",
+  "#7a7a7a",
+  "#10b981",
 ];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div
-        className="glass rounded-lg px-3 py-2 text-xs shadow-xl"
-        style={{ border: "1px solid hsl(var(--border))" }}
+        className="surface-elevated rounded-lg px-3 py-2 text-xs"
       >
-        <p className="font-semibold text-foreground">{label}</p>
-        <p className="text-muted-foreground mt-0.5">{payload[0].value} leads</p>
+        <p className="font-semibold text-[#1f1f1f]">{label}</p>
+        <p className="text-[#1f1f1f]/40 mt-0.5">{payload[0].value} leads</p>
       </div>
     );
   }
@@ -39,10 +38,10 @@ const LeadConversionChart = () => {
               dataKey="stage"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "hsl(220, 15%, 52%)", fontSize: 11, fontWeight: 500 }}
+              tick={{ fill: "#1f1f1f", opacity: 0.4, fontSize: 11, fontWeight: 500 }}
             />
             <YAxis hide />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: "hsl(var(--muted) / 0.4)", radius: 6 }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f6f7ed", radius: 6 }} />
             <Bar dataKey="count" radius={[8, 8, 0, 0]}>
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={barColors[index]} />
@@ -57,8 +56,8 @@ const LeadConversionChart = () => {
         {data.map((d, i) => (
           <div key={d.stage} className="flex items-center gap-1.5 text-[11px]">
             <span className="h-2 w-2 rounded-sm" style={{ background: barColors[i] }} />
-            <span className="text-muted-foreground">{d.stage}</span>
-            <span className="font-semibold text-foreground">{d.pct}</span>
+            <span className="text-[#1f1f1f]/40">{d.stage}</span>
+            <span className="font-semibold text-[#1f1f1f]">{d.pct}</span>
           </div>
         ))}
       </div>

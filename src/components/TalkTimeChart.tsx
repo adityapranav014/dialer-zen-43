@@ -1,5 +1,4 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { motion } from "framer-motion";
 import { TrendingUp } from "lucide-react";
 
 interface TalkTimeChartProps {
@@ -34,23 +33,18 @@ const TalkTimeChart = ({ minutes, goal }: TalkTimeChartProps) => {
               dataKey="value"
               strokeWidth={0}
             >
-              <Cell fill="url(#talkTimeGradient)" />
-              <Cell fill="hsl(var(--border))" />
+              <Cell fill="#1f1f1f" />
+              <Cell fill="#e5e5e5" />
             </Pie>
-            <defs>
-              <linearGradient id="talkTimeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="hsl(243, 75%, 59%)" />
-                <stop offset="100%" stopColor="hsl(265, 85%, 65%)" />
-              </linearGradient>
-            </defs>
+
           </PieChart>
         </ResponsiveContainer>
         {/* Center content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold text-foreground stat-number tracking-tight">
+          <span className="text-2xl font-semibold text-[#1f1f1f] tracking-tight">
             {hours > 0 ? hours : minutes}
           </span>
-          <span className="text-[11px] text-muted-foreground font-medium">
+          <span className="text-[11px] text-[#1f1f1f]/35 font-medium">
             {hours > 0 ? "hours" : "min"}
           </span>
         </div>
@@ -59,20 +53,18 @@ const TalkTimeChart = ({ minutes, goal }: TalkTimeChartProps) => {
       {/* Progress bar + label */}
       <div className="w-full">
         <div className="flex justify-between text-xs mb-1.5">
-          <span className="text-muted-foreground">Talk time</span>
-          <span className="text-foreground font-semibold">{displayTime}</span>
+          <span className="text-[#1f1f1f]/40">Talk time</span>
+          <span className="text-[#1f1f1f] font-medium">{displayTime}</span>
         </div>
-        <div className="h-1.5 bg-border rounded-full overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${percentage}%` }}
-            transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
-            className="h-full rounded-full bg-gradient-brand"
+        <div className="h-1.5 bg-[#f4f4f4] rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full bg-[#1f1f1f] transition-all duration-1000 ease-out"
+            style={{ width: `${percentage}%` }}
           />
         </div>
         <div className="flex items-center justify-between mt-1.5">
-          <span className="text-[10px] text-muted-foreground">of {goal}m goal</span>
-          <div className="flex items-center gap-1 text-[11px] font-semibold text-success">
+          <span className="text-[10px] text-[#1f1f1f]/30">of {goal}m goal</span>
+          <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
             <TrendingUp className="h-3 w-3" />
             {Math.round(percentage)}%
           </div>
