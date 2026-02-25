@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -45,6 +46,10 @@ export default {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
@@ -84,20 +89,40 @@ export default {
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "pulse-ring": {
-          "0%": { transform: "scale(1)", opacity: "1" },
-          "100%": { transform: "scale(1.5)", opacity: "0" },
+          "0%": { transform: "scale(1)", opacity: "0.8" },
+          "100%": { transform: "scale(2)", opacity: "0" },
         },
         "slide-up": {
           "0%": { transform: "translateY(100%)" },
           "100%": { transform: "translateY(0)" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-16px)" },
+        },
+        "morph-blob": {
+          "0%, 100%": { borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%" },
+          "50%": { borderRadius: "30% 60% 70% 40% / 50% 60% 30% 60%" },
+        },
+        "spin-slow": {
+          "from": { transform: "rotate(0deg)" },
+          "to": { transform: "rotate(360deg)" },
+        },
+        "live-pulse": {
+          "0%, 100%": { boxShadow: "0 0 0 0 hsl(158 64% 52% / 0.4)" },
+          "50%": { boxShadow: "0 0 0 4px hsl(158 64% 52% / 0)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.4s ease-out",
-        "pulse-ring": "pulse-ring 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite",
+        "pulse-ring": "pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite",
         "slide-up": "slide-up 0.3s ease-out",
+        "float": "float 6s ease-in-out infinite",
+        "morph-blob": "morph-blob 8s ease-in-out infinite",
+        "spin-slow": "spin-slow 20s linear infinite",
+        "live-pulse": "live-pulse 2s ease-in-out infinite",
       },
     },
   },
