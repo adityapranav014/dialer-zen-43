@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import {
     DndContext,
     DragEndEvent,
@@ -13,22 +13,21 @@ import {
     useDroppable,
 } from "@dnd-kit/core";
 import {
-    Users,
     Phone,
     Clock,
     UserCheck,
-    GripVertical,
     X,
     Check,
     Search,
     AlertCircle,
     TrendingUp,
     Plus,
-    Filter,
 } from "lucide-react";
 import { useLeads, LeadStatus as DbLeadStatus } from "@/hooks/useLeads";
 import { useTeam } from "@/hooks/useTeam";
 import AddLeadModal from "./AddLeadModal";
+import LeadDetailPopup from "./LeadDetailPopup";
+import { AdminLeadsSkeleton } from "@/components/skeletons";
 import { toast } from "sonner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -43,6 +42,8 @@ interface Lead {
     value?: string;
     // UI computed fields
     assignedTo: string | null;
+    assignedToColor: string | null;
+    assignedToInitials: string | null;
 }
 
 interface BDA {
@@ -63,11 +64,41 @@ const timeAgo = (isoDate: string) => {
     return `${Math.floor(hours / 24)}d ago`;
 };
 
+// Avatar color palette — keyed by name stored in DB
+const AVATAR_COLOR_MAP: Record<string, { bg: string; text: string }> = {
+    violet:  { bg: "bg-violet-100 dark:bg-violet-900/40",  text: "text-violet-600 dark:text-violet-300" },
+    blue:    { bg: "bg-blue-100 dark:bg-blue-900/40",    text: "text-blue-600 dark:text-blue-300" },
+    emerald: { bg: "bg-emerald-100 dark:bg-emerald-900/40", text: "text-emerald-600 dark:text-emerald-300" },
+    orange:  { bg: "bg-orange-100 dark:bg-orange-900/40",  text: "text-orange-600 dark:text-orange-300" },
+    pink:    { bg: "bg-pink-100 dark:bg-pink-900/40",    text: "text-pink-600 dark:text-pink-300" },
+    cyan:    { bg: "bg-cyan-100 dark:bg-cyan-900/40",    text: "text-cyan-600 dark:text-cyan-300" },
+    lime:    { bg: "bg-lime-100 dark:bg-lime-900/40",    text: "text-lime-600 dark:text-lime-300" },
+    fuchsia: { bg: "bg-fuchsia-100 dark:bg-fuchsia-900/40", text: "text-fuchsia-600 dark:text-fuchsia-300" },
+    red:     { bg: "bg-red-100 dark:bg-red-900/40",     text: "text-red-600 dark:text-red-300" },
+    amber:   { bg: "bg-amber-100 dark:bg-amber-900/40",   text: "text-amber-600 dark:text-amber-300" },
+    indigo:  { bg: "bg-indigo-100 dark:bg-indigo-900/40",  text: "text-indigo-600 dark:text-indigo-300" },
+    teal:    { bg: "bg-teal-100 dark:bg-teal-900/40",    text: "text-teal-600 dark:text-teal-300" },
+};
+export const AVATAR_COLOR_NAMES = Object.keys(AVATAR_COLOR_MAP);
+
+const getAvatarClasses = (colorName: string | null, fallbackId: string): string => {
+    if (colorName && AVATAR_COLOR_MAP[colorName]) {
+        const c = AVATAR_COLOR_MAP[colorName];
+        return `${c.bg} ${c.text}`;
+    }
+    // Fallback: hash-based
+    return getAvatarColor(fallbackId);
+};
+
 const avatarColors = [
-    "bg-violet-100 text-violet-600", "bg-blue-100 text-blue-600",
-    "bg-emerald-100 text-emerald-600", "bg-orange-100 text-orange-600",
-    "bg-pink-100 text-pink-600", "bg-cyan-100 text-cyan-600",
-    "bg-lime-100 text-lime-600", "bg-fuchsia-100 text-fuchsia-600",
+    "bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-300",
+    "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300",
+    "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300",
+    "bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-300",
+    "bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-300",
+    "bg-cyan-100 text-cyan-600 dark:bg-cyan-900/40 dark:text-cyan-300",
+    "bg-lime-100 text-lime-600 dark:bg-lime-900/40 dark:text-lime-300",
+    "bg-fuchsia-100 text-fuchsia-600 dark:bg-fuchsia-900/40 dark:text-fuchsia-300",
 ];
 const getAvatarColor = (id: string) => {
     let hash = 0;
@@ -78,58 +109,70 @@ const getInitials = (n: string) => n.split(" ").map(w => w[0]).join("").toUpperC
 
 // ─── Column Config ────────────────────────────────────────────────────────────
 
-const columns: { id: DbLeadStatus; label: string; color: string; bg: string; border: string; dot: string }[] = [
-    { id: "new", label: "New", color: "text-[#1f1f1f]", bg: "bg-white", border: "border-black/[0.06]", dot: "bg-[#1f1f1f]" },
-    { id: "contacted", label: "Contacted", color: "text-blue-600", bg: "bg-blue-50/60", border: "border-blue-200/60", dot: "bg-blue-500" },
-    { id: "interested", label: "Interested", color: "text-emerald-600", bg: "bg-emerald-50/60", border: "border-emerald-200/60", dot: "bg-emerald-500" },
-    { id: "closed", label: "Closed", color: "text-purple-600", bg: "bg-purple-50/60", border: "border-purple-200/60", dot: "bg-purple-500" },
+const columns: { id: DbLeadStatus; label: string; icon: string; color: string; bg: string; headerBg: string; border: string; dot: string; dropBg: string }[] = [
+    { id: "new", label: "New", icon: "🔵", color: "text-foreground", bg: "bg-muted/50 dark:bg-muted/30", headerBg: "bg-card dark:bg-card", border: "border-border/60", dot: "bg-foreground/70", dropBg: "bg-foreground/[0.02]" },
+    { id: "contacted", label: "Contacted", icon: "📞", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50/40 dark:bg-blue-950/20", headerBg: "bg-white dark:bg-blue-950/60", border: "border-blue-200/40 dark:border-blue-800/50", dot: "bg-blue-500", dropBg: "bg-blue-50/30 dark:bg-blue-950/10" },
+    { id: "interested", label: "Interested", icon: "🔥", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50/40 dark:bg-emerald-950/20", headerBg: "bg-white dark:bg-emerald-950/60", border: "border-emerald-200/40 dark:border-emerald-800/50", dot: "bg-emerald-500", dropBg: "bg-emerald-50/30 dark:bg-emerald-950/10" },
+    { id: "closed", label: "Closed", icon: "✅", color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50/40 dark:bg-purple-950/20", headerBg: "bg-white dark:bg-purple-950/60", border: "border-purple-200/40 dark:border-purple-800/50", dot: "bg-purple-500", dropBg: "bg-purple-50/30 dark:bg-purple-950/10" },
 ];
 
 const statusBDACfg: Record<string, string> = {
-    active: "bg-emerald-50 text-emerald-600 border-emerald-200/60",
-    idle: "bg-amber-50 text-amber-600 border-amber-200/60",
-    offline: "bg-gray-100 text-[#1f1f1f]/40 border-black/[0.06]",
+    active: "bg-emerald-50 text-emerald-600 border-emerald-200/60 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800",
+    idle: "bg-amber-50 text-amber-600 border-amber-200/60 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800",
+    offline: "bg-muted text-foreground/40 border-border",
 };
 
 // ─── Lead Card Content (pure presentational) ─────────────────────────────────
 
-const LeadCardContent = ({ lead, onAssign, isDragOverlay = false }: { lead: Lead; onAssign?: (lead: Lead) => void; isDragOverlay?: boolean }) => (
-    <div className={`surface-card p-4 select-none group hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] ${
-        isDragOverlay ? "shadow-xl ring-2 ring-[#1f1f1f]/20 rotate-1 scale-105" : ""
+const LeadCardContent = ({ lead, onAssign, onViewDetail, isDragOverlay = false }: { lead: Lead; onAssign?: (lead: Lead) => void; onViewDetail?: (lead: Lead) => void; isDragOverlay?: boolean }) => (
+    <div className={`group/card bg-card rounded-[10px] select-none transition-all duration-200 ${
+        isDragOverlay
+            ? "shadow-2xl ring-2 ring-primary/20 scale-[1.02] rotate-[1deg] p-3.5"
+            : "shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_3px_12px_rgba(0,0,0,0.08)] border border-border/50 hover:border-border p-3.5"
     }`}>
         <div className="flex-1 min-w-0">
+            {/* Name + value */}
             <div className="flex items-center justify-between gap-2 mb-1.5">
-                <p className="text-xs font-semibold text-[#1f1f1f] truncate tracking-tight">{lead.name}</p>
-                {lead.value && <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/60 shrink-0">{lead.value}</span>}
+                <button
+                    onClick={(e) => { e.stopPropagation(); e.preventDefault(); onViewDetail?.(lead); }}
+                    className="text-[13px] font-semibold text-foreground truncate tracking-tight leading-snug text-left hover:text-primary transition-colors cursor-pointer"
+                    title="View lead details"
+                >{lead.name}</button>
+                {lead.value && <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded-md shrink-0">{lead.value}</span>}
             </div>
 
-            <div className="flex items-center gap-3 text-[11px] text-[#1f1f1f]/40 font-medium">
-                <div className="flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
-                    {lead.phone}
-                </div>
+            {/* Phone */}
+            <div className="flex items-center gap-1.5 text-[11px] text-foreground/35 font-medium">
+                <Phone className="h-3 w-3" />
+                <span>{lead.phone}</span>
             </div>
 
+            {/* Assigned BDA badge */}
             {lead.assignedTo && (
-                <div className="mt-3 flex items-center gap-2 px-2 py-1.5 rounded-lg bg-[#f6f7ed] border border-black/[0.04]">
-                    <div className="h-5 w-5 rounded-full bg-[#1f1f1f] flex items-center justify-center text-[7px] font-bold text-white">
-                        {lead.assignedTo.split(" ").map(n => n[0]).join("")}
+                <div className="mt-2 flex items-center gap-2 px-2 py-1.5 rounded-lg bg-muted/60 dark:bg-muted/40">
+                    <div className={`h-5 w-5 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0 ${lead.assignedToColor || "bg-primary text-primary-foreground"}`}>
+                        {lead.assignedToInitials || lead.assignedTo.split(" ").map(n => n[0]).join("")}
                     </div>
-                    <span className="text-[10px] font-medium text-[#1f1f1f]/70 truncate">{lead.assignedTo}</span>
+                    <span className="text-[10px] font-medium text-foreground/50 truncate">{lead.assignedTo}</span>
                 </div>
             )}
 
-            <div className="flex items-center justify-between mt-4">
-                <span className="text-[10px] text-[#1f1f1f]/25 font-medium flex items-center gap-1.5">
-                    <Clock className="h-3 w-3" />
+            {/* Footer: time + assign */}
+            <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-border/30">
+                <span className="text-[10px] text-foreground/25 font-medium flex items-center gap-1">
+                    <Clock className="h-2.5 w-2.5" />
                     {timeAgo(lead.created_at)}
                 </span>
                 {onAssign && (
                     <button
                         onClick={(e) => { e.stopPropagation(); onAssign(lead); }}
-                        className="flex items-center gap-1.5 text-[10px] font-semibold text-[#1f1f1f]/50 hover:text-[#1f1f1f] transition-all"
+                        className={`flex items-center gap-1 text-[10px] font-semibold rounded-md px-2 py-1 transition-all duration-150 ${
+                            lead.assignedTo
+                                ? "text-foreground/30 opacity-0 group-hover/card:opacity-100 hover:!text-primary hover:!bg-primary/10"
+                                : "text-primary bg-primary/[0.06] hover:bg-primary/10"
+                        }`}
                     >
-                        <UserCheck className="h-3 w-3" />
+                        <UserCheck className="h-2.5 w-2.5" />
                         {lead.assignedTo ? "Reassign" : "Assign"}
                     </button>
                 )}
@@ -140,33 +183,21 @@ const LeadCardContent = ({ lead, onAssign, isDragOverlay = false }: { lead: Lead
 
 // ─── Draggable Lead Card ──────────────────────────────────────────────────────
 
-const DraggableLead = ({ lead, onAssign }: { lead: Lead; onAssign: (lead: Lead) => void }) => {
-    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: lead.id });
+const DraggableLead = ({ lead, onAssign, onViewDetail }: { lead: Lead; onAssign: (lead: Lead) => void; onViewDetail: (lead: Lead) => void }) => {
+    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: lead.id });
 
     return (
         <div
             ref={setNodeRef}
-            style={{
-                transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-                opacity: isDragging ? 0.3 : 1,
-                transition: isDragging ? undefined : "opacity 200ms ease",
-            }}
+            {...attributes}
+            {...listeners}
+            className={`cursor-grab active:cursor-grabbing touch-none outline-none rounded-[10px] transition-all duration-150 ${
+                isDragging
+                    ? "opacity-0 scale-[0.98] h-0 overflow-hidden p-0 m-0 border-0"
+                    : "opacity-100 hover:-translate-y-0.5"
+            }`}
         >
-            <div className="cursor-grab active:cursor-grabbing">
-                <div className="flex items-start gap-3">
-                    {/* Drag handle */}
-                    <button
-                        {...attributes}
-                        {...listeners}
-                        className="mt-5 text-[#1f1f1f]/15 hover:text-[#1f1f1f]/40 transition-colors cursor-grab active:cursor-grabbing touch-none shrink-0"
-                    >
-                        <GripVertical className="h-4 w-4" />
-                    </button>
-                    <div className="flex-1 min-w-0">
-                        <LeadCardContent lead={lead} onAssign={onAssign} />
-                    </div>
-                </div>
-            </div>
+            <LeadCardContent lead={lead} onAssign={isDragging ? undefined : onAssign} onViewDetail={isDragging ? undefined : onViewDetail} />
         </div>
     );
 };
@@ -175,44 +206,61 @@ const DraggableLead = ({ lead, onAssign }: { lead: Lead; onAssign: (lead: Lead) 
 
 interface KanbanColumnProps {
     colId: DbLeadStatus;
-    label: string;
-    color: string;
-    bg: string;
-    border: string;
-    dot: string;
+    dropBg: string;
     leads: Lead[];
     onAssign: (lead: Lead) => void;
+    onViewDetail: (lead: Lead) => void;
 }
 
-const KanbanColumn = ({ colId, label, color, bg, border, dot, leads, onAssign }: KanbanColumnProps) => {
+// ─── Column Header (rendered in sticky row) ──────────────────────────────────
+
+const KanbanColumnHeader = ({ color, headerBg, border, dot, label, count }: {
+    color: string; headerBg: string; border: string; dot: string; label: string; count: number;
+}) => (
+    <div className={`flex items-center justify-between px-4 py-2.5 rounded-lg border ${headerBg} ${border} shadow-[0_1px_2px_rgba(0,0,0,0.03)]`}>
+        <div className="flex items-center gap-2.5">
+            <div className="relative flex items-center justify-center h-4 w-4">
+                <span className={`absolute inset-0 rounded-full ${dot} opacity-15`} />
+                <span className={`h-2 w-2 rounded-full ${dot}`} />
+            </div>
+            <span className={`text-sm font-semibold tracking-tight ${color}`}>{label}</span>
+        </div>
+        <span className={`text-xs font-bold tabular-nums min-w-[24px] text-center py-0.5 px-1.5 rounded-md bg-foreground/[0.05] ${color}`}>
+            {count}
+        </span>
+    </div>
+);
+
+// ─── Column Cards (droppable area) ───────────────────────────────────────────
+
+const KanbanColumn = ({ colId, dropBg, leads, onAssign, onViewDetail }: KanbanColumnProps) => {
     const { setNodeRef, isOver } = useDroppable({ id: colId });
 
     return (
         <div
             ref={setNodeRef}
-            className={`flex flex-col rounded-xl border transition-all duration-200 min-h-0 h-full ${bg} ${border} ${isOver ? "ring-2 ring-[#1f1f1f]/20 border-[#1f1f1f]/20 shadow-md" : ""}`}
-            style={{ minWidth: "240px" }}
+            className={`flex flex-col rounded-xl transition-all duration-200 flex-1 ${dropBg} ${
+                isOver
+                    ? "ring-2 ring-primary/25 bg-primary/[0.04] shadow-lg shadow-primary/5"
+                    : ""
+            }`}
         >
-            {/* Column Header */}
-            <div className="flex items-center justify-between px-3 py-2.5 border-b border-black/[0.06] shrink-0">
-                <div className="flex items-center gap-2">
-                    <span className={`h-2 w-2 rounded-full ${dot}`} />
-                    <span className={`text-xs font-semibold ${color}`}>{label}</span>
-                </div>
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full bg-black/[0.04] ${color}`}>
-                    {leads.length}
-                </span>
-            </div>
-
-            {/* Leads */}
-            <div className="flex flex-col gap-2 p-2 flex-1 overflow-y-auto overflow-x-hidden min-h-0 scroll-container">
+            {/* Leads — grows naturally */}
+            <div className="flex flex-col gap-2 p-1.5 flex-1">
                 {leads.length === 0 && (
-                    <div className={`flex flex-col items-center justify-center py-8 text-center rounded-lg border-2 border-dashed transition-colors ${isOver ? "border-[#1f1f1f]/30 bg-[#f6f7ed]/50" : "border-black/[0.06]"}`}>
-                        <p className="text-[11px] text-[#1f1f1f]/30">Drop leads here</p>
+                    <div className={`flex flex-col items-center justify-center py-10 flex-1 min-h-[100px] text-center rounded-lg border border-dashed transition-all duration-200 ${
+                        isOver
+                            ? "border-primary/40 bg-primary/[0.04]"
+                            : "border-foreground/[0.06]"
+                    }`}>
+                        <div className="text-foreground/15 mb-1">
+                            <TrendingUp className="h-5 w-5 mx-auto" />
+                        </div>
+                        <p className="text-[11px] text-foreground/25 font-medium">{isOver ? "Drop here" : "No leads yet"}</p>
                     </div>
                 )}
                 {leads.map((lead) => (
-                    <DraggableLead key={lead.id} lead={lead} onAssign={onAssign} />
+                    <DraggableLead key={lead.id} lead={lead} onAssign={onAssign} onViewDetail={onViewDetail} />
                 ))}
             </div>
         </div>
@@ -224,7 +272,7 @@ const KanbanColumn = ({ colId, label, color, bg, border, dot, leads, onAssign }:
 interface AssignSheetProps {
     lead: Lead | null;
     bdas: BDA[];
-    onAssign: (leadId: string, bdaId: string | null) => void;
+    onAssign: (leadId: string, userId: string | null) => void;
     onClose: () => void;
 }
 
@@ -245,26 +293,26 @@ const AssignSheet = ({ lead, bdas, onAssign, onClose }: AssignSheetProps) => {
                     />
                     {/* Sheet */}
                     <div
-                        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm rounded-2xl bg-white border border-black/[0.06] p-5 shadow-xl"
+                        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm rounded-2xl bg-card border border-border p-5 shadow-xl"
                     >
                         <div className="flex items-start justify-between mb-4">
                             <div>
-                                <p className="text-sm font-semibold text-[#1f1f1f]">Assign Lead</p>
-                                <p className="text-xs text-[#1f1f1f]/40 mt-0.5">{lead.name} · {lead.phone}</p>
+                                <p className="text-sm font-semibold text-foreground">Assign Lead</p>
+                                <p className="text-xs text-foreground/40 mt-0.5">{lead.name} · {lead.phone}</p>
                             </div>
-                            <button onClick={onClose} className="h-7 w-7 rounded-lg bg-[#f4f4f4] flex items-center justify-center text-[#1f1f1f]/40 hover:text-[#1f1f1f] transition-colors">
+                            <button onClick={onClose} className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors">
                                 <X className="h-3.5 w-3.5" />
                             </button>
                         </div>
 
                         {/* Search */}
                         <div className="relative mb-3">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#1f1f1f]/25 pointer-events-none" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/25 pointer-events-none" />
                             <input
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search BDA..."
-                                className="w-full h-9 pl-9 pr-3 bg-[#f4f4f4] border border-black/[0.06] rounded-lg text-xs text-[#1f1f1f] placeholder:text-[#1f1f1f]/25 focus:outline-none focus:ring-2 focus:ring-[#1f1f1f]/10 transition-all"
+                                className="w-full h-9 pl-9 pr-3 bg-muted border border-border rounded-lg text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 transition-all"
                                 autoFocus
                             />
                         </div>
@@ -275,19 +323,19 @@ const AssignSheet = ({ lead, bdas, onAssign, onClose }: AssignSheetProps) => {
                                 <button
                                     key={bda.id}
                                     onClick={() => { onAssign(lead.id, bda.id); onClose(); }}
-                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-left group hover:border-[#1f1f1f]/15 hover:bg-[#f6f7ed]/50 ${lead.assigned_to === bda.id ? "border-[#1f1f1f]/20 bg-[#f6f7ed]" : "border-black/[0.04] bg-white"}`}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-left group hover:border-foreground/15 hover:bg-accent/50 ${lead.assigned_to === bda.id ? "border-foreground/20 bg-accent" : "border-foreground/[0.04] bg-card"}`}
                                 >
                                     <div className={`h-8 w-8 rounded-full ${bda.avatarColor} flex items-center justify-center text-[10px] font-bold shrink-0`}>
                                         {bda.initials}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-xs font-medium text-[#1f1f1f]">{bda.name}</p>
+                                        <p className="text-xs font-medium text-foreground">{bda.name}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full border ${statusBDACfg[bda.status]}`}>
                                             {bda.status}
                                         </span>
-                                        {lead.assigned_to === bda.id && <Check className="h-3.5 w-3.5 text-[#1f1f1f]" />}
+                                        {lead.assigned_to === bda.id && <Check className="h-3.5 w-3.5 text-foreground" />}
                                     </div>
                                 </button>
                             ))}
@@ -297,7 +345,7 @@ const AssignSheet = ({ lead, bdas, onAssign, onClose }: AssignSheetProps) => {
                         {lead.assigned_to && (
                             <button
                                 onClick={() => { onAssign(lead.id, null); onClose(); }}
-                                className="mt-3 w-full flex items-center justify-center gap-2 py-2 text-xs text-[#1f1f1f]/40 hover:text-red-500 transition-colors border border-dashed border-black/[0.06] rounded-xl hover:border-red-300"
+                                className="mt-3 w-full flex items-center justify-center gap-2 py-2 text-xs text-foreground/40 hover:text-red-500 transition-colors border border-dashed border-border rounded-xl hover:border-red-300"
                             >
                                 <AlertCircle className="h-3 w-3" />
                                 Remove assignment
@@ -317,65 +365,162 @@ const AdminLeads = () => {
     const { members: teamMembers, loading: loadingUsers } = useTeam();
 
     const [search, setSearch] = useState("");
-    const [selectedBdas, setSelectedBdas] = useState<string[]>([]);
+    const [bdaSearch, setBdaSearch] = useState("");
+    const [selectedBdas, setSelectedBdas] = useState<Set<string>>(new Set());
     const [activeId, setActiveId] = useState<string | null>(null);
     const [assigningLead, setAssigningLead] = useState<Lead | null>(null);
-    const [filterOpen, setFilterOpen] = useState(false);
-    const [filterSearch, setFilterSearch] = useState("");
+    const [viewingLead, setViewingLead] = useState<Lead | null>(null);
     const [addLeadOpen, setAddLeadOpen] = useState(false);
-    const [filterStatus, setFilterStatus] = useState<"all" | DbLeadStatus>("all");
-    const filterRef = useRef<HTMLDivElement>(null);
 
-    // Listen for global "open-add-lead-modal" event (from GlobalSearch)
+    // Drag-to-scroll for Team Workload pills
+    const workloadRef = useRef<HTMLDivElement>(null);
+    const isDraggingScroll = useRef(false);
+    const dragStartX = useRef(0);
+    const scrollStartX = useRef(0);
+    const hasDragged = useRef(false);
+    const pointerId = useRef<number | null>(null);
+
+    const handleWorkloadPointerDown = useCallback((e: React.PointerEvent) => {
+        // Only handle primary button (left click / touch)
+        if (e.button !== 0) return;
+        const el = workloadRef.current;
+        if (!el) return;
+        isDraggingScroll.current = true;
+        hasDragged.current = false;
+        dragStartX.current = e.clientX;
+        scrollStartX.current = el.scrollLeft;
+        pointerId.current = e.pointerId;
+    }, []);
+
+    const handleWorkloadPointerMove = useCallback((e: React.PointerEvent) => {
+        if (!isDraggingScroll.current || !workloadRef.current) return;
+        const dx = e.clientX - dragStartX.current;
+        if (!hasDragged.current && Math.abs(dx) > 3) {
+            hasDragged.current = true;
+            // Start capturing only once actual drag is detected
+            const el = workloadRef.current;
+            if (el && pointerId.current !== null) {
+                el.setPointerCapture(pointerId.current);
+                el.style.cursor = "grabbing";
+                el.style.userSelect = "none";
+            }
+        }
+        if (hasDragged.current) {
+            workloadRef.current.scrollLeft = scrollStartX.current - dx;
+        }
+    }, []);
+
+    const handleWorkloadPointerUp = useCallback((e: React.PointerEvent) => {
+        if (!isDraggingScroll.current) return;
+        isDraggingScroll.current = false;
+        const el = workloadRef.current;
+        if (el && hasDragged.current) {
+            try { el.releasePointerCapture(e.pointerId); } catch { /* already released */ }
+            el.style.cursor = "grab";
+            el.style.userSelect = "";
+        }
+        pointerId.current = null;
+    }, []);
+
+    // Mouse wheel → horizontal scroll (like VS Code tab bar)
+    const handleWorkloadWheel = useCallback((e: React.WheelEvent) => {
+        const el = workloadRef.current;
+        if (!el) return;
+        // If there's meaningful vertical delta, convert it to horizontal scroll
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            e.preventDefault();
+            el.scrollLeft += e.deltaY;
+        }
+    }, []);
+
+    // Listen for global "open-add-lead-modal" event (from QuickActions / GlobalSearch)
     useEffect(() => {
+        // Check for pending action stored before navigation
+        const pending = sessionStorage.getItem("dialflow_pending_action");
+        if (pending === "open-add-lead-modal") {
+            sessionStorage.removeItem("dialflow_pending_action");
+            setAddLeadOpen(true);
+        }
+
         const handler = () => setAddLeadOpen(true);
         window.addEventListener("open-add-lead-modal", handler);
         return () => window.removeEventListener("open-add-lead-modal", handler);
     }, []);
 
     // Map DB leads to component Lead interface
-    const leads = useMemo(() => leadsData.map(l => ({
-        ...l,
-        assignedTo: teamMembers.find(m => m.id === l.assigned_to)?.name || null
-    })) as Lead[], [leadsData, teamMembers]);
+    const leads = useMemo(() => leadsData.map(l => {
+        const member = teamMembers.find(m => m.id === l.assigned_to);
+        return {
+            ...l,
+            assignedTo: member?.name || null,
+            assignedToColor: member ? getAvatarClasses(member.avatarColor, member.id) : null,
+            assignedToInitials: member ? getInitials(member.name || "U") : null,
+        };
+    }) as Lead[], [leadsData, teamMembers]);
+
+    // Open detail popup when navigated from GlobalSearch
+    // Handles both cross-page (sessionStorage on data load) and same-page (custom event)
+    const openPendingLeadDetail = useCallback((targetId: string) => {
+        if (!targetId || leads.length === 0) return;
+        const found = leads.find(l => l.id === targetId);
+        if (found) {
+            sessionStorage.removeItem("dialflow_pending_action");
+            sessionStorage.removeItem("dialflow_pending_detail_id");
+            setViewingLead(found);
+        }
+    }, [leads]);
+
+    // Cross-page: check sessionStorage when leads become available
+    useEffect(() => {
+        const pending = sessionStorage.getItem("dialflow_pending_action");
+        if (pending === "open-lead-detail" && leads.length > 0) {
+            const targetId = sessionStorage.getItem("dialflow_pending_detail_id");
+            if (targetId) openPendingLeadDetail(targetId);
+        }
+    }, [leads, openPendingLeadDetail]);
+
+    // Same-page: listen for custom event from GlobalSearch
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const { type, id } = (e as CustomEvent).detail || {};
+            if (type === "leads" && id) openPendingLeadDetail(id);
+        };
+        window.addEventListener("dialflow-open-detail", handler);
+        return () => window.removeEventListener("dialflow-open-detail", handler);
+    }, [openPendingLeadDetail]);
 
     const bdas = useMemo(() => teamMembers.map(m => ({
         id: m.id,
-        name: m.name || "Unknown BDA",
+        name: m.name || "Unknown",
         initials: getInitials(m.name || "U"),
-        status: m.status || ("active" as const),
-        avatarColor: getAvatarColor(m.id)
+        status: (m.isActive ? "active" : "offline") as "active" | "idle" | "offline",
+        avatarColor: getAvatarClasses(m.avatarColor, m.id)
     })) as BDA[], [teamMembers]);
 
-    useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
-                setFilterOpen(false);
-                setFilterSearch("");
-            }
-        };
-        document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
-    }, []);
-
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-        useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } }),
     );
 
     const handleDragStart = (event: DragStartEvent) => {
         setActiveId(event.active.id as string);
     };
 
-    const handleAssign = useCallback((leadId: string, bdaId: string | null) => {
+    const handleAssign = useCallback((leadId: string, userId: string | null) => {
+        const lead = leads.find(l => l.id === leadId);
+        const bda = bdas.find(b => b.id === userId);
         assignLead(
-            { leadId, bdaId },
+            { leadId, userId },
             {
-                onSuccess: () => toast.success(bdaId ? "Lead assigned" : "Assignment removed"),
-                onError: (err: any) => toast.error(err?.message || "Failed to assign lead"),
+                onSuccess: () => toast.success(
+                    userId
+                        ? `"${lead?.name || 'Lead'}" assigned to ${bda?.name || 'member'}`
+                        : `"${lead?.name || 'Lead'}" unassigned`
+                ),
+                onError: (err: any) => toast.error(err?.message || `Failed to assign "${lead?.name || 'lead'}"`),
             },
         );
-    }, [assignLead]);
+    }, [assignLead, leads, bdas]);
 
     const handleDragEnd = useCallback((event: DragEndEvent) => {
         const { active, over } = event;
@@ -395,33 +540,65 @@ const AdminLeads = () => {
 
         if (!newStatus || newStatus === draggedLead.status) return;
 
+        const statusLabel = columns.find(c => c.id === newStatus)?.label || newStatus;
+
         updateStatus(
             { leadId, status: newStatus },
             {
-                onSuccess: () => toast.success(`Moved to ${newStatus}`),
-                onError: (err: any) => toast.error(err?.message || "Failed to update status"),
+                onSuccess: () => toast.success(`"${draggedLead.name}" moved to ${statusLabel}`),
+                onError: (err: any) => toast.error(err?.message || `Failed to move "${draggedLead.name}"`),
             },
         );
     }, [leads, updateStatus]);
 
-    const filteredLeads = leads.filter(l => {
-        const matchesSearch = l.name.toLowerCase().includes(search.toLowerCase()) || l.phone.includes(search);
-        const matchesBda = selectedBdas.length === 0 || (l.assigned_to && selectedBdas.includes(l.assigned_to));
-        const matchesStatus = filterStatus === "all" || l.status === filterStatus;
-        return matchesSearch && matchesBda && matchesStatus;
-    });
+    const filteredLeads = useMemo(() => {
+        const q = search.toLowerCase();
+        return leads.filter(l => {
+            const matchesSearch = !q || l.name.toLowerCase().includes(q) || l.phone.includes(search);
+            const matchesBda = selectedBdas.size === 0 || (l.assigned_to && selectedBdas.has(l.assigned_to)) || (selectedBdas.has("__unassigned__") && !l.assigned_to);
+            return matchesSearch && matchesBda;
+        });
+    }, [leads, search, selectedBdas]);
+
+    // Stats — memoised to avoid re-computation on unrelated state changes
+    const { unassigned, avgLoad } = useMemo(() => {
+        let unassignedCount = 0;
+        let assignedCount = 0;
+        for (const l of leads) {
+            if (l.assigned_to === null) unassignedCount++;
+            else assignedCount++;
+        }
+        return {
+            totalLeads: leads.length,
+            unassigned: unassignedCount,
+            activeBdas: bdas.length,
+            avgLoad: bdas.length > 0 ? Math.round(assignedCount / bdas.length) : 0,
+        };
+    }, [leads, bdas]);
+
+    // BDA workload — pre-compute lead counts in one pass then sort
+    const bdaWorkload = useMemo(() => {
+        const countMap = new Map<string, number>();
+        for (const l of leads) {
+            if (l.assigned_to) countMap.set(l.assigned_to, (countMap.get(l.assigned_to) || 0) + 1);
+        }
+        return bdas.map(bda => ({
+            ...bda,
+            leadCount: countMap.get(bda.id) || 0,
+        })).sort((a, b) => a.leadCount - b.leadCount);
+    }, [bdas, leads]);
+
+    const filteredBdaWorkload = useMemo(() => {
+        if (!bdaSearch.trim()) return bdaWorkload;
+        const q = bdaSearch.toLowerCase();
+        return bdaWorkload.filter(bda => bda.name.toLowerCase().includes(q));
+    }, [bdaWorkload, bdaSearch]);
 
     if (loadingLeads || loadingUsers) {
-        return <div className="p-12 text-center text-[#1f1f1f]/40">Loading leads...</div>;
+        return <AdminLeadsSkeleton />;
     }
 
     const activeLead = activeId ? leads.find((l) => l.id === activeId) : null;
-
-    // Stats
-    const totalLeads = leads.length;
-    const unassigned = leads.filter((l) => l.assigned_to === null).length;
-    const closed = leads.filter((l) => l.status === "closed").length;
-    const interested = leads.filter((l) => l.status === "interested").length;
 
     return (
         <DndContext
@@ -433,230 +610,225 @@ const AdminLeads = () => {
             <div className="flex flex-col h-full min-h-0">
 
                 <div className="shrink-0">
-                    <div className="mb-6">
-                        {/* Page Title */}
-                        <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
-                            <div>
-                                <h2 className="text-xl font-semibold text-[#1f1f1f] tracking-tight">Lead Management</h2>
-                                <p className="text-sm text-[#1f1f1f]/40 mt-1">Drag leads across columns or assign to BDAs</p>
+                    {/* ── Compact header: title + search + add ── */}
+                    <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                            <div className="min-w-0">
+                                <h2 className="text-lg font-semibold text-foreground tracking-tight">Lead Management</h2>
+                                <p className="text-xs text-foreground/40 mt-0.5">Drag leads between stages or assign to BDAs</p>
                             </div>
-                            <button
-                                onClick={() => setAddLeadOpen(true)}
-                                className="h-10 px-4 rounded-xl bg-[#1f1f1f] text-white text-xs font-semibold flex items-center gap-2 hover:bg-[#1f1f1f]/90 transition-all shrink-0"
-                            >
-                                <Plus className="h-4 w-4" />
-                                <span className="hidden sm:inline">Add Lead</span>
-                            </button>
                         </div>
-
-                        {/* Quick Stats Strip */}
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                            {[
-                                { label: "Total Leads", value: totalLeads, icon: Users, color: "text-[#1f1f1f]", bg: "bg-[#f6f7ed]" },
-                                { label: "Unassigned", value: unassigned, icon: AlertCircle, color: "text-amber-600", bg: "bg-amber-50" },
-                                { label: "Interested", value: interested, icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50" },
-                                { label: "Closed", value: closed, icon: Check, color: "text-purple-600", bg: "bg-purple-50" },
-                            ].map((stat) => (
-                                <div
-                                    key={stat.label}
-                                    className="surface-card p-4 flex items-center gap-4"
-                                >
-                                    <div className={`h-10 w-10 rounded-xl ${stat.bg} flex items-center justify-center shrink-0`}>
-                                        <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                                    </div>
-                                    <div>
-                                        <p className="text-2xl font-semibold tracking-tight leading-none mb-1 text-[#1f1f1f]">{stat.value}</p>
-                                        <p className="text-[10px] text-[#1f1f1f]/30 font-medium uppercase tracking-wider leading-tight">{stat.label}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* ── Search + Filter Bar ────────────────────────────────── */}
-                        <div className="flex items-center gap-3 flex-wrap mb-5">
+                        <div className="flex items-center gap-2.5">
                             {/* Search */}
-                            <div className="relative group flex-1 min-w-[200px] max-w-xs">
-                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#1f1f1f]/25 group-focus-within:text-[#1f1f1f] transition-colors pointer-events-none" />
+                            <div className="relative group">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/25 group-focus-within:text-foreground transition-colors pointer-events-none" />
                                 <input
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Search by name, phone…"
-                                    className="h-10 w-full pl-10 pr-4 bg-white border border-black/[0.06] rounded-xl text-xs text-[#1f1f1f] placeholder:text-[#1f1f1f]/25 focus:outline-none focus:ring-2 focus:ring-[#1f1f1f]/10 focus:border-[#1f1f1f]/15 transition-all"
+                                    placeholder="Search leads…"
+                                    className="h-9 w-48 lg:w-56 pl-9 pr-3 bg-card border border-border rounded-lg text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all"
                                 />
                             </div>
-
-                            {/* Status filter pills */}
-                            <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
-                                <Filter className="h-3.5 w-3.5 text-[#1f1f1f]/25 shrink-0" />
-                                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                                {(["all", "new", "contacted", "interested", "closed"] as ("all" | DbLeadStatus)[]).map(s => (
-                                    <button
-                                        key={s}
-                                        onClick={() => setFilterStatus(s)}
-                                        className={`h-8 px-3 rounded-lg text-[11px] font-semibold capitalize border transition-all whitespace-nowrap shrink-0 ${
-                                            filterStatus === s
-                                                ? "bg-[#1f1f1f] text-white border-[#1f1f1f]"
-                                                : "bg-white text-[#1f1f1f]/45 border-black/[0.06] hover:border-[#1f1f1f]/15 hover:text-[#1f1f1f]"
-                                        }`}
-                                    >
-                                        {s === "all" ? `All (${totalLeads})` : `${s} (${leads.filter(l => l.status === s).length})`}
-                                    </button>
-                                ))}
-                                </div>
-                            </div>
+                            <button
+                                onClick={() => setAddLeadOpen(true)}
+                                className="h-9 px-3.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1.5 hover:bg-primary/90 transition-all shrink-0"
+                            >
+                                <Plus className="h-3.5 w-3.5" />
+                                <span className="hidden sm:inline">Add Lead</span>
+                            </button>
                         </div>
+                    </div>
 
-                        {/* ── Assignee Filter ───────── */}
-                        <div className="flex items-center gap-3 mb-5" ref={filterRef}>
-                            <span className="text-[11px] font-medium text-[#1f1f1f]/40 shrink-0 select-none">Assignee</span>
+                    {/* ── Team Workload Strip ── */}
+                    <div className="mb-4 min-w-0">
+                        <p className="text-[10px] font-medium uppercase tracking-wider text-foreground/30 mb-2">Team Workload · click to filter</p>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                                {/* BDA search — fixed, does not scroll */}
+                                <div className="relative shrink-0 group">
+                                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/25 group-focus-within:text-foreground transition-colors pointer-events-none" />
+                                    <input
+                                        value={bdaSearch}
+                                        onChange={(e) => setBdaSearch(e.target.value)}
+                                        placeholder="Find member…"
+                                        className={`h-9 w-28 sm:w-36 pl-8 ${bdaSearch ? "pr-7" : "pr-2.5"} bg-card border border-border rounded-xl text-[11px] text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all`}
+                                    />
+                                    {bdaSearch && (
+                                        <button
+                                            onClick={() => setBdaSearch("")}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-foreground/10 hover:bg-foreground/20 flex items-center justify-center transition-colors"
+                                        >
+                                            <X className="h-2.5 w-2.5 text-foreground/50" />
+                                        </button>
+                                    )}
+                                </div>
 
-                            <div className="flex items-center -space-x-1">
-                                {bdas.slice(0, 6).map((bda) => {
-                                    const isActive = selectedBdas.includes(bda.id);
-                                    const count = leads.filter(l => l.assigned_to === bda.id).length;
+                                <div className="h-6 w-px bg-border shrink-0" />
+
+                                {/* Scrollable pills area — drag or mouse-wheel to scroll */}
+                                <div
+                                    ref={workloadRef}
+                                    onPointerDown={handleWorkloadPointerDown}
+                                    onPointerMove={handleWorkloadPointerMove}
+                                    onPointerUp={handleWorkloadPointerUp}
+                                    onPointerCancel={handleWorkloadPointerUp}
+                                    onWheel={handleWorkloadWheel}
+                                    className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 no-scrollbar cursor-grab flex-1 min-w-0"
+                                    style={{ touchAction: "pan-y" }}
+                                >
+                                    {/* Unassigned pill — hidden when searching BDAs */}
+                                    {!bdaSearch.trim() && (
+                                        <>
+                                            <button
+                                                onClick={() => { if (hasDragged.current) return; setSelectedBdas(prev => { const next = new Set(prev); if (next.has("__unassigned__")) next.delete("__unassigned__"); else next.add("__unassigned__"); return next; }); }}
+                                                className={`shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl border transition-all ${
+                                                    selectedBdas.has("__unassigned__")
+                                                        ? "border-amber-400 bg-amber-50 dark:bg-amber-950/30 ring-1 ring-amber-300"
+                                                        : "border-border bg-card hover:border-foreground/15"
+                                                }`}
+                                            >
+                                                <div className="h-6 w-6 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                                                    <AlertCircle className="h-3 w-3 text-amber-500" />
+                                                </div>
+                                                <div className="text-left">
+                                                    <p className="text-[11px] font-semibold text-foreground leading-none">{unassigned}</p>
+                                                    <p className="text-[9px] text-foreground/30 font-medium leading-tight mt-0.5">Unassigned</p>
+                                                </div>
+                                            </button>
+
+                                            <div className="h-6 w-px bg-border shrink-0" />
+                                        </>
+                                    )}
+
+                                    {/* BDA workload pills — sorted least loaded first */}
+                                    {filteredBdaWorkload.map((bda) => {
+                                    const isSelected = selectedBdas.has(bda.id);
+                                    const loadLevel = bda.leadCount === 0 ? "free" : bda.leadCount <= avgLoad ? "normal" : "heavy";
                                     return (
                                         <button
                                             key={bda.id}
-                                            title={`${bda.name} · ${count} lead${count !== 1 ? "s" : ""}`}
-                                            onClick={() => setSelectedBdas(prev => isActive ? prev.filter(id => id !== bda.id) : [...prev, bda.id])}
-                                            className={`relative h-7 w-7 rounded-full ${bda.avatarColor} flex items-center justify-center text-[9px] font-bold transition-all duration-150 focus:outline-none ${isActive
-                                                ? "ring-2 ring-[#1f1f1f] ring-offset-2 ring-offset-[#f4f4f4] scale-110 z-10"
-                                                : "opacity-70 hover:opacity-100 hover:scale-110 hover:z-10 ring-2 ring-white"
-                                                }`}
+                                            onClick={() => { if (hasDragged.current) return; setSelectedBdas(prev => { const next = new Set(prev); if (next.has(bda.id)) next.delete(bda.id); else next.add(bda.id); return next; }); }}
+                                            className={`shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl border transition-all ${
+                                                isSelected
+                                                    ? "border-foreground/25 bg-accent ring-1 ring-foreground/10"
+                                                    : "border-border bg-card hover:border-foreground/15"
+                                            }`}
                                         >
-                                            {bda.initials}
-                                            <span className={`absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border border-white ${bda.status === "active" ? "bg-emerald-400" : bda.status === "idle" ? "bg-amber-400" : "bg-gray-300"
+                                            <div className="relative">
+                                                <div className={`h-6 w-6 rounded-full ${bda.avatarColor} flex items-center justify-center text-[8px] font-bold shrink-0`}>
+                                                    {bda.initials}
+                                                </div>
+                                                <span className={`absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border-2 border-card ${
+                                                    bda.status === "active" ? "bg-emerald-400" : bda.status === "idle" ? "bg-amber-400" : "bg-gray-300 dark:bg-gray-600"
                                                 }`} />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="text-[11px] font-semibold text-foreground leading-none">
+                                                    {bda.leadCount}
+                                                    <span className={`ml-1 text-[9px] font-medium ${
+                                                        loadLevel === "free" ? "text-emerald-500" : loadLevel === "heavy" ? "text-amber-500" : "text-foreground/30"
+                                                    }`}>
+                                                        {loadLevel === "free" ? "free" : loadLevel === "heavy" ? "heavy" : ""}
+                                                    </span>
+                                                </p>
+                                                <p className="text-[9px] text-foreground/30 font-medium leading-tight mt-0.5 max-w-[72px] truncate">{bda.name.split(" ")[0]}</p>
+                                            </div>
                                         </button>
                                     );
                                 })}
 
-                                {bdas.length > 6 && (() => {
-                                    const overflow = bdas.slice(6);
-                                    const overflowActive = overflow.some(b => selectedBdas.includes(b.id));
-                                    return (
-                                        <div className="relative ml-1">
-                                            <button
-                                                onClick={() => setFilterOpen(v => !v)}
-                                                className={`h-7 px-2 rounded-full text-[10px] font-semibold transition-all ring-2 ring-white ${overflowActive
-                                                    ? "bg-[#1f1f1f] text-white ring-[#1f1f1f] scale-105"
-                                                    : "bg-[#f4f4f4] text-[#1f1f1f]/50 hover:bg-[#f6f7ed] hover:text-[#1f1f1f]"
-                                                    }`}
-                                            >
-                                                +{overflow.length}
-                                            </button>
-                                            {filterOpen && (() => {
-                                                const filteredOverflow = overflow.filter(b =>
-                                                    b.name.toLowerCase().includes(filterSearch.toLowerCase())
-                                                );
-                                                return (
-                                                    <div
-                                                        className="absolute left-0 top-full mt-2 z-50 w-56 bg-white border border-black/[0.06] rounded-xl shadow-lg overflow-hidden"
-                                                    >
-                                                        {/* Search */}
-                                                        <div className="p-2 border-b border-black/[0.06]">
-                                                            <div className="relative">
-                                                                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-[#1f1f1f]/25 pointer-events-none" />
-                                                                <input
-                                                                    value={filterSearch}
-                                                                    onChange={(e) => setFilterSearch(e.target.value)}
-                                                                    placeholder="Search BDA…"
-                                                                    className="w-full h-7 pl-7 pr-2 bg-[#f4f4f4] border border-black/[0.06] rounded-lg text-[11px] text-[#1f1f1f] placeholder:text-[#1f1f1f]/25 focus:outline-none focus:ring-1 focus:ring-[#1f1f1f]/10 transition-all"
-                                                                    autoFocus
-                                                                    onClick={(e) => e.stopPropagation()}
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        {/* List */}
-                                                        <div className="p-1 max-h-64 overflow-y-auto scroll-container">
-                                                            {filteredOverflow.length === 0 && (
-                                                                <p className="text-[11px] text-[#1f1f1f]/30 text-center py-4">No results</p>
-                                                            )}
-                                                            {filteredOverflow.map(bda => {
-                                                                const isActive = selectedBdas.includes(bda.id);
-                                                                const count = leads.filter(l => l.assigned_to === bda.id).length;
-                                                                return (
-                                                                    <button
-                                                                        key={bda.id}
-                                                                        onClick={() => { setSelectedBdas(prev => isActive ? prev.filter(id => id !== bda.id) : [...prev, bda.id]); }}
-                                                                        className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-colors ${isActive ? "bg-[#f6f7ed] text-[#1f1f1f]" : "text-[#1f1f1f] hover:bg-[#f4f4f4]"
-                                                                            }`}
-                                                                    >
-                                                                        <div className={`h-6 w-6 rounded-full ${bda.avatarColor} flex items-center justify-center text-[8px] font-bold shrink-0`}>
-                                                                            {bda.initials}
-                                                                        </div>
-                                                                        <span className="flex-1 text-left font-medium truncate">{bda.name}</span>
-                                                                        <span className="text-[10px] text-[#1f1f1f]/30">{count}</span>
-                                                                        {isActive && <Check className="h-3 w-3 text-[#1f1f1f]" />}
-                                                                    </button>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })()}
-                                        </div>
-                                    );
-                                })()}
-                            </div>
+                                    {/* No results message */}
+                                    {bdaSearch.trim() && filteredBdaWorkload.length === 0 && (
+                                        <p className="shrink-0 text-[11px] text-foreground/30 italic px-2">No match</p>
+                                    )}
+                                </div>
 
-                            {selectedBdas.length > 0 && (
-                                <>
-                                    <span className="text-black/[0.06] select-none">|</span>
+                                {/* Clear filter — fixed outside scroll area */}
+                                {selectedBdas.size > 0 && (
                                     <button
-                                        onClick={() => setSelectedBdas([])}
-                                        className="flex items-center gap-1.5 h-6 pl-2 pr-1.5 rounded-full bg-[#f6f7ed] text-[#1f1f1f] border border-black/[0.06] text-[11px] font-medium hover:bg-[#1f1f1f] hover:text-white transition-colors"
+                                        onClick={() => setSelectedBdas(new Set())}
+                                        className="shrink-0 h-8 px-3 rounded-lg border border-border bg-card text-[11px] font-medium text-foreground/50 hover:text-foreground hover:border-foreground/15 transition-all flex items-center gap-1.5"
                                     >
-                                        <span className="mr-1">{selectedBdas.length} selected</span>
-                                        <X className="h-2.5 w-2.5 opacity-60" />
+                                        <X className="h-3 w-3" />
+                                        Clear{selectedBdas.size > 1 ? ` (${selectedBdas.size})` : ""}
                                     </button>
-                                </>
-                            )}
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div> {/* end shrink-0 header */}
 
-                {/* ── Scrollable Kanban Board (flex-1, h-full) ─────────────── */}
-                <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden pb-4">
-                    <div className="flex gap-3 h-full" style={{ minWidth: `${columns.length * 280}px` }}>
-                        {columns.map((col) => {
-                            const colLeads = filteredLeads.filter((l) => l.status === col.id);
-                            return (
-                                <div key={col.id} className="flex flex-col flex-1 min-w-[260px] min-h-0">
-                                    <KanbanColumn
-                                        colId={col.id}
-                                        label={col.label}
-                                        color={col.color}
-                                        bg={col.bg}
-                                        border={col.border}
-                                        dot={col.dot}
-                                        leads={colLeads}
-                                        onAssign={(lead) => setAssigningLead(lead)}
-                                    />
-                                </div>
-                            );
-                        })}
+                {/* ── Kanban Board — Jira-style: fixed headers + single scroll ── */}
+                <div className="flex-1 min-h-0 -mx-4 sm:-mx-6 px-4 sm:px-6 overflow-auto pb-4 scroll-container">
+                    <div style={{ minWidth: `${columns.length * 280}px` }}>
+                        {/* ── Sticky Column Headers — pointer-events-none so they don't block drag ── */}
+                        <div className="sticky top-0 z-20 pb-3 pointer-events-none">
+                            <div className="absolute inset-x-0 -top-2 bottom-0 bg-background" />
+                            <div className="relative flex gap-3 w-full">
+                                {columns.map((col) => {
+                                    const count = filteredLeads.filter((l) => l.status === col.id).length;
+                                    return (
+                                        <div key={col.id} className="flex-1 min-w-[260px]">
+                                            <KanbanColumnHeader
+                                                color={col.color}
+                                                headerBg={col.headerBg}
+                                                border={col.border}
+                                                dot={col.dot}
+                                                label={col.label}
+                                                count={count}
+                                            />
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* ── Card Columns ── */}
+                        <div className="flex gap-3 items-stretch" style={{ minHeight: '200px' }}>
+                            {columns.map((col) => {
+                                const colLeads = filteredLeads.filter((l) => l.status === col.id);
+                                return (
+                                    <div key={col.id} className="flex-1 min-w-[260px] flex flex-col">
+                                        <KanbanColumn
+                                            colId={col.id}
+                                            dropBg={col.dropBg}
+                                            leads={colLeads}
+                                            onAssign={(lead) => setAssigningLead(lead)}
+                                            onViewDetail={(lead) => setViewingLead(lead)}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
-                </div> {/* end board */}
+                </div>
 
-            </div> {/* end h-full flex-col */}
+                {/* Drag Overlay — follows cursor, fades out on drop (no revert animation) */}
+                <DragOverlay
+                    dropAnimation={null}
+                    style={{ cursor: "grabbing", zIndex: 50 }}
+                >
+                    {activeLead && (
+                        <div className="w-[260px] animate-in fade-in zoom-in-95 duration-150">
+                            <LeadCardContent lead={activeLead} isDragOverlay />
+                        </div>
+                    )}
+                </DragOverlay>
 
-            {/* Drag Overlay */}
-            <DragOverlay dropAnimation={{ duration: 200, easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)" }}>
-                {activeLead && <LeadCardContent lead={activeLead} isDragOverlay />}
-            </DragOverlay>
+                {/* Assign Sheet */}
+                <AssignSheet
+                    lead={assigningLead}
+                    bdas={bdas}
+                    onAssign={handleAssign}
+                    onClose={() => setAssigningLead(null)}
+                />
 
-            {/* Assign Sheet */}
-            <AssignSheet
-                lead={assigningLead}
-                bdas={bdas}
-                onAssign={handleAssign}
-                onClose={() => setAssigningLead(null)}
-            />
+                {/* Add Lead Modal */}
+                <AddLeadModal open={addLeadOpen} onClose={() => setAddLeadOpen(false)} />
 
-            {/* Add Lead Modal */}
-            <AddLeadModal open={addLeadOpen} onClose={() => setAddLeadOpen(false)} />
-        </DndContext >
+                {/* Lead Detail Popup */}
+                <LeadDetailPopup lead={viewingLead} onClose={() => setViewingLead(null)} />
+
+            </div>
+        </DndContext>
     );
 };
 

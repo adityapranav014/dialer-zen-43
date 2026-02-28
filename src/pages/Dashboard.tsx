@@ -10,7 +10,7 @@ const Dashboard = () => {
     <AppLayout
       title="Dashboard"
       maxWidthClass="max-w-[1600px]"
-      fullHeight={false}
+      fullHeight
     >
       {isAdmin ? <AdminDashboard /> : <BdaDashboard />}
     </AppLayout>

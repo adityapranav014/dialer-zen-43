@@ -6,62 +6,47 @@ import { useAuth } from "./useAuth";
 export type Lead = Database["public"]["Tables"]["leads"]["Row"];
 export type LeadStatus = Database["public"]["Enums"]["lead_status"];
 
-/** Well-known UUID for the demo workspace tenant (same as useTeam). */
-const DEMO_TENANT_ID = "00000000-0000-0000-0000-000000000000";
-
 export const useLeads = () => {
     const queryClient = useQueryClient();
-    const { user, isDemo } = useAuth();
+    const { user, currentTenantId } = useAuth();
 
-    // ── Resolve tenant_id ─────────────────────────────────────────────
-    const getTenantId = async (): Promise<string> => {
-        if (isDemo) return DEMO_TENANT_ID;
-
-        if (!user) throw new Error("Not authenticated");
-        const { data } = await supabase
-            .from("profiles")
-            .select("tenant_id")
-            .eq("user_id", user.id)
-            .single();
-        if (!data?.tenant_id) throw new Error("No tenant found for current user");
-        return data.tenant_id;
-    };
-
-    // ── Fetch all leads (admin) ───────────────────────────────────────
+    // ── Fetch all leads (admin) — tenant scoped ───────────────────────
     const { data: allLeads = [], isLoading: loadingAll } = useQuery({
-        queryKey: ["leads", "all"],
+        queryKey: ["leads", "all", currentTenantId],
+        enabled: !!user && !!currentTenantId,
         queryFn: async () => {
-            const tenantId = await getTenantId();
+            if (!currentTenantId) return [];
 
             const { data, error } = await supabase
                 .from("leads")
                 .select("*")
-                .eq("tenant_id", tenantId)
+                .eq("tenant_id", currentTenantId)
                 .order("created_at", { ascending: false });
 
             if (error) throw error;
             return (data ?? []) as Lead[];
         },
+        staleTime: 30_000,
     });
 
-    // ── Fetch my leads (BDA) ──────────────────────────────────────────
-    // Skip for demo users — "admin-id" / "bda-*" are not valid UUIDs
-    // and would cause a 400 against the UUID column.
+    // ── Fetch my leads (member) — assigned_to = user.id directly ──────
     const { data: myLeads = [], isLoading: loadingMy } = useQuery({
-        queryKey: ["leads", "my", user?.id],
-        enabled: !!user?.id && !isDemo,
+        queryKey: ["leads", "my", user?.id, currentTenantId],
+        enabled: !!user?.id && !!currentTenantId,
         queryFn: async () => {
-            if (!user?.id) return [];
+            if (!user?.id || !currentTenantId) return [];
 
             const { data, error } = await supabase
                 .from("leads")
                 .select("*")
+                .eq("tenant_id", currentTenantId)
                 .eq("assigned_to", user.id)
                 .order("created_at", { ascending: false });
 
             if (error) throw error;
             return (data ?? []) as Lead[];
         },
+        staleTime: 30_000,
     });
 
     // ── Update lead status (optimistic) ──────────────────────────────
@@ -76,50 +61,62 @@ export const useLeads = () => {
         },
         onMutate: async ({ leadId, status }) => {
             await queryClient.cancelQueries({ queryKey: ["leads"] });
-            const previous = queryClient.getQueryData<Lead[]>(["leads", "all"]);
-            queryClient.setQueryData<Lead[]>(["leads", "all"], (old) =>
-                old?.map((l) => (l.id === leadId ? { ...l, status } : l)) ?? [],
-            );
-            return { previous };
+
+            const previousAll = queryClient.getQueryData<Lead[]>(["leads", "all", currentTenantId]);
+            const previousMy = queryClient.getQueryData<Lead[]>(["leads", "my", user?.id, currentTenantId]);
+
+            const patchLead = (leads: Lead[] | undefined) =>
+                leads?.map((l) => (l.id === leadId ? { ...l, status, updated_at: new Date().toISOString() } : l)) ?? [];
+
+            queryClient.setQueryData<Lead[]>(["leads", "all", currentTenantId], patchLead);
+            if (previousMy) {
+                queryClient.setQueryData<Lead[]>(["leads", "my", user?.id, currentTenantId], patchLead);
+            }
+
+            return { previousAll, previousMy };
         },
         onError: (_err, _vars, context) => {
-            if (context?.previous) queryClient.setQueryData(["leads", "all"], context.previous);
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["leads"] });
+            if (context?.previousAll) queryClient.setQueryData(["leads", "all", currentTenantId], context.previousAll);
+            if (context?.previousMy) queryClient.setQueryData(["leads", "my", user?.id, currentTenantId], context.previousMy);
         },
     });
 
-    // ── Assign lead to BDA (optimistic) ──────────────────────────────
+    // ── Assign lead to user (optimistic) ─────────────────────────────
     const assignLeadMutation = useMutation({
-        mutationFn: async ({ leadId, bdaId }: { leadId: string; bdaId: string | null }) => {
+        mutationFn: async ({ leadId, userId }: { leadId: string; userId: string | null }) => {
             const { error } = await supabase
                 .from("leads")
-                .update({ assigned_to: bdaId, updated_at: new Date().toISOString() })
+                .update({ assigned_to: userId, updated_at: new Date().toISOString() })
                 .eq("id", leadId);
 
             if (error) throw error;
         },
-        onMutate: async ({ leadId, bdaId }) => {
+        onMutate: async ({ leadId, userId }) => {
             await queryClient.cancelQueries({ queryKey: ["leads"] });
-            const previous = queryClient.getQueryData<Lead[]>(["leads", "all"]);
-            queryClient.setQueryData<Lead[]>(["leads", "all"], (old) =>
-                old?.map((l) => (l.id === leadId ? { ...l, assigned_to: bdaId } : l)) ?? [],
-            );
-            return { previous };
+
+            const previousAll = queryClient.getQueryData<Lead[]>(["leads", "all", currentTenantId]);
+            const previousMy = queryClient.getQueryData<Lead[]>(["leads", "my", user?.id, currentTenantId]);
+
+            const patchLead = (leads: Lead[] | undefined) =>
+                leads?.map((l) => (l.id === leadId ? { ...l, assigned_to: userId, updated_at: new Date().toISOString() } : l)) ?? [];
+
+            queryClient.setQueryData<Lead[]>(["leads", "all", currentTenantId], patchLead);
+            if (previousMy) {
+                queryClient.setQueryData<Lead[]>(["leads", "my", user?.id, currentTenantId], patchLead);
+            }
+
+            return { previousAll, previousMy };
         },
         onError: (_err, _vars, context) => {
-            if (context?.previous) queryClient.setQueryData(["leads", "all"], context.previous);
-        },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["leads"] });
+            if (context?.previousAll) queryClient.setQueryData(["leads", "all", currentTenantId], context.previousAll);
+            if (context?.previousMy) queryClient.setQueryData(["leads", "my", user?.id, currentTenantId], context.previousMy);
         },
     });
 
     // ── Add a single lead ─────────────────────────────────────────────
     const addLeadMutation = useMutation({
         mutationFn: async (lead: { name: string; phone: string; status?: LeadStatus }) => {
-            const tenantId = await getTenantId();
+            if (!currentTenantId) throw new Error("No company context");
 
             const { data, error } = await supabase
                 .from("leads")
@@ -127,7 +124,7 @@ export const useLeads = () => {
                     name: lead.name.trim(),
                     phone: lead.phone.trim(),
                     status: lead.status || "new",
-                    tenant_id: tenantId,
+                    tenant_id: currentTenantId,
                 })
                 .select()
                 .single();
@@ -135,21 +132,23 @@ export const useLeads = () => {
             if (error) throw error;
             return data as Lead;
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["leads"] });
+        onSuccess: (newLead) => {
+            queryClient.setQueryData<Lead[]>(["leads", "all", currentTenantId], (old) =>
+                old ? [newLead, ...old] : [newLead],
+            );
         },
     });
 
     // ── Add leads in bulk (CSV import) ────────────────────────────────
     const addLeadsBulkMutation = useMutation({
         mutationFn: async (leads: { name: string; phone: string; status?: LeadStatus }[]) => {
-            const tenantId = await getTenantId();
+            if (!currentTenantId) throw new Error("No company context");
 
             const rows = leads.map((l) => ({
                 name: l.name.trim(),
                 phone: l.phone.trim(),
                 status: l.status || ("new" as LeadStatus),
-                tenant_id: tenantId,
+                tenant_id: currentTenantId,
             }));
 
             const { data, error } = await supabase
@@ -160,8 +159,10 @@ export const useLeads = () => {
             if (error) throw error;
             return (data ?? []) as Lead[];
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["leads"] });
+        onSuccess: (newLeads) => {
+            queryClient.setQueryData<Lead[]>(["leads", "all", currentTenantId], (old) =>
+                old ? [...newLeads, ...old] : newLeads,
+            );
         },
     });
 

@@ -12,6 +12,12 @@ import {
   Bell,
 } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -25,12 +31,12 @@ const typeConfig: Record<
   NotificationType,
   { icon: typeof Bell; bg: string; iconColor: string }
 > = {
-  lead_assigned: { icon: UserPlus, bg: "bg-blue-50", iconColor: "text-blue-500" },
-  lead_status_change: { icon: ArrowRightLeft, bg: "bg-emerald-50", iconColor: "text-emerald-500" },
-  call_reminder: { icon: PhoneCall, bg: "bg-amber-50", iconColor: "text-amber-500" },
-  achievement: { icon: Trophy, bg: "bg-[#f6f7ed]", iconColor: "text-[#1f1f1f]" },
-  system: { icon: Monitor, bg: "bg-[#f4f4f4]", iconColor: "text-[#1f1f1f]/60" },
-  team_update: { icon: Users, bg: "bg-purple-50", iconColor: "text-purple-500" },
+  lead_assigned: { icon: UserPlus, bg: "bg-blue-50 dark:bg-blue-950/30", iconColor: "text-blue-500" },
+  lead_status_change: { icon: ArrowRightLeft, bg: "bg-emerald-50 dark:bg-emerald-950/30", iconColor: "text-emerald-500" },
+  call_reminder: { icon: PhoneCall, bg: "bg-amber-50 dark:bg-amber-950/30", iconColor: "text-amber-500" },
+  achievement: { icon: Trophy, bg: "bg-accent", iconColor: "text-foreground" },
+  system: { icon: Monitor, bg: "bg-muted", iconColor: "text-foreground/60" },
+  team_update: { icon: Users, bg: "bg-purple-50 dark:bg-purple-950/30", iconColor: "text-purple-500" },
 };
 
 // ─── Time-ago helper ──────────────────────────────────────────────────
@@ -65,8 +71,8 @@ function NotificationRow({
     <div
       className={`relative flex items-start gap-3 px-4 py-3 transition-colors group cursor-pointer ${
         notification.is_read
-          ? "hover:bg-[#f4f4f4]/60"
-          : "bg-[#f6f7ed]/40 hover:bg-[#f6f7ed]/70"
+          ? "hover:bg-muted/60"
+          : "bg-accent/40 hover:bg-accent/70"
       }`}
       onClick={() => {
         if (!notification.is_read) onRead(notification.id);
@@ -91,17 +97,17 @@ function NotificationRow({
           <p
             className={`text-[13px] leading-tight ${
               notification.is_read
-                ? "font-medium text-[#1f1f1f]/70"
-                : "font-semibold text-[#1f1f1f]"
+                ? "font-medium text-foreground/70"
+                : "font-semibold text-foreground"
             }`}
           >
             {notification.title}
           </p>
-          <span className="text-[10px] text-[#1f1f1f]/30 whitespace-nowrap shrink-0 mt-0.5">
+          <span className="text-[10px] text-foreground/30 whitespace-nowrap shrink-0 mt-0.5">
             {timeAgo(notification.created_at)}
           </span>
         </div>
-        <p className="text-[11px] text-[#1f1f1f]/40 mt-0.5 line-clamp-2 leading-relaxed">
+        <p className="text-[11px] text-foreground/40 mt-0.5 line-clamp-2 leading-relaxed">
           {notification.message}
         </p>
 
@@ -111,8 +117,8 @@ function NotificationRow({
             <span
               className={`inline-block mt-1.5 text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded ${
                 notification.priority === "urgent"
-                  ? "bg-red-50 text-red-600"
-                  : "bg-amber-50 text-amber-600"
+                  ? "bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"
+                  : "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"
               }`}
             >
               {notification.priority}
@@ -128,7 +134,7 @@ function NotificationRow({
               e.stopPropagation();
               onRead(notification.id);
             }}
-            className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-white text-[#1f1f1f]/30 hover:text-[#1f1f1f] transition-colors"
+            className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-card text-foreground/30 hover:text-foreground transition-colors"
             title="Mark as read"
           >
             <Check className="h-3 w-3" />
@@ -139,7 +145,7 @@ function NotificationRow({
             e.stopPropagation();
             onDelete(notification.id);
           }}
-          className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-white text-[#1f1f1f]/30 hover:text-red-500 transition-colors"
+          className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-card text-foreground/30 hover:text-red-500 transition-colors"
           title="Dismiss"
         >
           <X className="h-3 w-3" />
@@ -157,28 +163,37 @@ const NotificationPanel = () => {
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <button className="relative h-8 w-8 rounded-lg flex items-center justify-center hover:bg-[#f4f4f4] text-[#1f1f1f]/50 transition-colors">
-          <Bell className="h-4 w-4" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white px-1 leading-none ring-2 ring-white">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </span>
-          )}
-        </button>
-      </PopoverTrigger>
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <PopoverTrigger asChild>
+              <button className="relative h-8 w-8 rounded-lg flex items-center justify-center hover:bg-muted text-foreground/50 transition-colors">
+                <Bell className="h-4 w-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white px-1 leading-none ring-2 ring-card">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </button>
+            </PopoverTrigger>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="text-xs">
+            Notifications{unreadCount > 0 ? ` (${unreadCount} unread)` : ""}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <PopoverContent
         align="end"
         sideOffset={8}
-        className="w-[360px] sm:w-[400px] p-0 rounded-xl border border-black/[0.06] shadow-lg bg-white"
+        className="w-[360px] sm:w-[400px] p-0 rounded-xl border border-border shadow-lg bg-card"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-3">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-[#1f1f1f]">Notifications</h3>
+            <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
             {unreadCount > 0 && (
-              <span className="min-w-[20px] h-5 flex items-center justify-center rounded-full bg-[#1f1f1f] text-[10px] font-bold text-white px-1.5">
+              <span className="min-w-[20px] h-5 flex items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground px-1.5">
                 {unreadCount}
               </span>
             )}
@@ -186,7 +201,7 @@ const NotificationPanel = () => {
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="flex items-center gap-1 text-[11px] font-medium text-[#1f1f1f]/40 hover:text-[#1f1f1f] transition-colors"
+              className="flex items-center gap-1 text-[11px] font-medium text-foreground/40 hover:text-foreground transition-colors"
             >
               <CheckCheck className="h-3 w-3" />
               Mark all read
@@ -194,20 +209,20 @@ const NotificationPanel = () => {
           )}
         </div>
 
-        <Separator className="bg-black/[0.06]" />
+        <Separator className="bg-border" />
 
         {/* Notification list */}
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4">
-            <div className="h-10 w-10 rounded-full bg-[#f4f4f4] flex items-center justify-center mb-3">
-              <Bell className="h-4 w-4 text-[#1f1f1f]/25" />
+            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-3">
+              <Bell className="h-4 w-4 text-foreground/25" />
             </div>
-            <p className="text-sm font-medium text-[#1f1f1f]/40">No notifications</p>
-            <p className="text-[11px] text-[#1f1f1f]/25 mt-0.5">You're all caught up!</p>
+            <p className="text-sm font-medium text-foreground/40">No notifications</p>
+            <p className="text-[11px] text-foreground/25 mt-0.5">You're all caught up!</p>
           </div>
         ) : (
           <ScrollArea className="max-h-[400px]">
-            <div className="divide-y divide-black/[0.04]">
+            <div className="divide-y divide-foreground/[0.04]">
               {notifications.map((n) => (
                 <NotificationRow
                   key={n.id}

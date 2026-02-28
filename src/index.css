@@ -49,6 +49,9 @@
 
     --radius: 0.625rem;
 
+    /* Chart foreground token */
+    --chart-fg: 31 31 31;
+
     /* Sidebar — white with warm active states */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 0 0% 12.2%;
@@ -58,6 +61,54 @@
     --sidebar-accent-foreground: 0 0% 12.2%;
     --sidebar-border: 0 0% 93%;
     --sidebar-ring: 0 0% 12.2%;
+  }
+
+  /* ─── Dark Theme ─────────────────────────────────────────────── */
+  .dark {
+    --background: 0 0% 7%;           /* #121212 */
+    --foreground: 0 0% 93%;          /* #ededed */
+
+    --card: 0 0% 10%;                /* #1a1a1a */
+    --card-foreground: 0 0% 93%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 93%;
+
+    --primary: 0 0% 93%;
+    --primary-foreground: 0 0% 7%;
+
+    --secondary: 66 8% 14%;
+    --secondary-foreground: 0 0% 93%;
+
+    --muted: 0 0% 14%;               /* #242424 */
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 66 8% 14%;
+    --accent-foreground: 0 0% 93%;
+
+    --destructive: 0 62% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 50% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 82% 55%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 0 0% 80%;
+
+    --chart-fg: 237 237 237;
+
+    --sidebar-background: 0 0% 8.5%;
+    --sidebar-foreground: 0 0% 93%;
+    --sidebar-primary: 0 0% 93%;
+    --sidebar-primary-foreground: 0 0% 7%;
+    --sidebar-accent: 66 8% 14%;
+    --sidebar-accent-foreground: 0 0% 93%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 0 0% 80%;
   }
 }
 
@@ -89,7 +140,7 @@
   /* Professional thin scrollbars — only render inside .scroll-container */
   .scroll-container {
     scrollbar-width: thin;
-    scrollbar-color: rgba(0,0,0,0.12) transparent;
+    scrollbar-color: rgb(var(--chart-fg) / 0.12) transparent;
   }
 
   .scroll-container::-webkit-scrollbar {
@@ -102,12 +153,12 @@
   }
 
   .scroll-container::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,0.12);
+    background: rgb(var(--chart-fg) / 0.12);
     border-radius: 999px;
   }
 
   .scroll-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(0,0,0,0.22);
+    background: rgb(var(--chart-fg) / 0.22);
   }
 }
 
@@ -123,25 +174,25 @@
 
   /* Card — clean white sheet on #f4f4f4 base */
   .surface-card {
-    @apply rounded-xl bg-white transition-all duration-200;
-    border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    @apply rounded-xl bg-card transition-all duration-200;
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 1px 3px rgb(var(--chart-fg) / 0.06);
   }
 
   .surface-card:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 16px rgb(var(--chart-fg) / 0.08);
   }
 
   /* Elevated card — for overlays / modals */
   .surface-elevated {
-    @apply rounded-xl bg-white;
-    border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.06);
+    @apply rounded-xl bg-card;
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 8px 30px rgb(var(--chart-fg) / 0.1), 0 1px 3px rgb(var(--chart-fg) / 0.06);
   }
 
   /* Warm selection / active / unread state */
   .surface-warm {
-    background: #f6f7ed;
+    @apply bg-accent;
   }
 
   /* Stat number typography */
@@ -162,10 +213,14 @@
     animation: livePulse 2s ease-in-out infinite;
   }
 
+  /* Color scheme hint for native controls (scrollbars, etc.) */
+  .dark {
+    color-scheme: dark;
+  }
+
   /* Nav active — warm highlight */
   .nav-active {
-    background: #f6f7ed;
-    color: #1f1f1f;
+    @apply bg-accent text-foreground;
     font-weight: 600;
   }
 
@@ -174,8 +229,7 @@
     @apply flex flex-col items-center justify-center text-center py-16 px-8;
   }
   .empty-state-icon {
-    @apply h-12 w-12 rounded-2xl bg-[#f6f7ed] flex items-center justify-center mb-4;
-    color: #1f1f1f;
+    @apply h-12 w-12 rounded-2xl bg-accent flex items-center justify-center mb-4 text-foreground;
   }
 }
 
@@ -186,4 +240,29 @@
   50% {
     box-shadow: 0 0 0 4px hsl(var(--success) / 0);
   }
+}
+
+/* ─── Professional shimmer gradient for skeletons ─────────── */
+.bg-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(var(--foreground) / 0.04) 40%,
+    hsl(var(--foreground) / 0.07) 50%,
+    hsl(var(--foreground) / 0.04) 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+}
+
+.dark .bg-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(var(--foreground) / 0.06) 40%,
+    hsl(var(--foreground) / 0.10) 50%,
+    hsl(var(--foreground) / 0.06) 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
 }

@@ -33,18 +33,18 @@ const TalkTimeChart = ({ minutes, goal }: TalkTimeChartProps) => {
               dataKey="value"
               strokeWidth={0}
             >
-              <Cell fill="#1f1f1f" />
-              <Cell fill="#e5e5e5" />
+              <Cell fill="hsl(var(--foreground))" />
+              <Cell fill="hsl(var(--muted))" />
             </Pie>
 
           </PieChart>
         </ResponsiveContainer>
         {/* Center content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-semibold text-[#1f1f1f] tracking-tight">
+          <span className="text-2xl font-semibold text-foreground tracking-tight">
             {hours > 0 ? hours : minutes}
           </span>
-          <span className="text-[11px] text-[#1f1f1f]/35 font-medium">
+          <span className="text-[11px] text-foreground/35 font-medium">
             {hours > 0 ? "hours" : "min"}
           </span>
         </div>
@@ -53,17 +53,17 @@ const TalkTimeChart = ({ minutes, goal }: TalkTimeChartProps) => {
       {/* Progress bar + label */}
       <div className="w-full">
         <div className="flex justify-between text-xs mb-1.5">
-          <span className="text-[#1f1f1f]/40">Talk time</span>
-          <span className="text-[#1f1f1f] font-medium">{displayTime}</span>
+          <span className="text-foreground/40">Talk time</span>
+          <span className="text-foreground font-medium">{displayTime}</span>
         </div>
-        <div className="h-1.5 bg-[#f4f4f4] rounded-full overflow-hidden">
+        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
           <div
-            className="h-full rounded-full bg-[#1f1f1f] transition-all duration-1000 ease-out"
+            className="h-full rounded-full bg-foreground transition-all duration-1000 ease-out"
             style={{ width: `${percentage}%` }}
           />
         </div>
         <div className="flex items-center justify-between mt-1.5">
-          <span className="text-[10px] text-[#1f1f1f]/30">of {goal}m goal</span>
+          <span className="text-[10px] text-foreground/30">of {goal}m goal</span>
           <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
             <TrendingUp className="h-3 w-3" />
             {Math.round(percentage)}%

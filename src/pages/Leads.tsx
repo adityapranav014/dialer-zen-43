@@ -9,7 +9,7 @@ const Leads = () => {
   return (
     <AppLayout
       title={isAdmin ? "Leads" : "My Leads"}
-      maxWidthClass={isAdmin ? "max-w-[1600px]" : "max-w-4xl"}
+      maxWidthClass="max-w-[1600px]"
       fullHeight={true}
     >
       {isAdmin ? <AdminLeads /> : <MyLeads />}

@@ -103,6 +103,10 @@ export default {
           "0%, 100%": { boxShadow: "0 0 0 0 hsl(152 60% 42% / 0.4)" },
           "50%": { boxShadow: "0 0 0 4px hsl(152 60% 42% / 0)" },
         },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -110,6 +114,7 @@ export default {
         "fade-in": "fade-in 0.3s ease-out",
         "slide-up": "slide-up 0.3s ease-out",
         "live-pulse": "live-pulse 2s ease-in-out infinite",
+        shimmer: "shimmer 2s ease-in-out infinite",
       },
     },
   },

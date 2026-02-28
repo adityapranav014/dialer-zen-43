@@ -1,18 +1,20 @@
-import { ReactNode } from "react";
+import { ReactNode, useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronRight, Settings, Shield, Moon, HelpCircle, Star, LogOut } from "lucide-react";
+import { ChevronRight, Settings, Moon, Sun, Monitor, HelpCircle, Star, LogOut, Maximize, Minimize } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import SideNav from "@/components/SideNav";
 import BottomNav from "@/components/BottomNav";
 import NotificationPanel from "@/components/NotificationPanel";
 import GlobalSearch from "@/components/GlobalSearch";
+import QuickActions from "@/components/QuickActions";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 
 interface AppLayoutProps {
   title: string;
   maxWidthClass?: string;
-  headerRight?: ReactNode;
   fullHeight?: boolean;
   children: ReactNode;
 }
@@ -22,12 +24,20 @@ const breadcrumbMap: Record<string, string> = {
   "/leads": "Leads",
   "/team": "Team",
   "/analytics": "Analytics",
+  "/profile": "Profile",
+  "/help": "Help & Docs",
+  "/settings": "Account Settings",
+  "/whats-new": "What's New",
 };
 
-const menuItems = [
+const accountItems = [
   { label: "Account Settings", icon: Settings, desc: "Profile & preferences" },
-  { label: "Security", icon: Shield, desc: "Password & 2FA" },
-  { label: "Appearance", icon: Moon, desc: "Theme & display" },
+];
+
+const themeOptions: { id: "light" | "dark" | "system"; label: string; icon: typeof Sun }[] = [
+  { id: "light", label: "Light", icon: Sun },
+  { id: "dark", label: "Dark", icon: Moon },
+  { id: "system", label: "System", icon: Monitor },
 ];
 
 const supportItems = [
@@ -38,13 +48,33 @@ const supportItems = [
 export const AppLayout = ({
   title,
   maxWidthClass = "max-w-[1600px]",
-  headerRight,
   fullHeight = false,
   children,
 }: AppLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, signOut, isAdmin, avatarUrl, displayName } = useAuth();
+  const { user, signOut, isAdmin, isSuperAdmin, isPlatformView, avatarUrl, displayName, currentTenantName } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const [showThemePicker, setShowThemePicker] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(!!document.fullscreenElement);
+
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      console.error("Fullscreen toggle failed:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
   const initials = displayName
     .split(" ")
     .map((n: string) => n[0])
@@ -54,7 +84,7 @@ export const AppLayout = ({
 
   const currentPage = breadcrumbMap[location.pathname] || title;
   const email = user?.email || "";
-  const roleLabel = isAdmin ? "Admin" : "BDA";
+  const roleLabel = isSuperAdmin ? "Super Admin" : isAdmin ? "Admin" : "Member";
 
   const handleSignOut = async () => {
     await signOut();
@@ -62,19 +92,35 @@ export const AppLayout = ({
   };
 
   return (
-    <div className="h-[100dvh] w-screen overflow-hidden flex bg-[#f4f4f4]">
+    <div className="h-[100dvh] w-screen overflow-hidden flex bg-background">
       {/* Sidebar — desktop only */}
       <SideNav />
 
       {/* Main column */}
       <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden">
         {/* ─── Global Header ─── */}
-        <header className="shrink-0 h-14 flex items-center justify-between px-4 sm:px-6 border-b border-black/[0.06] bg-white z-30">
+        <header className="shrink-0 h-14 flex items-center justify-between px-4 sm:px-6 border-b border-border bg-card z-30">
           {/* Left: Breadcrumb */}
           <div className="flex items-center gap-1.5 text-sm min-w-0">
-            <span className="text-[#1f1f1f]/40 font-medium hidden sm:inline">DialFlow</span>
-            <ChevronRight className="h-3.5 w-3.5 text-[#1f1f1f]/25 hidden sm:inline shrink-0" />
-            <span className="text-[#1f1f1f] font-semibold truncate">{currentPage}</span>
+            <button
+              onClick={() => navigate(isSuperAdmin ? "/platform" : "/dashboard")}
+              className="text-foreground/40 font-medium hidden sm:inline hover:text-primary cursor-pointer transition-colors"
+            >
+              DialFlow
+            </button>
+            {currentTenantName && (
+              <>
+                <ChevronRight className="h-3.5 w-3.5 text-foreground/25 hidden sm:inline shrink-0" />
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="text-foreground/40 font-medium hidden sm:inline truncate max-w-[120px] hover:text-primary cursor-pointer transition-colors"
+                >
+                  {currentTenantName}
+                </button>
+              </>
+            )}
+            <ChevronRight className="h-3.5 w-3.5 text-foreground/25 hidden sm:inline shrink-0" />
+            <span className="text-foreground font-semibold truncate">{currentPage}</span>
           </div>
 
           {/* Right: Search + Notifications + Avatar */}
@@ -82,13 +128,34 @@ export const AppLayout = ({
             {/* Global search (desktop + mobile triggers inside) */}
             <GlobalSearch />
 
+            {/* Quick actions */}
+            <QuickActions />
+
+            {/* Fullscreen toggle — desktop only */}
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={toggleFullscreen}
+                    className="hidden sm:inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-muted transition-colors"
+                    aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                  >
+                    {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">
+                  {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
             {/* Notifications */}
             <NotificationPanel />
 
             {/* Profile avatar popover */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className="h-8 w-8 rounded-full bg-[#1f1f1f] flex items-center justify-center text-[10px] font-semibold text-white transition-transform hover:scale-105 active:scale-95 overflow-hidden">
+                <button className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-[10px] font-semibold text-primary-foreground transition-transform hover:scale-105 active:scale-95 overflow-hidden">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                   ) : (
@@ -96,84 +163,127 @@ export const AppLayout = ({
                   )}
                 </button>
               </PopoverTrigger>
-              <PopoverContent align="end" sideOffset={8} className="w-72 p-0 rounded-xl border border-black/[0.06] shadow-lg bg-white">
+              <PopoverContent align="end" sideOffset={8} className="w-72 p-0 rounded-xl border border-border shadow-lg bg-card">
                 {/* User info */}
                 <div className="p-4 flex items-center gap-3">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt={displayName} className="h-10 w-10 rounded-full object-cover shrink-0" referrerPolicy="no-referrer" />
                   ) : (
-                    <div className="h-10 w-10 rounded-full bg-[#1f1f1f] flex items-center justify-center text-xs font-semibold text-white shrink-0">
+                    <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-xs font-semibold text-primary-foreground shrink-0">
                       {initials}
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-[#1f1f1f] truncate">{displayName}</p>
-                    <p className="text-[11px] text-[#1f1f1f]/40 truncate">{email}</p>
-                    <span className="inline-block mt-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#f6f7ed] text-[#1f1f1f]">
+                    <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
+                    <p className="text-[11px] text-foreground/40 truncate">{email}</p>
+                    <span className="inline-block mt-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-accent text-foreground">
                       {roleLabel}
                     </span>
                   </div>
                 </div>
 
-                <Separator className="bg-black/[0.06]" />
+                <Separator className="bg-foreground/[0.06]" />
 
                 {/* Account section */}
                 <div className="py-1.5">
-                  <p className="px-4 pt-2 pb-1 text-[10px] font-medium uppercase tracking-wider text-[#1f1f1f]/30">Account</p>
-                  {menuItems.map((item) => (
+                  <p className="px-4 pt-2 pb-1 text-[10px] font-medium uppercase tracking-wider text-foreground/30">Account</p>
+                  {accountItems.map((item) => (
                     <button
                       key={item.label}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-[#f4f4f4] transition-colors group"
+                      onClick={() => {
+                        if (item.label === "Account Settings") navigate("/settings");
+                      }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-muted transition-colors group"
                     >
-                      <div className="h-7 w-7 rounded-md bg-[#f4f4f4] flex items-center justify-center shrink-0 group-hover:bg-[#f6f7ed] transition-colors">
-                        <item.icon className="h-3.5 w-3.5 text-[#1f1f1f]/40 group-hover:text-[#1f1f1f] transition-colors" />
+                      <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 group-hover:bg-accent transition-colors">
+                        <item.icon className="h-3.5 w-3.5 text-foreground/40 group-hover:text-foreground transition-colors" />
                       </div>
                       <div className="min-w-0 text-left">
-                        <p className="text-[13px] font-medium text-[#1f1f1f]">{item.label}</p>
-                        <p className="text-[10px] text-[#1f1f1f]/30">{item.desc}</p>
+                        <p className="text-[13px] font-medium text-foreground">{item.label}</p>
+                        <p className="text-[10px] text-foreground/30">{item.desc}</p>
                       </div>
                     </button>
                   ))}
+
+                  {/* Appearance — inline theme picker */}
+                  <div className="px-4 py-2">
+                    <button
+                      onClick={() => setShowThemePicker((v) => !v)}
+                      className="w-full flex items-center gap-2.5 -mx-4 px-4 py-2 rounded-none hover:bg-muted transition-colors group"
+                      style={{ width: "calc(100% + 2rem)" }}
+                    >
+                      <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 group-hover:bg-accent transition-colors">
+                        <Moon className="h-3.5 w-3.5 text-foreground/40 group-hover:text-foreground transition-colors" />
+                      </div>
+                      <div className="min-w-0 text-left flex-1">
+                        <p className="text-[13px] font-medium text-foreground">Appearance</p>
+                        <p className="text-[10px] text-foreground/30">Theme & display</p>
+                      </div>
+                      <ChevronRight className={`h-3.5 w-3.5 text-foreground/20 transition-transform duration-150 ${showThemePicker ? "rotate-90" : ""}`} />
+                    </button>
+                    {showThemePicker && (
+                      <div className="flex items-center gap-1.5 mt-2 p-1 bg-muted rounded-lg">
+                        {themeOptions.map((opt) => (
+                          <button
+                            key={opt.id}
+                            onClick={() => setTheme(opt.id)}
+                            className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-[11px] font-medium transition-all duration-150 ${
+                              theme === opt.id
+                                ? "bg-primary text-primary-foreground shadow-sm"
+                                : "text-foreground/40 hover:text-foreground"
+                            }`}
+                          >
+                            <opt.icon className="h-3 w-3" />
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <Separator className="bg-black/[0.06]" />
+                <Separator className="bg-foreground/[0.06]" />
 
                 {/* Support section */}
                 <div className="py-1.5">
-                  <p className="px-4 pt-2 pb-1 text-[10px] font-medium uppercase tracking-wider text-[#1f1f1f]/30">Support</p>
+                  <p className="px-4 pt-2 pb-1 text-[10px] font-medium uppercase tracking-wider text-foreground/30">Support</p>
                   {supportItems.map((item) => (
                     <button
                       key={item.label}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-[#f4f4f4] transition-colors group"
+                      onClick={() => {
+                        if (item.label === "Help & Docs") navigate("/help");
+                        if (item.label === "What's New") navigate("/whats-new");
+                      }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-muted transition-colors group"
                     >
-                      <div className="h-7 w-7 rounded-md bg-[#f4f4f4] flex items-center justify-center shrink-0 group-hover:bg-[#f6f7ed] transition-colors">
-                        <item.icon className="h-3.5 w-3.5 text-[#1f1f1f]/40 group-hover:text-[#1f1f1f] transition-colors" />
+                      <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 group-hover:bg-accent transition-colors">
+                        <item.icon className="h-3.5 w-3.5 text-foreground/40 group-hover:text-foreground transition-colors" />
                       </div>
                       <div className="min-w-0 text-left">
-                        <p className="text-[13px] font-medium text-[#1f1f1f]">{item.label}</p>
-                        <p className="text-[10px] text-[#1f1f1f]/30">{item.desc}</p>
+                        <p className="text-[13px] font-medium text-foreground">{item.label}</p>
+                        <p className="text-[10px] text-foreground/30">{item.desc}</p>
                       </div>
                     </button>
                   ))}
                 </div>
 
-                <Separator className="bg-black/[0.06]" />
+                <Separator className="bg-foreground/[0.06]" />
 
                 {/* Sign out */}
                 <div className="p-2">
                   <button
                     onClick={handleSignOut}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-red-50 transition-colors group"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors group"
                   >
-                    <div className="h-7 w-7 rounded-md bg-red-50 group-hover:bg-red-100 flex items-center justify-center shrink-0 transition-colors">
+                    <div className="h-7 w-7 rounded-md bg-red-50 dark:bg-red-950/30 group-hover:bg-red-100 dark:group-hover:bg-red-950/50 flex items-center justify-center shrink-0 transition-colors">
                       <LogOut className="h-3.5 w-3.5 text-red-500" />
                     </div>
-                    <p className="text-[13px] font-medium text-red-600">Sign Out</p>
+                    <p className="text-[13px] font-medium text-red-600 dark:text-red-400">Sign Out</p>
                   </button>
                 </div>
 
                 <div className="px-4 pb-3 pt-1">
-                  <p className="text-[10px] text-[#1f1f1f]/20 text-center font-medium">DialFlow v1.0.0</p>
+                  <p className="text-[10px] text-foreground/20 text-center font-medium">DialFlow v1.0.0</p>
                 </div>
               </PopoverContent>
             </Popover>

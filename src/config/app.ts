@@ -2,27 +2,18 @@
  * Application configuration
  *
  * Central place for environment-level settings.
- * Add admin emails here — these users are automatically assigned
- * the "super_admin" role on sign-up / first Google login.
- * Everyone else defaults to "bda".
+ * Roles are managed in the database.
+ * New users default to "member" role.
+ * Promote users to "admin" directly in the app_users table.
  */
 
 export const APP_CONFIG = {
-  /** Emails that receive the super_admin role */
-  adminEmails: [
-    "adityapranav014@gmail.com",
-    // Add more admin emails below:
-    // "another-admin@company.com",
-  ],
+  /** Application name */
+  appName: "DialFlow",
 
-  /** OAuth redirect path (must match Supabase dashboard config) */
-  authCallbackUrl: `${window.location.origin}/auth/callback`,
+  /** Session cookie expiry in days */
+  sessionExpiryDays: 30,
+
+  /** Minimum password length */
+  minPasswordLength: 6,
 } as const;
-
-/** Check whether a given email should be super_admin */
-export function isAdminEmail(email: string | undefined | null): boolean {
-  if (!email) return false;
-  return APP_CONFIG.adminEmails.some(
-    (admin) => admin.toLowerCase() === email.toLowerCase(),
-  );
-}

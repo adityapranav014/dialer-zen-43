@@ -1,250 +1,187 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
-import { Session, User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
-import { APP_CONFIG, isAdminEmail } from "@/config/app";
+import {
+  type AuthUser,
+  type AppRole,
+  signIn as authSignIn,
+  signUp as authSignUp,
+  signOutUser,
+  validateSession,
+  getStoredUser,
+  switchTenant as authSwitchTenant,
+  switchToPlatform as authSwitchToPlatform,
+  fetchAllTenants,
+} from "@/services/authService";
 
-type AppRole = "super_admin" | "bda";
+// ─── Context type ─────────────────────────────────────────────────────────────
+
+interface TenantInfo {
+  id: string;
+  name: string;
+  slug: string;
+  plan: string;
+  is_active: boolean;
+  created_at: string;
+}
 
 interface AuthContextType {
-  session: Session | null;
-  user: User | null;
+  user: AuthUser | null;
   loading: boolean;
   isAdmin: boolean;
-  isDemo: boolean;
+  isSuperAdmin: boolean;
+  /** True when super admin is in platform-level (no tenant) view */
+  isPlatformView: boolean;
   role: AppRole | null;
   avatarUrl: string | null;
   displayName: string;
-  signInWithGoogle: () => Promise<void>;
-  signUp: (email: string, password: string, displayName?: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  currentTenantId: string | null;
+  currentTenantName: string | null;
+  signIn: (identifier: string, password: string, companySlug: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, displayName: string, companySlug: string, phone?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  loginAsRole: (role: AppRole) => void;
+  switchTenant: (tenantId: string) => Promise<void>;
+  switchToPlatform: () => Promise<void>;
+  tenants: TenantInfo[];
+  loadingTenants: boolean;
+  refreshTenants: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/** Resolve the best avatar URL from Supabase user metadata */
-function resolveAvatar(u: User | null): string | null {
-  if (!u) return null;
-  return (
-    u.user_metadata?.avatar_url ||
-    u.user_metadata?.picture ||
-    null
-  );
-}
-
-/** Resolve display name from user metadata */
-function resolveName(u: User | null): string {
-  if (!u) return "User";
-  return (
-    u.user_metadata?.full_name ||
-    u.user_metadata?.display_name ||
-    u.user_metadata?.name ||
-    u.email ||
-    "User"
-  );
-}
-
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<AppRole | null>(null);
-  const [isDemo, setIsDemo] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState("User");
+  const [tenants, setTenants] = useState<TenantInfo[]>([]);
+  const [loadingTenants, setLoadingTenants] = useState(false);
 
-  // ── Fetch & ensure role ────────────────────────────────────────────
-  const resolveRole = useCallback(async (u: User) => {
-    try {
-      // 1. Try to read existing role from DB
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", u.id)
-        .maybeSingle();
-
-      if (!error && data) {
-        // If the DB says bda but our config says admin → promote
-        if (data.role === "bda" && isAdminEmail(u.email)) {
-          await supabase
-            .from("user_roles")
-            .update({ role: "super_admin" })
-            .eq("user_id", u.id);
-          setRole("super_admin");
-        } else {
-          setRole(data.role as AppRole);
-        }
-      } else {
-        // No role row yet – insert based on config
-        const assignedRole: AppRole = isAdminEmail(u.email) ? "super_admin" : "bda";
-        await supabase
-          .from("user_roles")
-          .upsert({ user_id: u.id, role: assignedRole }, { onConflict: "user_id,role" });
-        setRole(assignedRole);
-      }
-    } catch {
-      // Fail-safe: derive from config
-      setRole(isAdminEmail(u.email) ? "super_admin" : "bda");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // ── Persist avatar into profiles table ─────────────────────────────
-  const syncProfile = useCallback(async (u: User) => {
-    const avatar = resolveAvatar(u);
-    const name = resolveName(u);
-    setAvatarUrl(avatar);
-    setDisplayName(name);
-
-    // Update profile row with latest avatar (Google may rotate URLs)
-    if (avatar) {
-      await supabase
-        .from("profiles")
-        .update({ avatar_url: avatar, display_name: name })
-        .eq("user_id", u.id);
-    }
-  }, []);
-
-  // ── Bootstrap session on mount + listen for changes ────────────────
+  // Bootstrap: validate existing session on mount
   useEffect(() => {
     let mounted = true;
 
     const bootstrap = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!mounted) return;
-      if (session?.user) {
-        setSession(session);
-        setUser(session.user);
-        setIsDemo(false);
-        syncProfile(session.user);
-        await resolveRole(session.user);
-      } else {
-        setLoading(false);
+      try {
+        // Quick check from cookie first for instant UI
+        const cached = getStoredUser();
+        if (cached && mounted) {
+          setUser(cached);
+        }
+
+        // Then validate against DB
+        const validUser = await validateSession();
+        if (mounted) {
+          setUser(validUser);
+        }
+      } catch {
+        if (mounted) setUser(null);
+      } finally {
+        if (mounted) setLoading(false);
       }
     };
 
     bootstrap();
+    return () => { mounted = false; };
+  }, []);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (!mounted) return;
-        if (session?.user) {
-          setSession(session);
-          setUser(session.user);
-          setIsDemo(false);
-          syncProfile(session.user);
-          await resolveRole(session.user);
-        } else if (!isDemo) {
-          setSession(null);
-          setUser(null);
-          setRole(null);
-          setAvatarUrl(null);
-          setDisplayName("User");
-          setLoading(false);
-        }
-      },
-    );
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, [isDemo, resolveRole, syncProfile]);
-
-  // ── Google OAuth ───────────────────────────────────────────────────
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: APP_CONFIG.authCallbackUrl,
-        queryParams: {
-          access_type: "offline",
-          prompt: "consent",
-        },
-      },
-    });
-    if (error) throw error;
-  };
-
-  // ── Email / password ──────────────────────────────────────────────
-  const signUp = async (email: string, password: string, name?: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: APP_CONFIG.authCallbackUrl,
-        data: { display_name: name || email },
-      },
-    });
-
-    if (data?.user) {
-      const assignedRole: AppRole = isAdminEmail(email) ? "super_admin" : "bda";
-      await supabase
-        .from("user_roles")
-        .upsert({ user_id: data.user.id, role: assignedRole }, { onConflict: "user_id,role" });
+  // Load tenants for super admin
+  const refreshTenants = useCallback(async () => {
+    if (!user?.is_super_admin) return;
+    setLoadingTenants(true);
+    try {
+      const data = await fetchAllTenants();
+      setTenants(data as TenantInfo[]);
+    } catch {
+      // silently fail
+    } finally {
+      setLoadingTenants(false);
     }
+  }, [user?.is_super_admin]);
 
-    return { error };
-  };
+  // Auto-load tenants when super admin logs in
+  useEffect(() => {
+    if (user?.is_super_admin) {
+      refreshTenants();
+    }
+  }, [user?.is_super_admin, refreshTenants]);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
-  };
+  // ── Sign In ───────────────────────────────────────────────────────
+  const signIn = useCallback(async (identifier: string, password: string, companySlug: string) => {
+    try {
+      const authUser = await authSignIn({ identifier, password, company_slug: companySlug });
+      setUser(authUser);
+      return { error: null };
+    } catch (err: any) {
+      return { error: err };
+    }
+  }, []);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setIsDemo(false);
-    setRole(null);
-    setAvatarUrl(null);
-    setDisplayName("User");
-  };
+  // ── Sign Up ───────────────────────────────────────────────────────
+  const signUp = useCallback(async (email: string, password: string, displayName: string, companySlug: string, phone?: string) => {
+    try {
+      const authUser = await authSignUp({
+        email,
+        password,
+        display_name: displayName,
+        company_slug: companySlug,
+        phone,
+      });
+      setUser(authUser);
+      return { error: null };
+    } catch (err: any) {
+      return { error: err };
+    }
+  }, []);
 
-  // ── Demo mode ─────────────────────────────────────────────────────
-  const loginAsRole = (selectedRole: AppRole) => {
-    setLoading(true);
-    setIsDemo(true);
-    const mockUser: any = {
-      id: selectedRole === "super_admin" ? "admin-id" : "bda-id",
-      email: selectedRole === "super_admin" ? "admin@demo.com" : "bda@demo.com",
-      user_metadata: {
-        display_name: selectedRole === "super_admin" ? "Super Admin" : "BDA Agent",
-      },
-      aud: "authenticated",
-      role: "authenticated",
-    };
+  // ── Sign Out ──────────────────────────────────────────────────────
+  const signOut = useCallback(async () => {
+    await signOutUser();
+    setUser(null);
+    setTenants([]);
+  }, []);
 
-    setUser(mockUser);
-    setRole(selectedRole);
-    setAvatarUrl(null);
-    setDisplayName(mockUser.user_metadata.display_name);
-    setLoading(false);
-  };
+  // ── Switch Tenant (super admin) ───────────────────────────────────
+  const switchTenant = useCallback(async (tenantId: string) => {
+    const updated = await authSwitchTenant(tenantId);
+    setUser(updated);
+  }, []);
 
-  const isAdmin = role === "super_admin";
+  // ── Switch to Platform view (super admin) ─────────────────────────
+  const switchToPlatform = useCallback(async () => {
+    const updated = await authSwitchToPlatform();
+    setUser(updated);
+  }, []);
+
+  // ── Derived ───────────────────────────────────────────────────────
+  const isSuperAdmin = user?.is_super_admin ?? false;
+  const isAdmin = user?.role === "admin" || isSuperAdmin;
+  const isPlatformView = isSuperAdmin && !user?.tenant_id;
+  const role = user?.role ?? null;
+  const avatarUrl = user?.avatar_url ?? null;
+  const displayName = user?.display_name ?? "User";
+  const currentTenantId = user?.tenant_id ?? null;
+  const currentTenantName = user?.tenant_name ?? null;
 
   return (
     <AuthContext.Provider
       value={{
-        session,
         user,
         loading,
         isAdmin,
-        isDemo,
+        isSuperAdmin,
+        isPlatformView,
         role,
         avatarUrl,
         displayName,
-        signInWithGoogle,
-        signUp,
+        currentTenantId,
+        currentTenantName,
         signIn,
+        signUp,
         signOut,
-        loginAsRole,
+        switchTenant,
+        switchToPlatform,
+        tenants,
+        loadingTenants,
+        refreshTenants,
       }}
     >
       {children}

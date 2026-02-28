@@ -1,22 +1,24 @@
+import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type BDAStatus = "active" | "idle" | "offline";
-
-/** Well-known UUID for the demo workspace tenant (see migration). */
-const DEMO_TENANT_ID = "00000000-0000-0000-0000-000000000000";
+export type MemberRole = "admin" | "member";
 
 export interface TeamMember {
+    /** app_users.id */
     id: string;
-    profileId: string;
+    /** tenant_memberships.id */
+    membershipId: string;
     name: string;
     email: string;
     phone: string;
     avatarUrl: string | null;
-    status: BDAStatus;
+    avatarColor: string | null;
+    role: MemberRole;
+    isActive: boolean;
     joinedAt: string;
     totalLeads: number;
     activeLeads: number;
@@ -30,114 +32,101 @@ export interface TeamMember {
 export interface TeamStats {
     totalMembers: number;
     activeMembers: number;
-    idleMembers: number;
-    offlineMembers: number;
+    adminCount: number;
     avgConversionRate: number;
     totalLeadsAssigned: number;
-    totalCallsToday: number;
+    totalCalls: number;
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export const useTeam = () => {
     const queryClient = useQueryClient();
-    const { user, isDemo } = useAuth();
+    const { user, currentTenantId } = useAuth();
 
-    // Resolve tenant_id — demo mode uses the well-known demo tenant,
-    // real users look up their tenant from the profiles table.
-    const getTenantId = async (): Promise<string> => {
-        if (isDemo) return DEMO_TENANT_ID;
-
-        if (!user) throw new Error("Not authenticated");
-        const { data } = await supabase
-            .from("profiles")
-            .select("tenant_id")
-            .eq("user_id", user.id)
-            .single();
-        if (!data?.tenant_id) throw new Error("No tenant found for current user");
-        return data.tenant_id;
-    };
-
-    // Fetch team members — always from Supabase
+    // Fetch team members via tenant_memberships JOIN app_users
     const { data: members = [], isLoading: loading } = useQuery({
-        queryKey: ["team", "members", user?.id, isDemo],
+        queryKey: ["team", "members", currentTenantId],
         queryFn: async () => {
-            if (!user) return [];
+            if (!currentTenantId) return [];
 
             try {
-                const tenantId = await getTenantId();
-
-                const { data: teamRows, error } = await supabase
-                    .from("team_members")
-                    .select("*")
-                    .eq("tenant_id", tenantId)
-                    .order("created_at", { ascending: true });
+                // Fetch memberships with user data
+                const { data: memberships, error } = await supabase
+                    .from("tenant_memberships")
+                    .select("id, user_id, role, is_active, joined_at, app_users ( id, email, phone, display_name, avatar_url, avatar_color, is_active )")
+                    .eq("tenant_id", currentTenantId)
+                    .order("joined_at", { ascending: true });
 
                 if (error) {
-                    console.error("Error fetching team_members:", error);
+                    console.error("Error fetching team:", error);
                     return [];
                 }
-                if (!teamRows || teamRows.length === 0) return [];
+                if (!memberships || memberships.length === 0) return [];
 
-                const linkedIds = teamRows
-                    .map(r => r.linked_user_id)
-                    .filter((id): id is string => !!id);
+                const userIds = memberships.map(m => m.user_id);
 
+                // Fetch leads assigned to these users in this tenant
                 let leadsMap: Record<string, { total: number; active: number; closed: number }> = {};
                 let callsMap: Record<string, { total: number; talkMins: number; lastAt: string | null }> = {};
 
-                if (linkedIds.length > 0) {
+                if (userIds.length > 0) {
                     const { data: leads } = await supabase
                         .from("leads")
                         .select("assigned_to, status")
-                        .in("assigned_to", linkedIds);
+                        .eq("tenant_id", currentTenantId)
+                        .in("assigned_to", userIds);
+
+                    for (const l of leads || []) {
+                        const uid = l.assigned_to;
+                        if (!uid) continue;
+                        if (!leadsMap[uid]) leadsMap[uid] = { total: 0, active: 0, closed: 0 };
+                        leadsMap[uid].total++;
+                        if (l.status === "closed") leadsMap[uid].closed++;
+                        else leadsMap[uid].active++;
+                    }
 
                     const { data: calls } = await supabase
                         .from("call_logs")
-                        .select("bda_id, duration_seconds, created_at")
-                        .in("bda_id", linkedIds);
+                        .select("user_id, duration_seconds, created_at")
+                        .eq("tenant_id", currentTenantId)
+                        .in("user_id", userIds);
 
-                    for (const uid of linkedIds) {
-                        const bdaLeads = (leads || []).filter(l => l.assigned_to === uid);
-                        const closed = bdaLeads.filter(l => l.status === "closed").length;
-                        leadsMap[uid] = {
-                            total: bdaLeads.length,
-                            active: bdaLeads.filter(l => l.status !== "closed").length,
-                            closed,
-                        };
-
-                        const bdaCalls = (calls || []).filter(c => c.bda_id === uid);
-                        const sorted = [...bdaCalls].sort(
-                            (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-                        );
-                        callsMap[uid] = {
-                            total: bdaCalls.length,
-                            talkMins: Math.round(bdaCalls.reduce((s, c) => s + (c.duration_seconds || 0), 0) / 60),
-                            lastAt: sorted[0]?.created_at || null,
-                        };
+                    const talkSecsAccum: Record<string, number> = {};
+                    for (const c of calls || []) {
+                        const uid = c.user_id;
+                        if (!uid) continue;
+                        if (!callsMap[uid]) callsMap[uid] = { total: 0, talkMins: 0, lastAt: null };
+                        callsMap[uid].total++;
+                        talkSecsAccum[uid] = (talkSecsAccum[uid] || 0) + (c.duration_seconds || 0);
+                        if (!callsMap[uid].lastAt || c.created_at > callsMap[uid].lastAt!) {
+                            callsMap[uid].lastAt = c.created_at;
+                        }
+                    }
+                    for (const uid in talkSecsAccum) {
+                        callsMap[uid].talkMins = Math.round(talkSecsAccum[uid] / 60);
                     }
                 }
 
-                return teamRows.map(row => {
-                    const uid = row.linked_user_id;
-                    const ls = uid ? leadsMap[uid] : undefined;
-                    const cs = uid ? callsMap[uid] : undefined;
+                return memberships.map(row => {
+                    const u = row.app_users as any;
+                    const uid = row.user_id;
+                    const ls = leadsMap[uid];
+                    const cs = callsMap[uid];
                     const totalLeads = ls?.total ?? 0;
                     const closedLeads = ls?.closed ?? 0;
 
-                    let status: BDAStatus = "offline";
-                    if (row.status === "active") status = "active";
-                    else if (row.status === "idle") status = "idle";
-
                     return {
-                        id: row.id,
-                        profileId: row.id,
-                        name: row.name,
-                        email: row.email,
-                        phone: row.phone || "",
-                        avatarUrl: null,
-                        status,
-                        joinedAt: row.created_at,
+                        id: uid,
+                        membershipId: row.id,
+                        name: u?.display_name || u?.email || "Unknown",
+                        email: u?.email || "",
+                        phone: u?.phone || "",
+                        avatarUrl: u?.avatar_url || null,
+                        avatarColor: u?.avatar_color || null,
+                        role: row.role as MemberRole,
+                        isActive: row.is_active && (u?.is_active ?? true),
+                        joinedAt: row.joined_at,
                         totalLeads,
                         activeLeads: ls?.active ?? 0,
                         closedLeads,
@@ -152,113 +141,127 @@ export const useTeam = () => {
                 return [];
             }
         },
-        enabled: !!user,
+        enabled: !!user && !!currentTenantId,
+        staleTime: 30_000,
     });
 
     // Computed stats
-    const stats: TeamStats = {
-        totalMembers: members.length,
-        activeMembers: members.filter(m => m.status === "active").length,
-        idleMembers: members.filter(m => m.status === "idle").length,
-        offlineMembers: members.filter(m => m.status === "offline").length,
-        avgConversionRate: members.length > 0
-            ? Math.round(members.reduce((s, m) => s + m.conversionRate, 0) / members.length * 10) / 10
-            : 0,
-        totalLeadsAssigned: members.reduce((s, m) => s + m.totalLeads, 0),
-        totalCallsToday: members.reduce((s, m) => s + m.totalCalls, 0),
-    };
+    const stats: TeamStats = useMemo(() => {
+        let adminCount = 0, convSum = 0, leadsSum = 0, callsSum = 0;
+        const activeMembers = members.filter(m => m.isActive);
+        for (const m of members) {
+            if (m.role === "admin") adminCount++;
+            convSum += m.conversionRate;
+            leadsSum += m.totalLeads;
+            callsSum += m.totalCalls;
+        }
+        return {
+            totalMembers: members.length,
+            activeMembers: activeMembers.length,
+            adminCount,
+            avgConversionRate: members.length > 0
+                ? Math.round(convSum / members.length * 10) / 10
+                : 0,
+            totalLeadsAssigned: leadsSum,
+            totalCalls: callsSum,
+        };
+    }, [members]);
 
-    // ── Add a BDA member ───────────────────────────────────────────────
+    // ── Add a member (create app_user + membership) ────────────────────
     const addMemberMutation = useMutation({
-        mutationFn: async (member: { name: string; email: string; phone?: string }) => {
-            const tenantId = await getTenantId();
+        mutationFn: async (member: { name: string; email: string; phone?: string; password: string; role?: MemberRole }) => {
+            if (!currentTenantId) throw new Error("No company context");
 
-            const { data, error } = await supabase
-                .from("team_members")
+            // Hash password
+            const encoder = new TextEncoder();
+            const data = encoder.encode(member.password);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const passwordHash = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+
+            // Check if user already exists
+            const { data: existing } = await supabase
+                .from("app_users")
+                .select("id")
+                .eq("email", member.email.toLowerCase().trim())
+                .maybeSingle();
+
+            let userId: string;
+
+            if (existing) {
+                userId = existing.id;
+                // Check if already a member of this tenant
+                const { data: existingMem } = await supabase
+                    .from("tenant_memberships")
+                    .select("id")
+                    .eq("user_id", userId)
+                    .eq("tenant_id", currentTenantId)
+                    .maybeSingle();
+
+                if (existingMem) throw new Error("This user is already a member of this company.");
+            } else {
+                // Create new user
+                const { data: newUser, error } = await supabase
+                    .from("app_users")
+                    .insert({
+                        email: member.email.toLowerCase().trim(),
+                        phone: member.phone?.trim() || null,
+                        password_hash: passwordHash,
+                        display_name: member.name.trim(),
+                    })
+                    .select()
+                    .single();
+
+                if (error || !newUser) throw new Error(error?.message || "Failed to create user.");
+                userId = newUser.id;
+            }
+
+            // Create membership
+            const { data: mem, error: memErr } = await supabase
+                .from("tenant_memberships")
                 .insert({
-                    tenant_id: tenantId,
-                    name: member.name.trim(),
-                    email: member.email.trim(),
-                    phone: member.phone?.trim() || "",
-                    status: "offline",
+                    user_id: userId,
+                    tenant_id: currentTenantId,
+                    role: member.role || "member",
                 })
-                .select()
+                .select("id, user_id, role, is_active, joined_at, app_users ( id, email, phone, display_name, avatar_url, avatar_color, is_active )")
                 .single();
 
-            if (error) throw error;
-            return data;
+            if (memErr || !mem) throw new Error(memErr?.message || "Failed to add member.");
+            return mem;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["team"] });
-            queryClient.invalidateQueries({ queryKey: ["users"] });
+            queryClient.invalidateQueries({ queryKey: ["team", "members", currentTenantId] });
         },
     });
 
-    // ── Add members in bulk ────────────────────────────────────────────
-    const addMembersBulkMutation = useMutation({
-        mutationFn: async (membersList: { name: string; email: string; phone?: string }[]) => {
-            const tenantId = await getTenantId();
-
-            const rows = membersList.map(m => ({
-                tenant_id: tenantId,
-                name: m.name.trim(),
-                email: m.email.trim(),
-                phone: m.phone?.trim() || "",
-                status: "offline",
-            }));
-
-            // Use upsert to skip duplicates (same email within the tenant)
-            const { data, error } = await supabase
-                .from("team_members")
-                .upsert(rows, { onConflict: "tenant_id,email", ignoreDuplicates: true })
-                .select();
-
-            if (error) {
-                console.error("Bulk import error:", error);
-                throw new Error(error.message || "Database insert failed");
-            }
-            return data;
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["team"] });
-            queryClient.invalidateQueries({ queryKey: ["users"] });
-        },
-    });
-
-    // ── Update member ──────────────────────────────────────────────────
+    // ── Update member role ─────────────────────────────────────────────
     const updateMemberMutation = useMutation({
-        mutationFn: async ({ memberId, updates }: { memberId: string; updates: { name?: string; phone?: string; email?: string } }) => {
-            const updatePayload: Record<string, string> = {};
-            if (updates.name) updatePayload.name = updates.name;
-            if (updates.phone !== undefined) updatePayload.phone = updates.phone;
-            if (updates.email) updatePayload.email = updates.email;
-
+        mutationFn: async ({ membershipId, updates }: { membershipId: string; updates: { role?: MemberRole; is_active?: boolean } }) => {
             const { error } = await supabase
-                .from("team_members")
-                .update(updatePayload)
-                .eq("id", memberId);
+                .from("tenant_memberships")
+                .update(updates)
+                .eq("id", membershipId);
 
             if (error) throw error;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["team"] });
-            queryClient.invalidateQueries({ queryKey: ["users"] });
+            queryClient.invalidateQueries({ queryKey: ["team", "members", currentTenantId] });
         },
     });
 
     // ── Remove member ──────────────────────────────────────────────────
     const removeMemberMutation = useMutation({
-        mutationFn: async (memberId: string) => {
+        mutationFn: async (membershipId: string) => {
             const { error } = await supabase
-                .from("team_members")
+                .from("tenant_memberships")
                 .delete()
-                .eq("id", memberId);
+                .eq("id", membershipId);
 
             if (error) throw error;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["team"] });
-            queryClient.invalidateQueries({ queryKey: ["users"] });
+            queryClient.invalidateQueries({ queryKey: ["team", "members", currentTenantId] });
             queryClient.invalidateQueries({ queryKey: ["leads"] });
         },
     });
@@ -268,11 +271,9 @@ export const useTeam = () => {
         stats,
         loading,
         addMember: addMemberMutation.mutateAsync,
-        addMembersBulk: addMembersBulkMutation.mutateAsync,
         updateMember: updateMemberMutation.mutateAsync,
         removeMember: removeMemberMutation.mutateAsync,
         addingMember: addMemberMutation.isPending,
-        addingBulk: addMembersBulkMutation.isPending,
         updating: updateMemberMutation.isPending,
         removing: removeMemberMutation.isPending,
     };

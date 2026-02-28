@@ -7,80 +7,199 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.1"
-  }
   public: {
     Tables: {
-      call_logs: {
+      tenants: {
         Row: {
-          bda_id: string
-          created_at: string
-          duration_seconds: number
           id: string
-          lead_id: string
-          notes: string | null
-          outcome: string | null
+          name: string
+          slug: string
+          logo_url: string | null
+          plan: string
+          is_active: boolean
+          settings: Json
+          created_at: string
+          updated_at: string
         }
         Insert: {
-          bda_id: string
-          created_at?: string
-          duration_seconds?: number
           id?: string
-          lead_id: string
-          notes?: string | null
-          outcome?: string | null
+          name: string
+          slug: string
+          logo_url?: string | null
+          plan?: string
+          is_active?: boolean
+          settings?: Json
+          created_at?: string
+          updated_at?: string
         }
         Update: {
-          bda_id?: string
-          created_at?: string
-          duration_seconds?: number
           id?: string
-          lead_id?: string
-          notes?: string | null
-          outcome?: string | null
+          name?: string
+          slug?: string
+          logo_url?: string | null
+          plan?: string
+          is_active?: boolean
+          settings?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      app_users: {
+        Row: {
+          id: string
+          email: string
+          phone: string | null
+          password_hash: string
+          display_name: string
+          avatar_url: string | null
+          avatar_color: string | null
+          is_super_admin: boolean
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          phone?: string | null
+          password_hash: string
+          display_name?: string
+          avatar_url?: string | null
+          avatar_color?: string | null
+          is_super_admin?: boolean
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          phone?: string | null
+          password_hash?: string
+          display_name?: string
+          avatar_url?: string | null
+          avatar_color?: string | null
+          is_super_admin?: boolean
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tenant_memberships: {
+        Row: {
+          id: string
+          user_id: string
+          tenant_id: string
+          role: string
+          is_active: boolean
+          joined_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          tenant_id: string
+          role?: string
+          is_active?: boolean
+          joined_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          tenant_id?: string
+          role?: string
+          is_active?: boolean
+          joined_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "call_logs_lead_id_fkey"
-            columns: ["lead_id"]
+            foreignKeyName: "tenant_memberships_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "leads"
+            referencedRelation: "app_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tenant_memberships_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      auth_sessions: {
+        Row: {
+          id: string
+          user_id: string
+          tenant_id: string | null
+          token: string
+          expires_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          tenant_id?: string | null
+          token: string
+          expires_at: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          tenant_id?: string | null
+          token?: string
+          expires_at?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auth_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "app_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "auth_sessions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
       }
       leads: {
         Row: {
-          assigned_to: string | null
-          created_at: string
           id: string
+          tenant_id: string
           name: string
           phone: string
           status: Database["public"]["Enums"]["lead_status"]
-          tenant_id: string
+          assigned_to: string | null
+          created_at: string
           updated_at: string
         }
         Insert: {
-          assigned_to?: string | null
-          created_at?: string
           id?: string
+          tenant_id: string
           name: string
           phone: string
           status?: Database["public"]["Enums"]["lead_status"]
-          tenant_id: string
+          assigned_to?: string | null
+          created_at?: string
           updated_at?: string
         }
         Update: {
-          assigned_to?: string | null
-          created_at?: string
           id?: string
+          tenant_id?: string
           name?: string
           phone?: string
           status?: Database["public"]["Enums"]["lead_status"]
-          tenant_id?: string
+          assigned_to?: string | null
+          created_at?: string
           updated_at?: string
         }
         Relationships: [
@@ -91,148 +210,244 @@ export type Database = {
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "leads_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "app_users"
+            referencedColumns: ["id"]
+          },
         ]
       }
-      profiles: {
+      call_logs: {
         Row: {
-          avatar_url: string | null
-          created_at: string
-          display_name: string | null
           id: string
           tenant_id: string
-          updated_at: string
+          lead_id: string
           user_id: string
+          duration_seconds: number
+          outcome: string | null
+          notes: string | null
+          created_at: string
         }
         Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          display_name?: string | null
           id?: string
           tenant_id: string
-          updated_at?: string
+          lead_id: string
           user_id: string
+          duration_seconds?: number
+          outcome?: string | null
+          notes?: string | null
+          created_at?: string
         }
         Update: {
-          avatar_url?: string | null
-          created_at?: string
-          display_name?: string | null
           id?: string
           tenant_id?: string
-          updated_at?: string
+          lead_id?: string
           user_id?: string
+          duration_seconds?: number
+          outcome?: string | null
+          notes?: string | null
+          created_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_tenant_id_fkey"
+            foreignKeyName: "call_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_logs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "app_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          id: string
+          tenant_id: string
+          user_id: string
+          type: string
+          title: string
+          message: string
+          priority: string
+          is_read: boolean
+          action_url: string | null
+          metadata: Json | null
+          read_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          user_id: string
+          type: string
+          title: string
+          message: string
+          priority?: string
+          is_read?: boolean
+          action_url?: string | null
+          metadata?: Json | null
+          read_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          user_id?: string
+          type?: string
+          title?: string
+          message?: string
+          priority?: string
+          is_read?: boolean
+          action_url?: string | null
+          metadata?: Json | null
+          read_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "app_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_settings: {
+        Row: {
+          id: string
+          user_id: string
+          notif_new_lead: boolean
+          notif_missed_call: boolean
+          notif_conversion: boolean
+          notif_team_updates: boolean
+          notif_daily_summary: boolean
+          auto_dial_next: boolean
+          cooldown_timer: number
+          show_post_call_modal: boolean
+          call_recording: boolean
+          default_lead_status: string
+          auto_assign_leads: boolean
+          timezone: string
+          language: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          notif_new_lead?: boolean
+          notif_missed_call?: boolean
+          notif_conversion?: boolean
+          notif_team_updates?: boolean
+          notif_daily_summary?: boolean
+          auto_dial_next?: boolean
+          cooldown_timer?: number
+          show_post_call_modal?: boolean
+          call_recording?: boolean
+          default_lead_status?: string
+          auto_assign_leads?: boolean
+          timezone?: string
+          language?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          notif_new_lead?: boolean
+          notif_missed_call?: boolean
+          notif_conversion?: boolean
+          notif_team_updates?: boolean
+          notif_daily_summary?: boolean
+          auto_dial_next?: boolean
+          cooldown_timer?: number
+          show_post_call_modal?: boolean
+          call_recording?: boolean
+          default_lead_status?: string
+          auto_assign_leads?: boolean
+          timezone?: string
+          language?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "app_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_logs: {
+        Row: {
+          id: string
+          tenant_id: string
+          user_id: string | null
+          action: string
+          description: string
+          metadata: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          tenant_id: string
+          user_id?: string | null
+          action: string
+          description: string
+          metadata?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          tenant_id?: string
+          user_id?: string | null
+          action?: string
+          description?: string
+          metadata?: Json | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
-      }
-      team_members: {
-        Row: {
-          id: string
-          tenant_id: string
-          linked_user_id: string | null
-          name: string
-          email: string
-          phone: string
-          status: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          tenant_id: string
-          linked_user_id?: string | null
-          name: string
-          email: string
-          phone?: string
-          status?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          tenant_id?: string
-          linked_user_id?: string | null
-          name?: string
-          email?: string
-          phone?: string
-          status?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "team_members_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      tenants: {
-        Row: {
-          api_config: Json | null
-          created_at: string
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          api_config?: Json | null
-          created_at?: string
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          api_config?: Json | null
-          created_at?: string
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      user_roles: {
-        Row: {
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_user_tenant_id: { Args: { _user_id: string }; Returns: string }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
-      app_role: "super_admin" | "bda"
       lead_status: "new" | "contacted" | "interested" | "closed"
     }
     CompositeTypes: {
@@ -241,25 +456,23 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof Database
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -277,16 +490,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof Database
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -302,16 +515,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof Database
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -327,16 +540,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof Database
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -344,16 +557,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof Database
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
@@ -361,7 +574,6 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["super_admin", "bda"],
       lead_status: ["new", "contacted", "interested", "closed"],
     },
   },

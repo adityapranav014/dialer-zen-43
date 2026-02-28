@@ -303,24 +303,24 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
             />
 
             {/* Modal */}
-            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg rounded-2xl bg-white border border-black/[0.06] shadow-xl overflow-hidden">
+            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-xl rounded-2xl bg-card border border-border shadow-xl overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-black/[0.06]">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                     <div>
-                        <h3 className="text-sm font-semibold text-[#1f1f1f] tracking-tight">Add Leads</h3>
-                        <p className="text-xs text-[#1f1f1f]/40 mt-0.5">Add manually or import from CSV / Excel</p>
+                        <h3 className="text-sm font-semibold text-foreground tracking-tight">Add Leads</h3>
+                        <p className="text-xs text-foreground/40 mt-0.5">Add manually or import from CSV / Excel</p>
                     </div>
                     <button
                         onClick={onClose}
                         disabled={isBusy}
-                        className="h-7 w-7 rounded-lg bg-[#f4f4f4] flex items-center justify-center text-[#1f1f1f]/40 hover:text-[#1f1f1f] transition-colors disabled:opacity-40"
+                        className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors disabled:opacity-40"
                     >
                         <X className="h-3.5 w-3.5" />
                     </button>
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-black/[0.06]">
+                <div className="flex border-b border-border">
                     {(
                         [
                             { id: "manual" as Tab, label: "Add Manually", icon: UserPlus },
@@ -332,8 +332,8 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                             onClick={() => setTab(t.id)}
                             className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold transition-all border-b-2 ${
                                 tab === t.id
-                                    ? "text-[#1f1f1f] border-[#1f1f1f]"
-                                    : "text-[#1f1f1f]/35 border-transparent hover:text-[#1f1f1f]/60"
+                                    ? "text-foreground border-foreground"
+                                    : "text-foreground/35 border-transparent hover:text-foreground/60"
                             }`}
                         >
                             <t.icon className="h-3.5 w-3.5" />
@@ -349,16 +349,16 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                         <div className="space-y-4">
                             {/* Name */}
                             <div>
-                                <label className="text-[11px] font-semibold text-[#1f1f1f]/50 uppercase tracking-wider block mb-1.5">
+                                <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider block mb-1.5">
                                     Full Name *
                                 </label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#1f1f1f]/20 pointer-events-none" />
+                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/20 pointer-events-none" />
                                     <input
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         placeholder="e.g. Rahul Sharma"
-                                        className="w-full h-10 pl-10 pr-4 bg-[#f4f4f4] border border-black/[0.06] rounded-xl text-xs text-[#1f1f1f] placeholder:text-[#1f1f1f]/25 focus:outline-none focus:ring-2 focus:ring-[#1f1f1f]/10 focus:border-[#1f1f1f]/15 transition-all"
+                                        className="w-full h-10 pl-10 pr-4 bg-muted border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all"
                                         autoFocus
                                     />
                                 </div>
@@ -366,23 +366,23 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
 
                             {/* Phone */}
                             <div>
-                                <label className="text-[11px] font-semibold text-[#1f1f1f]/50 uppercase tracking-wider block mb-1.5">
+                                <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider block mb-1.5">
                                     Phone Number *
                                 </label>
                                 <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#1f1f1f]/20 pointer-events-none" />
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/20 pointer-events-none" />
                                     <input
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
                                         placeholder="e.g. +91 98765 43210"
-                                        className="w-full h-10 pl-10 pr-4 bg-[#f4f4f4] border border-black/[0.06] rounded-xl text-xs text-[#1f1f1f] placeholder:text-[#1f1f1f]/25 focus:outline-none focus:ring-2 focus:ring-[#1f1f1f]/10 focus:border-[#1f1f1f]/15 transition-all"
+                                        className="w-full h-10 pl-10 pr-4 bg-muted border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all"
                                     />
                                 </div>
                             </div>
 
                             {/* Status */}
                             <div>
-                                <label className="text-[11px] font-semibold text-[#1f1f1f]/50 uppercase tracking-wider block mb-1.5">
+                                <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider block mb-1.5">
                                     Initial Status
                                 </label>
                                 <div className="flex gap-2">
@@ -392,8 +392,8 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                             onClick={() => setStatus(s)}
                                             className={`flex-1 py-2 rounded-lg text-[11px] font-semibold capitalize border transition-all ${
                                                 status === s
-                                                    ? "bg-[#1f1f1f] text-white border-[#1f1f1f]"
-                                                    : "bg-white text-[#1f1f1f]/50 border-black/[0.06] hover:border-[#1f1f1f]/20 hover:text-[#1f1f1f]"
+                                                    ? "bg-primary text-primary-foreground border-primary"
+                                                    : "bg-card text-foreground/50 border-border hover:border-foreground/20 hover:text-foreground"
                                             }`}
                                         >
                                             {s}
@@ -422,17 +422,17 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                     {tab === "csv" && (
                         <div className="space-y-5">
                             {/* Format info */}
-                            <div className="rounded-xl border border-black/[0.06] overflow-hidden">
-                                <div className="flex items-center justify-between px-4 py-2.5 bg-[#f6f7ed] border-b border-black/[0.06]">
+                            <div className="rounded-xl border border-border overflow-hidden">
+                                <div className="flex items-center justify-between px-4 py-2.5 bg-accent border-b border-border">
                                     <div className="flex items-center gap-2">
-                                        <FileText className="h-3.5 w-3.5 text-[#1f1f1f]/50" />
-                                        <span className="text-[11px] font-semibold text-[#1f1f1f]/60">
+                                        <FileText className="h-3.5 w-3.5 text-foreground/50" />
+                                        <span className="text-[11px] font-semibold text-foreground/60">
                                             Required Format (CSV / Excel)
                                         </span>
                                     </div>
                                     <button
                                         onClick={downloadSampleCSV}
-                                        className="flex items-center gap-1.5 text-[10px] font-semibold text-[#1f1f1f]/50 hover:text-[#1f1f1f] transition-colors"
+                                        className="flex items-center gap-1.5 text-[10px] font-semibold text-foreground/50 hover:text-foreground transition-colors"
                                     >
                                         <Download className="h-3 w-3" />
                                         Download Sample
@@ -441,35 +441,35 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-xs">
                                         <thead>
-                                            <tr className="bg-[#f4f4f4]">
-                                                <th className="text-left px-4 py-2 text-[#1f1f1f]/50 font-semibold">
+                                            <tr className="bg-muted">
+                                                <th className="text-left px-4 py-2 text-foreground/50 font-semibold">
                                                     name <span className="text-red-400">*</span>
                                                 </th>
-                                                <th className="text-left px-4 py-2 text-[#1f1f1f]/50 font-semibold">
+                                                <th className="text-left px-4 py-2 text-foreground/50 font-semibold">
                                                     phone <span className="text-red-400">*</span>
                                                 </th>
-                                                <th className="text-left px-4 py-2 text-[#1f1f1f]/50 font-semibold">
+                                                <th className="text-left px-4 py-2 text-foreground/50 font-semibold">
                                                     status{" "}
-                                                    <span className="text-[#1f1f1f]/25 font-normal">(optional)</span>
+                                                    <span className="text-foreground/25 font-normal">(optional)</span>
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-black/[0.04]">
+                                        <tbody className="divide-y divide-foreground/[0.04]">
                                             <tr>
-                                                <td className="px-4 py-2 text-[#1f1f1f]/60">Rahul Sharma</td>
-                                                <td className="px-4 py-2 text-[#1f1f1f]/60">+91 98765 43210</td>
-                                                <td className="px-4 py-2 text-[#1f1f1f]/40">new</td>
+                                                <td className="px-4 py-2 text-foreground/60">Rahul Sharma</td>
+                                                <td className="px-4 py-2 text-foreground/60">+91 98765 43210</td>
+                                                <td className="px-4 py-2 text-foreground/40">new</td>
                                             </tr>
                                             <tr>
-                                                <td className="px-4 py-2 text-[#1f1f1f]/60">Priya Patel</td>
-                                                <td className="px-4 py-2 text-[#1f1f1f]/60">+91 87654 32109</td>
-                                                <td className="px-4 py-2 text-[#1f1f1f]/40">contacted</td>
+                                                <td className="px-4 py-2 text-foreground/60">Priya Patel</td>
+                                                <td className="px-4 py-2 text-foreground/60">+91 87654 32109</td>
+                                                <td className="px-4 py-2 text-foreground/40">contacted</td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
-                                <div className="px-4 py-2 bg-[#f4f4f4]/50 border-t border-black/[0.04]">
-                                    <p className="text-[10px] text-[#1f1f1f]/30">
+                                <div className="px-4 py-2 bg-muted/50 border-t border-foreground/[0.04]">
+                                    <p className="text-[10px] text-foreground/30">
                                         Status accepts: <span className="font-medium">new</span>,{" "}
                                         <span className="font-medium">contacted</span>,{" "}
                                         <span className="font-medium">interested</span>,{" "}
@@ -489,10 +489,10 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                 onClick={() => fileInputRef.current?.click()}
                                 className={`flex flex-col items-center justify-center gap-3 py-8 rounded-xl border-2 border-dashed transition-all cursor-pointer ${
                                     dragging
-                                        ? "border-[#1f1f1f]/40 bg-[#f6f7ed]/60"
+                                        ? "border-foreground/40 bg-accent/60"
                                         : csvFile
-                                        ? "border-emerald-300 bg-emerald-50/30"
-                                        : "border-black/[0.08] hover:border-[#1f1f1f]/20 hover:bg-[#f4f4f4]/50"
+                                        ? "border-emerald-300 bg-emerald-50/30 dark:border-emerald-700 dark:bg-emerald-950/20"
+                                        : "border-border hover:border-foreground/20 hover:bg-muted/50"
                                 }`}
                             >
                                 <input
@@ -504,29 +504,29 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                 />
                                 {csvFile ? (
                                     <>
-                                        <div className="h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                                            <FileText className="h-5 w-5 text-emerald-600" />
+                                        <div className="h-10 w-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/30 flex items-center justify-center">
+                                            <FileText className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                                         </div>
                                         <div className="text-center">
-                                            <p className="text-xs font-semibold text-[#1f1f1f]">{csvFile.name}</p>
-                                            <p className="text-[10px] text-[#1f1f1f]/30 mt-0.5">
+                                            <p className="text-xs font-semibold text-foreground">{csvFile.name}</p>
+                                            <p className="text-[10px] text-foreground/30 mt-0.5">
                                                 {(csvFile.size / 1024).toFixed(1)} KB · Click to replace
                                             </p>
                                         </div>
                                     </>
                                 ) : (
                                     <>
-                                        <div className="h-10 w-10 rounded-xl bg-[#f4f4f4] flex items-center justify-center">
-                                            <Upload className="h-5 w-5 text-[#1f1f1f]/30" />
+                                        <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
+                                            <Upload className="h-5 w-5 text-foreground/30" />
                                         </div>
                                         <div className="text-center">
-                                            <p className="text-xs font-medium text-[#1f1f1f]/60">
+                                            <p className="text-xs font-medium text-foreground/60">
                                                 Drop your file here or{" "}
-                                                <span className="text-[#1f1f1f] font-semibold underline underline-offset-2">
+                                                <span className="text-foreground font-semibold underline underline-offset-2">
                                                     browse
                                                 </span>
                                             </p>
-                                            <p className="text-[10px] text-[#1f1f1f]/25 mt-0.5">
+                                            <p className="text-[10px] text-foreground/25 mt-0.5">
                                                 Supports .csv and .xlsx files up to 5 MB
                                             </p>
                                         </div>
@@ -536,8 +536,8 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
 
                             {/* Validation errors */}
                             {csvErrors.length > 0 && (
-                                <div className="rounded-xl border border-red-200/60 bg-red-50/50 overflow-hidden">
-                                    <div className="flex items-center gap-2 px-4 py-2.5 border-b border-red-200/40">
+                                <div className="rounded-xl border border-red-200/60 bg-red-50/50 dark:border-red-900/40 dark:bg-red-950/30 overflow-hidden">
+                                    <div className="flex items-center gap-2 px-4 py-2.5 border-b border-red-200/40 dark:border-red-900/30">
                                         <AlertCircle className="h-3.5 w-3.5 text-red-500 shrink-0" />
                                         <span className="text-xs font-semibold text-red-600">
                                             {csvErrors.length} validation {csvErrors.length === 1 ? "error" : "errors"}{" "}
@@ -556,9 +556,9 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
 
                             {/* Preview */}
                             {csvPreview && csvPreview.length > 0 && csvErrors.length === 0 && (
-                                <div className="rounded-xl border border-black/[0.06] overflow-hidden">
-                                    <div className="flex items-center justify-between px-4 py-2.5 bg-[#f4f4f4] border-b border-black/[0.06]">
-                                        <span className="text-[11px] font-semibold text-[#1f1f1f]/60">
+                                <div className="rounded-xl border border-border overflow-hidden">
+                                    <div className="flex items-center justify-between px-4 py-2.5 bg-muted border-b border-border">
+                                        <span className="text-[11px] font-semibold text-foreground/60">
                                             Preview · {csvPreview.length} lead{csvPreview.length !== 1 ? "s" : ""} ready
                                         </span>
                                         <button
@@ -567,7 +567,7 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                                 setCsvPreview(null);
                                                 if (fileInputRef.current) fileInputRef.current.value = "";
                                             }}
-                                            className="flex items-center gap-1 text-[10px] font-medium text-[#1f1f1f]/35 hover:text-red-500 transition-colors"
+                                            className="flex items-center gap-1 text-[10px] font-medium text-foreground/35 hover:text-red-500 transition-colors"
                                         >
                                             <Trash2 className="h-3 w-3" />
                                             Clear
@@ -576,29 +576,29 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                     <div className="overflow-x-auto max-h-48 overflow-y-auto scroll-container">
                                         <table className="w-full text-xs">
                                             <thead>
-                                                <tr className="bg-[#f4f4f4]/60">
-                                                    <th className="text-left px-4 py-1.5 text-[#1f1f1f]/40 font-medium">
+                                                <tr className="bg-muted/60">
+                                                    <th className="text-left px-4 py-1.5 text-foreground/40 font-medium">
                                                         #
                                                     </th>
-                                                    <th className="text-left px-4 py-1.5 text-[#1f1f1f]/40 font-medium">
+                                                    <th className="text-left px-4 py-1.5 text-foreground/40 font-medium">
                                                         Name
                                                     </th>
-                                                    <th className="text-left px-4 py-1.5 text-[#1f1f1f]/40 font-medium">
+                                                    <th className="text-left px-4 py-1.5 text-foreground/40 font-medium">
                                                         Phone
                                                     </th>
-                                                    <th className="text-left px-4 py-1.5 text-[#1f1f1f]/40 font-medium">
+                                                    <th className="text-left px-4 py-1.5 text-foreground/40 font-medium">
                                                         Status
                                                     </th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-black/[0.04]">
+                                            <tbody className="divide-y divide-foreground/[0.04]">
                                                 {csvPreview.map((row, i) => (
-                                                    <tr key={i} className="hover:bg-[#f6f7ed]/30">
-                                                        <td className="px-4 py-1.5 text-[#1f1f1f]/25">{i + 1}</td>
-                                                        <td className="px-4 py-1.5 text-[#1f1f1f]">{row.name}</td>
-                                                        <td className="px-4 py-1.5 text-[#1f1f1f]/60">{row.phone}</td>
+                                                    <tr key={i} className="hover:bg-accent/30">
+                                                        <td className="px-4 py-1.5 text-foreground/25">{i + 1}</td>
+                                                        <td className="px-4 py-1.5 text-foreground">{row.name}</td>
+                                                        <td className="px-4 py-1.5 text-foreground/60">{row.phone}</td>
                                                         <td className="px-4 py-1.5">
-                                                            <span className="text-[10px] font-medium text-[#1f1f1f]/40 capitalize">
+                                                            <span className="text-[10px] font-medium text-foreground/40 capitalize">
                                                                 {row.status || "new"}
                                                             </span>
                                                         </td>
@@ -626,11 +626,11 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
 
                 {/* ── Fixed Footer — buttons outside scrollable area ── */}
                 {tab === "manual" && (
-                    <div className="px-6 py-4 border-t border-black/[0.06] bg-white">
+                    <div className="px-6 py-4 border-t border-border bg-card">
                         <button
                             onClick={handleManualSubmit}
                             disabled={isBusy || !name.trim() || !phone.trim()}
-                            className="w-full h-10 rounded-xl bg-[#1f1f1f] text-white text-xs font-semibold flex items-center justify-center gap-2 hover:bg-[#1f1f1f]/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                             {addingLead ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -644,11 +644,11 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                     </div>
                 )}
                 {tab === "csv" && csvPreview && csvPreview.length > 0 && csvErrors.length === 0 && (
-                    <div className="px-6 py-4 border-t border-black/[0.06] bg-white">
+                    <div className="px-6 py-4 border-t border-border bg-card">
                         <button
                             onClick={handleCSVImport}
                             disabled={isBusy}
-                            className="w-full h-10 rounded-xl bg-[#1f1f1f] text-white text-xs font-semibold flex items-center justify-center gap-2 hover:bg-[#1f1f1f]/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                             {addingBulk ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />

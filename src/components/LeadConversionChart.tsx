@@ -1,16 +1,10 @@
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from "recharts";
-
-const data = [
-  { stage: "New", count: 42, pct: "100%" },
-  { stage: "Contacted", count: 28, pct: "67%" },
-  { stage: "Interested", count: 15, pct: "36%" },
-  { stage: "Closed", count: 8, pct: "19%" },
-];
+import { useLeadFunnel } from "@/hooks/useLeadFunnel";
 
 const barColors = [
-  "#1f1f1f",
-  "#4a4a4a",
-  "#7a7a7a",
+  "hsl(var(--foreground))",
+  "hsl(var(--foreground) / 0.6)",
+  "hsl(var(--foreground) / 0.35)",
   "#10b981",
 ];
 
@@ -20,8 +14,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div
         className="surface-elevated rounded-lg px-3 py-2 text-xs"
       >
-        <p className="font-semibold text-[#1f1f1f]">{label}</p>
-        <p className="text-[#1f1f1f]/40 mt-0.5">{payload[0].value} leads</p>
+        <p className="font-semibold text-foreground">{label}</p>
+        <p className="text-foreground/40 mt-0.5">{payload[0].value} leads</p>
       </div>
     );
   }
@@ -29,6 +23,23 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const LeadConversionChart = () => {
+  const { funnel, isLoading } = useLeadFunnel();
+
+  // Compute percentage relative to the first stage (max)
+  const maxCount = funnel.length > 0 ? funnel[0].count : 1;
+  const data = funnel.map((item) => ({
+    ...item,
+    pct: maxCount > 0 ? `${Math.round((item.count / maxCount) * 100)}%` : "0%",
+  }));
+
+  if (isLoading) {
+    return (
+      <div className="h-44 flex items-center justify-center">
+        <span className="text-xs text-foreground/30">Loading…</span>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       <div className="w-full h-44">
@@ -38,13 +49,13 @@ const LeadConversionChart = () => {
               dataKey="stage"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#1f1f1f", opacity: 0.4, fontSize: 11, fontWeight: 500 }}
+              tick={{ fill: "hsl(var(--foreground))", opacity: 0.4, fontSize: 11, fontWeight: 500 }}
             />
             <YAxis hide />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: "#f6f7ed", radius: 6 }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: "hsl(var(--accent))", radius: 6 }} />
             <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={barColors[index]} />
+              {data.map((_entry, index) => (
+                <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
               ))}
             </Bar>
           </BarChart>
@@ -55,9 +66,9 @@ const LeadConversionChart = () => {
       <div className="flex gap-2 flex-wrap">
         {data.map((d, i) => (
           <div key={d.stage} className="flex items-center gap-1.5 text-[11px]">
-            <span className="h-2 w-2 rounded-sm" style={{ background: barColors[i] }} />
-            <span className="text-[#1f1f1f]/40">{d.stage}</span>
-            <span className="font-semibold text-[#1f1f1f]">{d.pct}</span>
+            <span className="h-2 w-2 rounded-sm" style={{ background: barColors[i % barColors.length] }} />
+            <span className="text-foreground/40">{d.stage}</span>
+            <span className="font-semibold text-foreground">{d.pct}</span>
           </div>
         ))}
       </div>

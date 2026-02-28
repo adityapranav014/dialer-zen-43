@@ -4,7 +4,7 @@ import { useAuth } from "./useAuth";
 
 export const useCallLogs = () => {
     const queryClient = useQueryClient();
-    const { user } = useAuth();
+    const { user, currentTenantId } = useAuth();
 
     const logCallMutation = useMutation({
         mutationFn: async ({
@@ -19,9 +19,11 @@ export const useCallLogs = () => {
             outcome: string;
         }) => {
             if (!user) throw new Error("User must be logged in to log a call");
+            if (!currentTenantId) throw new Error("No company context selected");
 
             const { error } = await supabase.from("call_logs").insert({
-                bda_id: user.id,
+                user_id: user.id,
+                tenant_id: currentTenantId,
                 lead_id: leadId,
                 duration_seconds: durationSeconds,
                 notes,
@@ -31,9 +33,9 @@ export const useCallLogs = () => {
             if (error) throw error;
         },
         onSuccess: () => {
-            // Invalidate relevant queries if needed
             queryClient.invalidateQueries({ queryKey: ["call_logs"] });
             queryClient.invalidateQueries({ queryKey: ["leads", "activity"] });
+            queryClient.invalidateQueries({ queryKey: ["stats"] });
         },
     });
 
