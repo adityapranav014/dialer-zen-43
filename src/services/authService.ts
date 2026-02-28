@@ -178,6 +178,29 @@ export async function signUp(payload: SignUpPayload): Promise<AuthUser> {
  * Super admins skip the company slug requirement (pass "superadmin" as slug).
  */
 export async function signIn(payload: SignInPayload): Promise<AuthUser> {
+  // Wrap in try-catch to surface network/connection errors clearly
+  try {
+    return await _signIn(payload);
+  } catch (err: any) {
+    // Detect network-level failures (Supabase project paused, unreachable, etc.)
+    if (
+      err?.message?.includes("Failed to fetch") ||
+      err?.message?.includes("NetworkError") ||
+      err?.message?.includes("Load failed") ||
+      err?.message?.includes("network") ||
+      err?.code === "PGRST301"
+    ) {
+      console.error("[signIn] Connection failed:", err);
+      throw new Error(
+        "Unable to connect to the server. The database may be paused or unreachable. " +
+        "Check your Supabase project status at https://supabase.com/dashboard."
+      );
+    }
+    throw err;
+  }
+}
+
+async function _signIn(payload: SignInPayload): Promise<AuthUser> {
   const passwordHash = await hashPassword(payload.password);
   const identifier = payload.identifier.toLowerCase().trim();
 

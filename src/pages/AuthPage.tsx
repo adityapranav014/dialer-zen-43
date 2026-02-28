@@ -9,9 +9,12 @@ import {
   Eye,
   EyeOff,
   Building2,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { checkSupabaseConnection } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const AuthPage = () => {
@@ -24,9 +27,26 @@ const AuthPage = () => {
   const [displayName, setDisplayName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [checkingConnection, setCheckingConnection] = useState(true);
 
   const { signIn, signUp, user, isSuperAdmin, isPlatformView } = useAuth();
   const navigate = useNavigate();
+
+  // Check Supabase connectivity on mount
+  const checkConnection = async () => {
+    setCheckingConnection(true);
+    setConnectionError(null);
+    const result = await checkSupabaseConnection();
+    if (!result.ok) {
+      setConnectionError(result.error || "Cannot connect to the server.");
+    }
+    setCheckingConnection(false);
+  };
+
+  useEffect(() => {
+    checkConnection();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -90,6 +110,27 @@ const AuthPage = () => {
             {isSignUp ? "Create your account to get started" : "Sign in to your account"}
           </p>
         </div>
+
+        {/* ── Connection Error Banner ── */}
+        {connectionError && (
+          <div className="mb-4 p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-sm">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-medium text-destructive mb-1">Server Unreachable</p>
+                <p className="text-destructive/80 text-xs leading-relaxed">{connectionError}</p>
+              </div>
+              <button
+                type="button"
+                onClick={checkConnection}
+                disabled={checkingConnection}
+                className="shrink-0 p-1.5 rounded-md hover:bg-destructive/10 text-destructive transition-colors"
+              >
+                <RefreshCw className={`h-4 w-4 ${checkingConnection ? "animate-spin" : ""}`} />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ── Form Card ── */}
         <div className="surface-card p-6 sm:p-8">
