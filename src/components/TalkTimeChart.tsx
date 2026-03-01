@@ -33,8 +33,8 @@ const TalkTimeChart = ({ minutes, goal }: TalkTimeChartProps) => {
               dataKey="value"
               strokeWidth={0}
             >
-              <Cell fill="hsl(var(--foreground))" />
-              <Cell fill="hsl(var(--muted))" />
+              <Cell fill="lab(var(--foreground))" />
+              <Cell fill="lab(var(--muted))" />
             </Pie>
 
           </PieChart>

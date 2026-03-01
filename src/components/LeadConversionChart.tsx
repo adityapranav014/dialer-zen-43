@@ -2,9 +2,9 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 
 import { useLeadFunnel } from "@/hooks/useLeadFunnel";
 
 const barColors = [
-  "hsl(var(--foreground))",
-  "hsl(var(--foreground) / 0.6)",
-  "hsl(var(--foreground) / 0.35)",
+  "lab(var(--foreground))",
+  "lab(var(--foreground) / 0.6)",
+  "lab(var(--foreground) / 0.35)",
   "#10b981",
 ];
 
@@ -49,10 +49,10 @@ const LeadConversionChart = () => {
               dataKey="stage"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "hsl(var(--foreground))", opacity: 0.4, fontSize: 11, fontWeight: 500 }}
+              tick={{ fill: "lab(var(--foreground))", opacity: 0.4, fontSize: 11, fontWeight: 500 }}
             />
             <YAxis hide />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: "hsl(var(--accent))", radius: 6 }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: "lab(var(--accent))", radius: 6 }} />
             <Bar dataKey="count" radius={[8, 8, 0, 0]}>
               {data.map((_entry, index) => (
                 <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />

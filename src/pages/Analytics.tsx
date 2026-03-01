@@ -113,19 +113,19 @@ const Analytics = () => {
               <AreaChart data={weeklyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
                 <defs>
                   <linearGradient id="callsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--foreground))" stopOpacity={0.1} />
-                    <stop offset="95%" stopColor="hsl(var(--foreground))" stopOpacity={0.01} />
+                    <stop offset="5%" stopColor="lab(var(--foreground))" stopOpacity={0.1} />
+                    <stop offset="95%" stopColor="lab(var(--foreground))" stopOpacity={0.01} />
                   </linearGradient>
                   <linearGradient id="convGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0.01} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--foreground) / 0.06)" vertical={false} />
-                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground) / 0.5)", fontSize: 11, fontWeight: 500 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground) / 0.5)", fontSize: 11 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="lab(var(--foreground) / 0.06)" vertical={false} />
+                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: "lab(var(--foreground) / 0.5)", fontSize: 11, fontWeight: 500 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: "lab(var(--foreground) / 0.5)", fontSize: 11 }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="calls" stroke="hsl(var(--foreground))" strokeWidth={1.5} fill="url(#callsGrad)" />
+                <Area type="monotone" dataKey="calls" stroke="lab(var(--foreground))" strokeWidth={1.5} fill="url(#callsGrad)" />
                 <Area type="monotone" dataKey="conversions" stroke="#10b981" strokeWidth={1.5} fill="url(#convGrad)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -141,11 +141,11 @@ const Analytics = () => {
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={hourlyData} margin={{ top: 4, right: 4, bottom: 0, left: -24 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--foreground) / 0.06)" vertical={false} />
-                <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground) / 0.5)", fontSize: 10, fontWeight: 500 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: "hsl(var(--foreground) / 0.5)", fontSize: 11 }} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: "hsl(var(--foreground) / 0.03)", radius: 4 }} />
-                <Bar dataKey="calls" radius={[4, 4, 0, 0]} fill="hsl(var(--foreground))" fillOpacity={0.8} />
+                <CartesianGrid strokeDasharray="3 3" stroke="lab(var(--foreground) / 0.06)" vertical={false} />
+                <XAxis dataKey="hour" axisLine={false} tickLine={false} tick={{ fill: "lab(var(--foreground) / 0.5)", fontSize: 10, fontWeight: 500 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: "lab(var(--foreground) / 0.5)", fontSize: 11 }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "lab(var(--foreground) / 0.03)", radius: 4 }} />
+                <Bar dataKey="calls" radius={[4, 4, 0, 0]} fill="lab(var(--foreground))" fillOpacity={0.8} />
               </BarChart>
             </ResponsiveContainer>
           </div>

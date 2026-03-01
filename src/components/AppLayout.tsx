@@ -205,7 +205,7 @@ export const AppLayout = ({
                     </button>
                   ))}
 
-                  {/* Appearance — inline theme picker */
+                  {/* Appearance — inline theme picker */}
                   <div className="px-4 py-2">
                     <button
                       onClick={() => setShowThemePicker((v) => !v)}
