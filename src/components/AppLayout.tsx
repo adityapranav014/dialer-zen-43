@@ -104,7 +104,7 @@ export const AppLayout = ({
           <div className="flex items-center gap-1.5 text-sm min-w-0">
             <button
               onClick={() => navigate(isSuperAdmin ? "/platform" : "/dashboard")}
-              className="text-foreground/40 font-medium hidden sm:inline hover:text-primary cursor-pointer transition-colors"
+              className="text-foreground/40 font-medium hidden sm:inline hover:text-primary hover:underline decoration-primary/30 underline-offset-2 cursor-pointer transition-colors"
             >
               DialFlow
             </button>
@@ -113,7 +113,7 @@ export const AppLayout = ({
                 <ChevronRight className="h-3.5 w-3.5 text-foreground/25 hidden sm:inline shrink-0" />
                 <button
                   onClick={() => navigate("/dashboard")}
-                  className="text-foreground/40 font-medium hidden sm:inline truncate max-w-[120px] hover:text-primary cursor-pointer transition-colors"
+                  className="text-foreground/40 font-medium hidden sm:inline truncate max-w-[120px] hover:text-primary hover:underline decoration-primary/30 underline-offset-2 cursor-pointer transition-colors"
                 >
                   {currentTenantName}
                 </button>

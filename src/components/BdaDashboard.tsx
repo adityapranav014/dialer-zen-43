@@ -31,7 +31,7 @@ const BdaDashboard = () => {
 
     const [calling, setCalling] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
-    const [activeLead, setActiveLead] = useState<{ id: string; name: string } | null>(null);
+    const [activeLead, setActiveLead] = useState<{ id: string; name: string; status: string } | null>(null);
     const [callDuration, setCallDuration] = useState(0);
     const callStartRef = useRef<number>(0);
 
@@ -57,7 +57,7 @@ const BdaDashboard = () => {
     const handleQuickCall = () => {
         const nextLead = myLeads[0];
         if (!nextLead) return;
-        setActiveLead({ id: nextLead.id, name: nextLead.name });
+        setActiveLead({ id: nextLead.id, name: nextLead.name, status: nextLead.status });
         setCalling(true);
         callStartRef.current = Date.now();
         setTimeout(() => {
@@ -102,6 +102,7 @@ const BdaDashboard = () => {
                 leadId={activeLead?.id || ""}
                 leadName={activeLead?.name || ""}
                 duration={callDuration}
+                leadStatus={activeLead?.status || "new"}
             />
 
             {/* Stats row */}

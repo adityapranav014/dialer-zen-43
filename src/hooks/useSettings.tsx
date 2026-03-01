@@ -1,5 +1,5 @@
 /**
- * useSettings — Supabase-backed user settings hook
+ * useSettings — user settings hook (Turso / Drizzle)
  *
  * Fetches and persists per-user settings (notifications, calling, leads, general)
  * to the `user_settings` table via the service layer.

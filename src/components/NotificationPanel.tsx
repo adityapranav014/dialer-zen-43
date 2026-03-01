@@ -19,7 +19,6 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   useNotifications,
   type Notification,
@@ -221,7 +220,7 @@ const NotificationPanel = () => {
             <p className="text-[11px] text-foreground/25 mt-0.5">You're all caught up!</p>
           </div>
         ) : (
-          <ScrollArea className="max-h-[400px]">
+          <div className="overflow-y-auto max-h-[400px] scroll-container">
             <div className="divide-y divide-foreground/[0.04]">
               {notifications.map((n) => (
                 <NotificationRow
@@ -233,7 +232,7 @@ const NotificationPanel = () => {
                 />
               ))}
             </div>
-          </ScrollArea>
+          </div>
         )}
 
       </PopoverContent>

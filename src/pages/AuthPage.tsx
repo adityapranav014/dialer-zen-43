@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { checkSupabaseConnection } from "@/integrations/supabase/client";
+import { checkTursoConnection } from "@/integrations/turso/client";
 import { toast } from "sonner";
 
 const AuthPage = () => {
@@ -33,11 +33,11 @@ const AuthPage = () => {
   const { signIn, signUp, user, isSuperAdmin, isPlatformView } = useAuth();
   const navigate = useNavigate();
 
-  // Check Supabase connectivity on mount
+  // Check Turso connectivity on mount
   const checkConnection = async () => {
     setCheckingConnection(true);
     setConnectionError(null);
-    const result = await checkSupabaseConnection();
+    const result = await checkTursoConnection();
     if (!result.ok) {
       setConnectionError(result.error || "Cannot connect to the server.");
     }

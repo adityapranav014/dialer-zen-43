@@ -1,13 +1,11 @@
 /**
- * useNotifications — Supabase-backed notification hook
+ * useNotifications — Turso-backed notification hook
  *
- * * Fetches notifications for the current user via the service layer
- * * Supports Supabase Realtime for instant push
- * * Falls back gracefully for demo-mode users
+ * Fetches notifications for the current user via the service layer.
+ * Polls every 30 s for new notifications.
  */
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import {
   fetchNotifications,
@@ -42,32 +40,8 @@ export const useNotifications = () => {
     enabled: !!user?.id,
     queryFn: () => fetchNotifications(user!.id),
     staleTime: 30_000,
+    refetchInterval: 30_000, // poll every 30 s
   });
-
-  // ── Realtime subscription ────────────────────────────────────────────
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const channel = supabase
-      .channel(`notifications:${user.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "notifications",
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: [QUERY_KEY, user.id] });
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id, queryClient]);
 
   // ── Derived state ────────────────────────────────────────────────────
   const unreadCount = useMemo(

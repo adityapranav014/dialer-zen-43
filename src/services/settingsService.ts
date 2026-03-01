@@ -1,14 +1,15 @@
-/**
- * Settings Service
+﻿/**
+ * Settings Service — Turso / Drizzle
  *
- * Encapsulates all Supabase operations for the `user_settings` table.
- * Provides upsert semantics — a user's settings row is created on first access.
+ * Fetches and persists per-user settings via the `user_settings` table.
+ * Upsert semantics — a settings row is created on first access.
  */
-import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
+import { db } from "@/integrations/turso/db";
+import { user_settings } from "@/integrations/turso/schema";
+import { eq } from "drizzle-orm";
+import type { UserSettings } from "@/integrations/turso/types";
 
-export type UserSettings = Database["public"]["Tables"]["user_settings"]["Row"];
-type SettingsUpdate = Database["public"]["Tables"]["user_settings"]["Update"];
+export type { UserSettings };
 
 /** Default settings (mirrors DB column defaults) */
 export const DEFAULT_SETTINGS: Omit<UserSettings, "id" | "user_id" | "created_at" | "updated_at"> = {
@@ -29,36 +30,43 @@ export const DEFAULT_SETTINGS: Omit<UserSettings, "id" | "user_id" | "created_at
 
 /** Fetch settings for a user. If none exist, inserts defaults and returns them. */
 export async function fetchSettings(userId: string): Promise<UserSettings> {
-  const { data, error } = await supabase
-    .from("user_settings")
-    .select("*")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (error) throw error;
-
-  if (data) return data;
-
-  // First access — upsert default row
-  const { data: created, error: insertErr } = await supabase
-    .from("user_settings")
-    .upsert({ user_id: userId }, { onConflict: "user_id" })
+  const [existing] = await db
     .select()
-    .single();
+    .from(user_settings)
+    .where(eq(user_settings.user_id, userId))
+    .limit(1);
 
-  if (insertErr) throw insertErr;
-  return created;
+  if (existing) return existing;
+
+  // First access — create default row
+  const [created] = await db
+    .insert(user_settings)
+    .values({ user_id: userId })
+    .onConflictDoNothing()
+    .returning();
+
+  if (created) return created;
+
+  // Race condition — another request inserted first, fetch again
+  const [refetch] = await db
+    .select()
+    .from(user_settings)
+    .where(eq(user_settings.user_id, userId))
+    .limit(1);
+
+  return refetch;
 }
 
 /** Patch (partial update) settings for a user */
-export async function updateSettings(userId: string, patch: SettingsUpdate): Promise<UserSettings> {
-  const { data, error } = await supabase
-    .from("user_settings")
-    .update(patch)
-    .eq("user_id", userId)
-    .select()
-    .single();
+export async function updateSettings(
+  userId: string,
+  patch: Partial<Omit<UserSettings, "id" | "user_id" | "created_at">>,
+): Promise<UserSettings> {
+  const [updated] = await db
+    .update(user_settings)
+    .set({ ...patch, updated_at: new Date().toISOString() })
+    .where(eq(user_settings.user_id, userId))
+    .returning();
 
-  if (error) throw error;
-  return data;
+  return updated;
 }

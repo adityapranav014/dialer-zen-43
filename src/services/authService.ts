@@ -1,14 +1,15 @@
-/**
- * Authentication Service — Multi-tenant
+﻿/**
+ * Authentication Service — Multi-tenant (Turso / Drizzle)
  *
  * Cookie-based token authentication.
  * Users sign in with company slug + email + password.
  * Super admins can switch tenants without re-authenticating.
  */
+import { db } from "@/integrations/turso/db";
+import { tenants, app_users, tenant_memberships, auth_sessions } from "@/integrations/turso/schema";
+import { eq, and } from "drizzle-orm";
 
-import { supabase } from "@/integrations/supabase/client";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+//  Types 
 
 export type AppRole = "admin" | "member";
 
@@ -20,11 +21,9 @@ export interface AuthUser {
   avatar_url: string | null;
   avatar_color: string | null;
   is_super_admin: boolean;
-  /** Current tenant context (null for super admin before picking a tenant) */
   tenant_id: string | null;
   tenant_slug: string | null;
   tenant_name: string | null;
-  /** Role within the current tenant (null for super admin viewing platform) */
   role: AppRole | null;
   created_at: string;
 }
@@ -38,12 +37,12 @@ interface SignUpPayload {
 }
 
 interface SignInPayload {
-  identifier: string; // email or phone
+  identifier: string;
   password: string;
   company_slug: string;
 }
 
-// ─── Cookie helpers ───────────────────────────────────────────────────────────
+//  Cookie helpers 
 
 const TOKEN_KEY = "df_auth_token";
 const USER_KEY = "df_auth_user";
@@ -61,8 +60,6 @@ function getCookie(name: string): string | null {
 function deleteCookie(name: string) {
   document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Strict; Secure`;
 }
-
-// ─── Token persistence ────────────────────────────────────────────────────────
 
 export function getStoredToken(): string | null {
   return getCookie(TOKEN_KEY);
@@ -88,7 +85,7 @@ export function clearAuth() {
   deleteCookie(USER_KEY);
 }
 
-// ─── Hash password on client (SHA-256 + hex) ─────────────────────────────────
+//  Password hashing 
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -98,70 +95,54 @@ async function hashPassword(password: string): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-// ─── Tenant resolution ────────────────────────────────────────────────────────
+//  Tenant resolution 
 
 async function resolveTenant(slug: string) {
-  const { data: tenant, error } = await supabase
-    .from("tenants")
-    .select("id, name, slug, is_active")
-    .eq("slug", slug.toLowerCase().trim())
-    .maybeSingle();
+  const [tenant] = await db
+    .select({ id: tenants.id, name: tenants.name, slug: tenants.slug, is_active: tenants.is_active })
+    .from(tenants)
+    .where(eq(tenants.slug, slug.toLowerCase().trim()))
+    .limit(1);
 
-  if (error) {
-    console.error('[resolveTenant] Supabase error:', error);
-    throw new Error(error.message || "Unable to reach the server. Check your connection.");
-  }
   if (!tenant) throw new Error("Company not found. Check your company URL.");
   if (!tenant.is_active) throw new Error("This company account has been deactivated.");
   return tenant;
 }
 
-// ─── API calls ────────────────────────────────────────────────────────────────
+//  Sign Up 
 
-/**
- * Sign up a new user within a specific company.
- */
 export async function signUp(payload: SignUpPayload): Promise<AuthUser> {
   const passwordHash = await hashPassword(payload.password);
   const tenant = await resolveTenant(payload.company_slug);
 
-  // Check if email already exists
-  const { data: existing } = await supabase
-    .from("app_users")
-    .select("id")
-    .eq("email", payload.email.toLowerCase().trim())
-    .maybeSingle();
+  const [existing] = await db
+    .select({ id: app_users.id })
+    .from(app_users)
+    .where(eq(app_users.email, payload.email.toLowerCase().trim()))
+    .limit(1);
 
-  if (existing) {
-    throw new Error("An account with this email already exists.");
-  }
+  if (existing) throw new Error("An account with this email already exists.");
 
-  // Create the user
-  const { data: user, error } = await supabase
-    .from("app_users")
-    .insert({
+  const [user] = await db
+    .insert(app_users)
+    .values({
       email: payload.email.toLowerCase().trim(),
       phone: payload.phone?.trim() || null,
       password_hash: passwordHash,
       display_name: payload.display_name.trim(),
     })
-    .select()
-    .single();
+    .returning();
 
-  if (error || !user) throw new Error(error?.message || "Failed to create account.");
+  if (!user) throw new Error("Failed to create account.");
 
-  // Create tenant membership (default role = member)
-  const { error: memErr } = await supabase.from("tenant_memberships").insert({
+  await db.insert(tenant_memberships).values({
     user_id: user.id,
     tenant_id: tenant.id,
     role: "member",
   });
 
-  if (memErr) throw new Error("Failed to join company.");
-
-  // Create session
   const token = generateToken();
-  await supabase.from("auth_sessions").insert({
+  await db.insert(auth_sessions).values({
     user_id: user.id,
     tenant_id: tenant.id,
     token,
@@ -173,27 +154,20 @@ export async function signUp(payload: SignUpPayload): Promise<AuthUser> {
   return authUser;
 }
 
-/**
- * Sign in with company slug + email/phone + password.
- * Super admins skip the company slug requirement (pass "superadmin" as slug).
- */
+//  Sign In 
+
 export async function signIn(payload: SignInPayload): Promise<AuthUser> {
-  // Wrap in try-catch to surface network/connection errors clearly
   try {
     return await _signIn(payload);
   } catch (err: any) {
-    // Detect network-level failures (Supabase project paused, unreachable, etc.)
     if (
       err?.message?.includes("Failed to fetch") ||
       err?.message?.includes("NetworkError") ||
       err?.message?.includes("Load failed") ||
-      err?.message?.includes("network") ||
-      err?.code === "PGRST301"
+      err?.message?.includes("network")
     ) {
-      console.error("[signIn] Connection failed:", err);
       throw new Error(
-        "Unable to connect to the server. The database may be paused or unreachable. " +
-        "Check your Supabase project status at https://supabase.com/dashboard."
+        "Unable to connect to the server. Check your network connection and Turso database status."
       );
     }
     throw err;
@@ -203,39 +177,19 @@ export async function signIn(payload: SignInPayload): Promise<AuthUser> {
 async function _signIn(payload: SignInPayload): Promise<AuthUser> {
   const passwordHash = await hashPassword(payload.password);
   const identifier = payload.identifier.toLowerCase().trim();
-
-  // Look up user by email or phone (avoid raw .or() filter to prevent PostgREST quoting issues)
   const isEmail = identifier.includes("@");
-  let user: any = null;
-  let error: any = null;
 
-  if (isEmail) {
-    const res = await supabase
-      .from("app_users")
-      .select("*")
-      .eq("email", identifier)
-      .maybeSingle();
-    user = res.data;
-    error = res.error;
-  } else {
-    const res = await supabase
-      .from("app_users")
-      .select("*")
-      .eq("phone", identifier)
-      .maybeSingle();
-    user = res.data;
-    error = res.error;
-  }
+  const [user] = await db
+    .select()
+    .from(app_users)
+    .where(isEmail ? eq(app_users.email, identifier) : eq(app_users.phone, identifier))
+    .limit(1);
 
-  if (error) {
-    console.error('[signIn] Supabase query error:', error);
-    throw new Error(error.message || "Unable to reach the server. Please try again.");
-  }
   if (!user) throw new Error("Invalid credentials.");
   if (user.password_hash !== passwordHash) throw new Error("Invalid credentials.");
   if (!user.is_active) throw new Error("Your account has been deactivated.");
 
-  // Super admin flow — they get platform-level access
+  // Super admin flow
   if (user.is_super_admin) {
     let tenant: { id: string; name: string; slug: string } | null = null;
     if (payload.company_slug) {
@@ -243,9 +197,9 @@ async function _signIn(payload: SignInPayload): Promise<AuthUser> {
     }
 
     const token = generateToken();
-    await supabase.from("auth_sessions").insert({
+    await db.insert(auth_sessions).values({
       user_id: user.id,
-      tenant_id: tenant?.id || null,
+      tenant_id: tenant?.id ?? null,
       token,
       expires_at: new Date(Date.now() + 30 * 864e5).toISOString(),
     });
@@ -255,23 +209,20 @@ async function _signIn(payload: SignInPayload): Promise<AuthUser> {
     return authUser;
   }
 
-  // Regular user — must provide valid company slug
   if (!payload.company_slug) throw new Error("Company URL is required.");
   const tenant = await resolveTenant(payload.company_slug);
 
-  // Verify membership
-  const { data: membership } = await supabase
-    .from("tenant_memberships")
-    .select("role, is_active")
-    .eq("user_id", user.id)
-    .eq("tenant_id", tenant.id)
-    .maybeSingle();
+  const [membership] = await db
+    .select({ role: tenant_memberships.role, is_active: tenant_memberships.is_active })
+    .from(tenant_memberships)
+    .where(and(eq(tenant_memberships.user_id, user.id), eq(tenant_memberships.tenant_id, tenant.id)))
+    .limit(1);
 
   if (!membership) throw new Error("You are not a member of this company.");
   if (!membership.is_active) throw new Error("Your membership has been deactivated.");
 
   const token = generateToken();
-  await supabase.from("auth_sessions").insert({
+  await db.insert(auth_sessions).values({
     user_id: user.id,
     tenant_id: tenant.id,
     token,
@@ -283,10 +234,8 @@ async function _signIn(payload: SignInPayload): Promise<AuthUser> {
   return authUser;
 }
 
-/**
- * Switch tenant context (super admin only).
- * Creates a new session scoped to the target tenant.
- */
+//  Switch Tenant 
+
 export async function switchTenant(tenantId: string): Promise<AuthUser> {
   const token = getStoredToken();
   const storedUser = getStoredUser();
@@ -294,33 +243,33 @@ export async function switchTenant(tenantId: string): Promise<AuthUser> {
     throw new Error("Only super admins can switch companies.");
   }
 
-  // Fetch tenant
-  const { data: tenant } = await supabase
-    .from("tenants")
-    .select("id, name, slug")
-    .eq("id", tenantId)
-    .single();
+  const [tenant] = await db
+    .select({ id: tenants.id, name: tenants.name, slug: tenants.slug })
+    .from(tenants)
+    .where(eq(tenants.id, tenantId))
+    .limit(1);
 
   if (!tenant) throw new Error("Company not found.");
 
-  // Update existing session's tenant
-  await supabase.from("auth_sessions").update({ tenant_id: tenant.id }).eq("token", token);
+  await db
+    .update(auth_sessions)
+    .set({ tenant_id: tenant.id })
+    .where(eq(auth_sessions.token, token));
 
   const authUser: AuthUser = {
     ...storedUser,
     tenant_id: tenant.id,
     tenant_slug: tenant.slug,
     tenant_name: tenant.name,
-    role: "admin", // super admin gets admin role in any tenant
+    role: "admin",
   };
 
   persistAuth(token, authUser);
   return authUser;
 }
 
-/**
- * Switch to platform-level view (no tenant context) — super admin only.
- */
+//  Switch to Platform 
+
 export async function switchToPlatform(): Promise<AuthUser> {
   const token = getStoredToken();
   const storedUser = getStoredUser();
@@ -328,7 +277,10 @@ export async function switchToPlatform(): Promise<AuthUser> {
     throw new Error("Only super admins can access platform view.");
   }
 
-  await supabase.from("auth_sessions").update({ tenant_id: null }).eq("token", token);
+  await db
+    .update(auth_sessions)
+    .set({ tenant_id: null })
+    .where(eq(auth_sessions.token, token));
 
   const authUser: AuthUser = {
     ...storedUser,
@@ -342,64 +294,55 @@ export async function switchToPlatform(): Promise<AuthUser> {
   return authUser;
 }
 
-/**
- * Validate current token against DB.
- */
+//  Validate Session 
+
 export async function validateSession(): Promise<AuthUser | null> {
   const token = getStoredToken();
   const storedUser = getStoredUser();
   if (!token || !storedUser) return null;
 
-  const { data: session } = await supabase
-    .from("auth_sessions")
-    .select("user_id, tenant_id, expires_at")
-    .eq("token", token)
-    .maybeSingle();
+  const [session] = await db
+    .select({ user_id: auth_sessions.user_id, tenant_id: auth_sessions.tenant_id, expires_at: auth_sessions.expires_at })
+    .from(auth_sessions)
+    .where(eq(auth_sessions.token, token))
+    .limit(1);
 
-  if (!session) {
-    clearAuth();
-    return null;
-  }
+  if (!session) { clearAuth(); return null; }
 
   if (new Date(session.expires_at) < new Date()) {
-    await supabase.from("auth_sessions").delete().eq("token", token);
+    await db.delete(auth_sessions).where(eq(auth_sessions.token, token));
     clearAuth();
     return null;
   }
 
-  // Refresh user data
-  const { data: user } = await supabase
-    .from("app_users")
-    .select("*")
-    .eq("id", session.user_id)
-    .maybeSingle();
+  const [user] = await db
+    .select()
+    .from(app_users)
+    .where(eq(app_users.id, session.user_id))
+    .limit(1);
 
-  if (!user || !user.is_active) {
-    clearAuth();
-    return null;
-  }
+  if (!user || !user.is_active) { clearAuth(); return null; }
 
-  // Resolve tenant + role
   let tenant: { id: string; name: string; slug: string } | null = null;
   let role: AppRole | null = null;
 
   if (session.tenant_id) {
-    const { data: t } = await supabase
-      .from("tenants")
-      .select("id, name, slug")
-      .eq("id", session.tenant_id)
-      .single();
-    tenant = t;
+    const [t] = await db
+      .select({ id: tenants.id, name: tenants.name, slug: tenants.slug })
+      .from(tenants)
+      .where(eq(tenants.id, session.tenant_id))
+      .limit(1);
+
+    tenant = t ?? null;
 
     if (user.is_super_admin) {
       role = "admin";
     } else {
-      const { data: mem } = await supabase
-        .from("tenant_memberships")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("tenant_id", session.tenant_id)
-        .maybeSingle();
+      const [mem] = await db
+        .select({ role: tenant_memberships.role })
+        .from(tenant_memberships)
+        .where(and(eq(tenant_memberships.user_id, user.id), eq(tenant_memberships.tenant_id, session.tenant_id)))
+        .limit(1);
       role = (mem?.role as AppRole) || "member";
     }
   }
@@ -409,31 +352,33 @@ export async function validateSession(): Promise<AuthUser | null> {
   return authUser;
 }
 
-/**
- * Sign out — destroy session.
- */
+//  Sign Out 
+
 export async function signOutUser(): Promise<void> {
   const token = getStoredToken();
   if (token) {
-    await supabase.from("auth_sessions").delete().eq("token", token);
+    await db.delete(auth_sessions).where(eq(auth_sessions.token, token));
   }
   clearAuth();
 }
 
-/**
- * Fetch all tenants (for super admin company switcher).
- */
-export async function fetchAllTenants() {
-  const { data, error } = await supabase
-    .from("tenants")
-    .select("id, name, slug, plan, is_active, created_at")
-    .order("name");
+//  Fetch All Tenants (super admin) 
 
-  if (error) throw error;
-  return data ?? [];
+export async function fetchAllTenants() {
+  return db
+    .select({
+      id: tenants.id,
+      name: tenants.name,
+      slug: tenants.slug,
+      plan: tenants.plan,
+      is_active: tenants.is_active,
+      created_at: tenants.created_at,
+    })
+    .from(tenants)
+    .orderBy(tenants.name);
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+//  Helpers 
 
 function generateToken(): string {
   const array = new Uint8Array(48);

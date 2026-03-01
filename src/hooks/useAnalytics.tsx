@@ -1,5 +1,5 @@
 /**
- * useAnalytics — Supabase-backed analytics hook
+ * useAnalytics — analytics hook (Turso / Drizzle)
  *
  * Fetches all chart and summary data for the Analytics page.
  * Supports "Week", "Month", "Quarter" period filters.

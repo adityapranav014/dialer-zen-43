@@ -1,67 +1,48 @@
-/**
- * Notification Service
+﻿/**
+ * Notification Service — Turso / Drizzle
  *
- * Encapsulates all Supabase operations for the `notifications` table.
- * Hooks should call these functions instead of touching Supabase directly.
+ * Encapsulates all database operations for the `notifications` table.
  */
-import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
+import { db } from "@/integrations/turso/db";
+import { notifications } from "@/integrations/turso/schema";
+import { eq, and, desc } from "drizzle-orm";
+import type { Notification, NewNotification } from "@/integrations/turso/types";
 
-export type DbNotification = Database["public"]["Tables"]["notifications"]["Row"];
-type NotificationInsert = Database["public"]["Tables"]["notifications"]["Insert"];
+export type { Notification as DbNotification };
 
 /** Fetch notifications for a user, most-recent-first */
-export async function fetchNotifications(userId: string, limit = 30): Promise<DbNotification[]> {
-  const { data, error } = await supabase
-    .from("notifications")
-    .select("*")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
+export async function fetchNotifications(userId: string, limit = 30): Promise<Notification[]> {
+  return db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.user_id, userId))
+    .orderBy(desc(notifications.created_at))
     .limit(limit);
-
-  if (error) throw error;
-  return data ?? [];
 }
 
 /** Mark a single notification as read */
 export async function markNotificationRead(id: string): Promise<void> {
-  const { error } = await supabase
-    .from("notifications")
-    .update({ is_read: true, read_at: new Date().toISOString() })
-    .eq("id", id);
-
-  if (error) throw error;
+  await db
+    .update(notifications)
+    .set({ is_read: true, read_at: new Date().toISOString() })
+    .where(eq(notifications.id, id));
 }
 
 /** Mark all unread notifications as read for a user */
 export async function markAllNotificationsRead(userId: string): Promise<void> {
-  const { error } = await supabase
-    .from("notifications")
-    .update({ is_read: true, read_at: new Date().toISOString() })
-    .eq("user_id", userId)
-    .eq("is_read", false);
-
-  if (error) throw error;
+  await db
+    .update(notifications)
+    .set({ is_read: true, read_at: new Date().toISOString() })
+    .where(and(eq(notifications.user_id, userId), eq(notifications.is_read, false)));
 }
 
 /** Delete a notification */
 export async function deleteNotification(id: string): Promise<void> {
-  const { error } = await supabase
-    .from("notifications")
-    .delete()
-    .eq("id", id);
-
-  if (error) throw error;
+  await db.delete(notifications).where(eq(notifications.id, id));
 }
 
-/** Create a notification (used by other services / triggers) */
-export async function createNotification(payload: NotificationInsert): Promise<DbNotification> {
-  const { data, error } = await supabase
-    .from("notifications")
-    .insert(payload)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+/** Create a notification */
+export async function createNotification(payload: NewNotification): Promise<Notification> {
+  const [row] = await db.insert(notifications).values(payload).returning();
+  return row;
 }

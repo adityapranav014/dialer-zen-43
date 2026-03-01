@@ -135,7 +135,7 @@ const LeadCardContent = ({ lead, onAssign, onViewDetail, isDragOverlay = false }
             <div className="flex items-center justify-between gap-2 mb-1.5">
                 <button
                     onClick={(e) => { e.stopPropagation(); e.preventDefault(); onViewDetail?.(lead); }}
-                    className="text-[13px] font-semibold text-foreground truncate tracking-tight leading-snug text-left hover:text-primary transition-colors cursor-pointer"
+                    className="text-[13px] font-semibold text-foreground truncate tracking-tight leading-snug text-left hover:text-primary hover:underline decoration-primary/30 underline-offset-2 transition-colors cursor-pointer"
                     title="View lead details"
                 >{lead.name}</button>
                 {lead.value && <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded-md shrink-0">{lead.value}</span>}

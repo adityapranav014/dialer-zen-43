@@ -30,7 +30,9 @@ import {
     RadialBarChart,
     RadialBar,
 } from "recharts";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/integrations/turso/db";
+import { call_logs as call_logs_table, leads as leads_table } from "@/integrations/turso/schema";
+import { eq, desc } from "drizzle-orm";
 import type { TeamMember } from "@/hooks/useTeam";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -136,27 +138,29 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
 
         // Fetch call logs for this member (user_id = app_users.id)
         setLoadingCalls(true);
-        supabase
-            .from("call_logs")
-            .select("*")
-            .eq("user_id", member.id)
-            .order("created_at", { ascending: false })
-            .then(({ data, error }) => {
-                if (!error && data) setCallLogs(data as CallLog[]);
+        db
+            .select()
+            .from(call_logs_table)
+            .where(eq(call_logs_table.user_id, member.id))
+            .orderBy(desc(call_logs_table.created_at))
+            .then((data) => {
+                setCallLogs(data as CallLog[]);
                 setLoadingCalls(false);
-            });
+            })
+            .catch(() => setLoadingCalls(false));
 
         // Fetch leads assigned to this member
         setLoadingLeads(true);
-        supabase
-            .from("leads")
-            .select("id, name, phone, status, created_at")
-            .eq("assigned_to", member.id)
-            .order("created_at", { ascending: false })
-            .then(({ data, error }) => {
-                if (!error && data) setLeads(data as LeadRow[]);
+        db
+            .select({ id: leads_table.id, name: leads_table.name, phone: leads_table.phone, status: leads_table.status, created_at: leads_table.created_at })
+            .from(leads_table)
+            .where(eq(leads_table.assigned_to, member.id))
+            .orderBy(desc(leads_table.created_at))
+            .then((data) => {
+                setLeads(data as LeadRow[]);
                 setLoadingLeads(false);
-            });
+            })
+            .catch(() => setLoadingLeads(false));
     }, [member?.id]);
 
     // ── Derived Data ──────────────────────────────────────────────────

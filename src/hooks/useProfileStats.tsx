@@ -1,5 +1,5 @@
 /**
- * useProfileStats — Supabase-backed profile quick stats hook
+ * useProfileStats — profile quick stats hook (Turso / Drizzle)
  *
  * Fetches lifetime call stats for the currently logged-in user: total calls,
  * conversions, and hit rate — all from the `call_logs` table.

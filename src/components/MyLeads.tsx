@@ -30,7 +30,9 @@ import {
 } from "@/components/ui/tooltip";
 import { MyLeadsSkeleton } from "@/components/skeletons";
 import { useLeads, LeadStatus as DbLeadStatus } from "@/hooks/useLeads";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/integrations/turso/db";
+import { call_logs as call_logs_table } from "@/integrations/turso/schema";
+import { eq, desc } from "drizzle-orm";
 
 // ─── Types & Data ─────────────────────────────────────────────────────────────
 
@@ -467,7 +469,7 @@ const MyLeads = () => {
     const [search, setSearch] = useState("");
     const [activeTab, setActiveTab] = useState<LeadStatus>("all");
     const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-    const [callingLead, setCallingLead] = useState<{ id: string; name: string } | null>(null);
+    const [callingLead, setCallingLead] = useState<{ id: string; name: string; status: string } | null>(null);
     const [showPostCall, setShowPostCall] = useState(false);
     const [callDuration, setCallDuration] = useState(0);
     const [callLogs, setCallLogs] = useState<CallLog[]>([]);
@@ -487,19 +489,20 @@ const MyLeads = () => {
     useEffect(() => {
         if (!selectedLeadId) { setCallLogs([]); return; }
         setLoadingCalls(true);
-        supabase
-            .from("call_logs")
-            .select("*")
-            .eq("lead_id", selectedLeadId)
-            .order("created_at", { ascending: false })
-            .then(({ data, error }) => {
-                if (!error && data) setCallLogs(data as CallLog[]);
+        db
+            .select()
+            .from(call_logs_table)
+            .where(eq(call_logs_table.lead_id, selectedLeadId))
+            .orderBy(desc(call_logs_table.created_at))
+            .then((data) => {
+                setCallLogs(data as CallLog[]);
                 setLoadingCalls(false);
-            });
+            })
+            .catch(() => setLoadingCalls(false));
     }, [selectedLeadId]);
 
-    const handleCall = (id: string, name: string) => {
-        setCallingLead({ id, name });
+    const handleCall = (id: string, name: string, status: string = "new") => {
+        setCallingLead({ id, name, status });
         callStartRef.current = Date.now();
         setTimeout(() => {
             setCallDuration(Math.max(1, Math.round((Date.now() - callStartRef.current) / 1000)));
@@ -703,7 +706,7 @@ const MyLeads = () => {
                             lead={selectedLead}
                             callLogs={callLogs}
                             loadingCalls={loadingCalls}
-                            onCall={() => handleCall(selectedLead.id, selectedLead.name)}
+                            onCall={() => handleCall(selectedLead.id, selectedLead.name, selectedLead.status)}
                             onStatusChange={(s) => handleStatusUpdate(selectedLead.id, s)}
                             onBack={() => setSelectedLeadId(null)}
                         />
@@ -728,17 +731,19 @@ const MyLeads = () => {
                     setShowPostCall(false);
                     // Refresh call logs after logging a call
                     if (selectedLeadId) {
-                        supabase
-                            .from("call_logs")
-                            .select("*")
-                            .eq("lead_id", selectedLeadId)
-                            .order("created_at", { ascending: false })
-                            .then(({ data }) => { if (data) setCallLogs(data as CallLog[]); });
+                        db
+                            .select()
+                            .from(call_logs_table)
+                            .where(eq(call_logs_table.lead_id, selectedLeadId))
+                            .orderBy(desc(call_logs_table.created_at))
+                            .then((data) => setCallLogs(data as CallLog[]))
+                            .catch(() => {});
                     }
                 }}
                 leadId={callingLead?.id || ""}
                 leadName={callingLead?.name || ""}
                 duration={callDuration}
+                leadStatus={callingLead?.status || "new"}
             />
         </div>
         </TooltipProvider>

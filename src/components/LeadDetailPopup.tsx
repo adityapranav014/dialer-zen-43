@@ -27,7 +27,9 @@ import {
     AreaChart,
     CartesianGrid,
 } from "recharts";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/integrations/turso/db";
+import { call_logs as call_logs_table } from "@/integrations/turso/schema";
+import { eq, desc } from "drizzle-orm";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -103,15 +105,16 @@ const LeadDetailPopup = ({ lead, onClose }: LeadDetailPopupProps) => {
     useEffect(() => {
         if (!lead) return;
         setLoadingCalls(true);
-        supabase
-            .from("call_logs")
-            .select("*")
-            .eq("lead_id", lead.id)
-            .order("created_at", { ascending: false })
-            .then(({ data, error }) => {
-                if (!error && data) setCallLogs(data as CallLog[]);
+        db
+            .select()
+            .from(call_logs_table)
+            .where(eq(call_logs_table.lead_id, lead.id))
+            .orderBy(desc(call_logs_table.created_at))
+            .then((data) => {
+                setCallLogs(data as CallLog[]);
                 setLoadingCalls(false);
-            });
+            })
+            .catch(() => setLoadingCalls(false));
     }, [lead?.id]);
 
     // ── Derived Data ──────────────────────────────────────────────────

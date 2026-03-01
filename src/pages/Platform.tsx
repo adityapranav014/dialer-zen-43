@@ -25,7 +25,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/integrations/turso/db";
+import { tenants as tenants_table, app_users, leads as leads_table, call_logs, tenant_memberships } from "@/integrations/turso/schema";
+import { eq, count } from "drizzle-orm";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -50,21 +52,21 @@ const Platform = () => {
     queryKey: ["platform", "stats"],
     queryFn: async () => {
       const [
-        { count: tenantCount },
-        { count: userCount },
-        { count: leadCount },
-        { count: callCount },
+        [{ value: tenantCount }],
+        [{ value: userCount }],
+        [{ value: leadCount }],
+        [{ value: callCount }],
       ] = await Promise.all([
-        supabase.from("tenants").select("*", { count: "exact", head: true }),
-        supabase.from("app_users").select("*", { count: "exact", head: true }),
-        supabase.from("leads").select("*", { count: "exact", head: true }),
-        supabase.from("call_logs").select("*", { count: "exact", head: true }),
+        db.select({ value: count() }).from(tenants_table),
+        db.select({ value: count() }).from(app_users),
+        db.select({ value: count() }).from(leads_table),
+        db.select({ value: count() }).from(call_logs),
       ]);
       return {
-        companies: tenantCount || 0,
-        users: userCount || 0,
-        leads: leadCount || 0,
-        calls: callCount || 0,
+        companies: tenantCount,
+        users: userCount,
+        leads: leadCount,
+        calls: callCount,
       };
     },
   });
@@ -73,22 +75,22 @@ const Platform = () => {
   const { data: tenantStats = {} } = useQuery({
     queryKey: ["platform", "tenant-stats"],
     queryFn: async () => {
-      const [{ data: memberships }, { data: leads }, { data: calls }] = await Promise.all([
-        supabase.from("tenant_memberships").select("tenant_id"),
-        supabase.from("leads").select("tenant_id"),
-        supabase.from("call_logs").select("tenant_id"),
+      const [memberships, leadsRows, callsRows] = await Promise.all([
+        db.select({ tenant_id: tenant_memberships.tenant_id }).from(tenant_memberships),
+        db.select({ tenant_id: leads_table.tenant_id }).from(leads_table),
+        db.select({ tenant_id: call_logs.tenant_id }).from(call_logs),
       ]);
 
       const stats: Record<string, { members: number; leads: number; calls: number }> = {};
-      for (const m of memberships || []) {
+      for (const m of memberships) {
         if (!stats[m.tenant_id]) stats[m.tenant_id] = { members: 0, leads: 0, calls: 0 };
         stats[m.tenant_id].members++;
       }
-      for (const l of leads || []) {
+      for (const l of leadsRows) {
         if (!stats[l.tenant_id]) stats[l.tenant_id] = { members: 0, leads: 0, calls: 0 };
         stats[l.tenant_id].leads++;
       }
-      for (const c of calls || []) {
+      for (const c of callsRows) {
         if (!stats[c.tenant_id]) stats[c.tenant_id] = { members: 0, leads: 0, calls: 0 };
         stats[c.tenant_id].calls++;
       }
@@ -113,12 +115,11 @@ const Platform = () => {
     }
     setCreating(true);
     try {
-      const { error } = await supabase.from("tenants").insert({
+      await db.insert(tenants_table).values({
         name: newCompany.name.trim(),
         slug: newCompany.slug.toLowerCase().trim().replace(/[^a-z0-9-]/g, ""),
         plan: newCompany.plan,
       });
-      if (error) throw error;
       toast.success("Company created!");
       setShowNewCompany(false);
       setNewCompany({ name: "", slug: "", plan: "free" });
@@ -132,8 +133,7 @@ const Platform = () => {
 
   const toggleTenantActive = useMutation({
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
-      const { error } = await supabase.from("tenants").update({ is_active: !isActive }).eq("id", id);
-      if (error) throw error;
+      await db.update(tenants_table).set({ is_active: !isActive }).where(eq(tenants_table.id, id));
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["platform"] });

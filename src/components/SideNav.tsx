@@ -57,7 +57,7 @@ const FadeText = ({
 
 const SideNav = () => {
   const location = useLocation();
-  const { signOut, isAdmin, isSuperAdmin, isPlatformView, avatarUrl, displayName, currentTenantName, switchToPlatform } = useAuth();
+  const { signOut, isAdmin, isSuperAdmin, isPlatformView, currentTenantName, switchToPlatform } = useAuth();
   const navigate = useNavigate();
 
   const [expanded, setExpanded] = useState(() => {
@@ -69,18 +69,9 @@ const SideNav = () => {
     localStorage.setItem(SIDEBAR_KEY, String(expanded));
   }, [expanded]);
 
-  const initials = displayName
-    .split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
   const navItems = isAdmin ? adminNavItems : memberNavItems;
-  const roleLabel = isSuperAdmin ? "Super Admin" : isAdmin ? "Admin" : "Member";
 
-  const handleSignOut = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
@@ -184,57 +175,19 @@ const SideNav = () => {
           </div>
 
           {/* ── Bottom section ── */}
-          <div className="border-t border-border shrink-0 px-3 py-3 space-y-1">
-            {/* User profile */}
+          <div className="border-t border-border shrink-0 px-3 py-3">
             <Tooltip>
               <TooltipTrigger asChild>
-                <div
-                  onClick={() => navigate("/profile")}
-                  className="flex items-center rounded-lg hover:bg-muted transition-colors group cursor-pointer h-11 px-3"
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center justify-center rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-foreground/40 hover:text-red-500 transition-colors h-10 w-10 mx-auto"
                 >
-                  {avatarUrl ? (
-                    <img
-                      src={avatarUrl}
-                      alt={displayName}
-                      className="h-8 w-8 rounded-full object-cover shrink-0"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-[10px] font-semibold text-primary-foreground shrink-0">
-                      {initials}
-                    </div>
-                  )}
-                  <FadeText visible={expanded} className="flex-1 min-w-0">
-                    <span className="flex items-center gap-2">
-                      <span className="min-w-0">
-                        <p className="text-[13px] font-medium text-foreground truncate leading-tight">
-                          {displayName.split(" ")[0]}
-                        </p>
-                        <p className="text-[11px] text-foreground/40 truncate leading-tight">
-                          {roleLabel}
-                        </p>
-                      </span>
-                      <button
-                        onClick={handleSignOut}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground/30 hover:text-red-500 p-1 rounded shrink-0"
-                        title="Sign out"
-                      >
-                        <LogOut className="h-3.5 w-3.5" />
-                      </button>
-                    </span>
-                  </FadeText>
-                </div>
+                  <LogOut className="h-[18px] w-[18px]" strokeWidth={1.5} />
+                </button>
               </TooltipTrigger>
-              {!expanded && (
-                <TooltipContent
-                  side="right"
-                  sideOffset={8}
-                  className="text-xs font-medium px-3 py-1.5"
-                >
-                  <p>{displayName}</p>
-                  <p className="text-foreground/50">{roleLabel}</p>
-                </TooltipContent>
-              )}
+              <TooltipContent side="right" sideOffset={8} className="text-xs font-medium px-3 py-1.5">
+                Sign out
+              </TooltipContent>
             </Tooltip>
           </div>
         </nav>

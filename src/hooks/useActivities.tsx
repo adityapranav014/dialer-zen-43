@@ -1,5 +1,5 @@
 /**
- * useActivities — Supabase-backed activity feed hook
+ * useActivities — activity feed hook (Turso / Drizzle)
  *
  * Provides tenant-scoped (admin) and user-scoped (BDA) activity feeds
  * via the activity_logs table.
@@ -22,6 +22,7 @@ export const useActivities = (scope: "team" | "my" = "team") => {
     queryFn: async () => {
       if (resolvedScope === "team") {
         const tenantId = user!.tenant_id;
+        if (!tenantId) return [];
         return fetchActivities(tenantId);
       }
       return fetchUserActivities(user!.id);

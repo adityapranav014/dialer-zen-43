@@ -9,6 +9,7 @@ interface PostCallModalProps {
   leadId: string;
   leadName: string;
   duration: number;
+  leadStatus?: string;
 }
 
 const dispositions = [
@@ -26,7 +27,7 @@ const formatDuration = (seconds: number) => {
   return `${m}:${s.toString().padStart(2, "0")}`;
 };
 
-const PostCallModal = ({ open, onClose, leadId, leadName, duration }: PostCallModalProps) => {
+const PostCallModal = ({ open, onClose, leadId, leadName, duration, leadStatus = "new" }: PostCallModalProps) => {
   const { logCall, isLogging } = useCallLogs();
   const [selectedDisposition, setSelectedDisposition] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
@@ -40,6 +41,7 @@ const PostCallModal = ({ open, onClose, leadId, leadName, duration }: PostCallMo
         durationSeconds: duration,
         notes,
         outcome: selectedDisposition,
+        currentLeadStatus: leadStatus,
       });
       toast.success("Call logged successfully");
       setSelectedDisposition(null);
