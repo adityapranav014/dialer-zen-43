@@ -41,10 +41,10 @@ const TalkTimeChart = ({ minutes, goal }: TalkTimeChartProps) => {
         </ResponsiveContainer>
         {/* Center content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-semibold text-foreground tracking-tight">
+          <span className="text-2xl font-bold text-foreground tracking-tight">
             {hours > 0 ? hours : minutes}
           </span>
-          <span className="text-[11px] text-foreground/35 font-medium">
+          <span className="text-[11px] text-foreground/30 font-medium">
             {hours > 0 ? "hours" : "min"}
           </span>
         </div>

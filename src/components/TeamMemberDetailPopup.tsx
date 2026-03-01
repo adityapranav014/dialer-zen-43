@@ -266,7 +266,7 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                                 <div className="min-w-0">
                                     <h2 className="text-base sm:text-lg font-bold text-foreground truncate leading-tight">{member.name}</h2>
                                     <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                                        <span className={`inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 rounded-full border ${sc.bg} ${sc.text} ${sc.border}`}>
+                                        <span className={`inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-lg border ${sc.bg} ${sc.text} ${sc.border}`}>
                                             <span className={`h-1.5 w-1.5 rounded-full ${sc.dot} ${member.isActive ? "animate-pulse" : ""}`} />
                                             {sc.label}
                                         </span>
@@ -286,7 +286,7 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={onClose} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-muted/80 transition-all shrink-0">
+                            <button onClick={onClose} className="h-8 w-8 rounded-xl bg-accent flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-accent/80 transition-all duration-200 shrink-0">
                                 <X className="h-4 w-4" />
                             </button>
                         </div>
@@ -303,7 +303,7 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                             <button
                                 key={t.id}
                                 onClick={() => setActiveTab(t.id as typeof activeTab)}
-                                className={`flex items-center gap-1.5 px-3 py-2.5 text-[11px] font-semibold border-b-2 transition-all ${
+                                className={`flex items-center gap-1.5 px-3 py-2.5 text-[11px] font-bold border-b-2 transition-all duration-200 ${
                                     activeTab === t.id
                                         ? "text-foreground border-foreground"
                                         : "text-foreground/35 border-transparent hover:text-foreground/60"
@@ -312,7 +312,7 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                                 <t.Icon className="h-3.5 w-3.5" />
                                 {t.label}
                                 {t.count != null && (
-                                    <span className={`ml-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                                    <span className={`ml-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-lg ${
                                         activeTab === t.id ? "bg-foreground/10" : "bg-foreground/[0.04]"
                                     }`}>
                                         {t.count}
@@ -328,29 +328,29 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                         {activeTab === "overview" && (<>
                         {/* ── Performance KPIs ─────────────────────────────────── */}
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                            <div className="p-3 rounded-xl bg-muted/60 border border-foreground/[0.04] text-center">
-                                <div className="h-8 w-8 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center mx-auto mb-1.5">
+                            <div className="p-3 rounded-xl bg-accent/60 border border-foreground/[0.04] text-center">
+                                <div className="h-8 w-8 rounded-xl bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center mx-auto mb-1.5">
                                     <Target className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
                                 </div>
                                 <p className="text-lg font-bold text-foreground">{member.totalLeads}</p>
-                                <p className="text-[9px] font-medium text-foreground/30 uppercase tracking-wider">Total Leads</p>
+                                <p className="text-[9px] font-medium text-foreground/30 uppercase tracking-widest">Total Leads</p>
                             </div>
-                            <div className="p-3 rounded-xl bg-muted/60 border border-foreground/[0.04] text-center">
-                                <div className="h-8 w-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mx-auto mb-1.5">
+                            <div className="p-3 rounded-xl bg-accent/60 border border-foreground/[0.04] text-center">
+                                <div className="h-8 w-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mx-auto mb-1.5">
                                     <TrendingUp className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                                 </div>
                                 <p className="text-lg font-bold text-foreground">{member.conversionRate}%</p>
-                                <p className="text-[9px] font-medium text-foreground/30 uppercase tracking-wider">Conversion</p>
+                                <p className="text-[9px] font-medium text-foreground/30 uppercase tracking-widest">Conversion</p>
                             </div>
-                            <div className="p-3 rounded-xl bg-muted/60 border border-foreground/[0.04] text-center">
-                                <div className="h-8 w-8 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mx-auto mb-1.5">
+                            <div className="p-3 rounded-xl bg-accent/60 border border-foreground/[0.04] text-center">
+                                <div className="h-8 w-8 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mx-auto mb-1.5">
                                     <PhoneCall className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <p className="text-lg font-bold text-foreground">{member.totalCalls}</p>
-                                <p className="text-[9px] font-medium text-foreground/30 uppercase tracking-wider">Total Calls</p>
+                                <p className="text-[9px] font-medium text-foreground/30 uppercase tracking-widest">Total Calls</p>
                             </div>
-                            <div className="p-3 rounded-xl bg-muted/60 border border-foreground/[0.04] text-center">
-                                <div className="h-8 w-8 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center mx-auto mb-1.5">
+                            <div className="p-3 rounded-xl bg-accent/60 border border-foreground/[0.04] text-center">
+                                <div className="h-8 w-8 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center mx-auto mb-1.5">
                                     <Headphones className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                                 </div>
                                 <p className="text-lg font-bold text-foreground">
@@ -358,21 +358,21 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                                         ? `${Math.floor(member.talkTimeMinutes / 60)}h ${member.talkTimeMinutes % 60}m`
                                         : `${member.talkTimeMinutes}m`}
                                 </p>
-                                <p className="text-[9px] font-medium text-foreground/30 uppercase tracking-wider">Talk Time</p>
+                                <p className="text-[9px] font-medium text-foreground/30 uppercase tracking-widest">Talk Time</p>
                             </div>
-                            <div className="p-3 rounded-xl bg-muted/60 border border-foreground/[0.04] text-center">
-                                <div className="h-8 w-8 rounded-lg bg-pink-100 dark:bg-pink-900/40 flex items-center justify-center mx-auto mb-1.5">
+                            <div className="p-3 rounded-xl bg-accent/60 border border-foreground/[0.04] text-center">
+                                <div className="h-8 w-8 rounded-xl bg-pink-100 dark:bg-pink-900/40 flex items-center justify-center mx-auto mb-1.5">
                                     <Award className="h-3.5 w-3.5 text-pink-600 dark:text-pink-400" />
                                 </div>
                                 <p className="text-lg font-bold text-foreground">{member.closedLeads}</p>
-                                <p className="text-[9px] font-medium text-foreground/30 uppercase tracking-wider">Won Deals</p>
+                                <p className="text-[9px] font-medium text-foreground/30 uppercase tracking-widest">Won Deals</p>
                             </div>
-                            <div className="p-3 rounded-xl bg-muted/60 border border-foreground/[0.04] text-center">
-                                <div className="h-8 w-8 rounded-lg bg-cyan-100 dark:bg-cyan-900/40 flex items-center justify-center mx-auto mb-1.5">
+                            <div className="p-3 rounded-xl bg-accent/60 border border-foreground/[0.04] text-center">
+                                <div className="h-8 w-8 rounded-xl bg-cyan-100 dark:bg-cyan-900/40 flex items-center justify-center mx-auto mb-1.5">
                                     <Timer className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
                                 </div>
                                 <p className="text-lg font-bold text-foreground">{formatDuration(avgCallDuration)}</p>
-                                <p className="text-[9px] font-medium text-foreground/30 uppercase tracking-wider">Avg/Call</p>
+                                <p className="text-[9px] font-medium text-foreground/30 uppercase tracking-widest">Avg/Call</p>
                             </div>
                         </div>
 
@@ -380,10 +380,10 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                             {/* Conversion Rate Gauge */}
-                            <div className="p-4 rounded-xl bg-muted/40 border border-foreground/[0.04]">
+                            <div className="p-4 rounded-xl bg-accent/40 border border-foreground/[0.04]">
                                 <div className="flex items-center gap-2 mb-3">
                                     <TrendingUp className="h-3.5 w-3.5 text-foreground/35" />
-                                    <p className="text-[11px] font-semibold text-foreground tracking-tight">Conversion Rate</p>
+                                    <p className="text-[11px] font-bold text-foreground tracking-tight">Conversion Rate</p>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <div className="h-28 w-28 sm:h-32 sm:w-32 shrink-0">
@@ -409,15 +409,15 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                                         <p className="text-3xl font-bold text-foreground">{member.conversionRate}%</p>
                                         <div className="flex items-center gap-1.5 mt-1">
                                             {member.conversionRate >= 45 ? (
-                                                <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-full">
+                                                <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-lg">
                                                     <ArrowUpRight className="h-3 w-3" />High performer
                                                 </span>
                                             ) : member.conversionRate >= 30 ? (
-                                                <span className="flex items-center gap-1 text-[10px] font-semibold text-blue-600 bg-blue-50 dark:bg-blue-950/30 px-2 py-0.5 rounded-full">
+                                                <span className="flex items-center gap-1 text-[10px] font-semibold text-blue-600 bg-blue-50 dark:bg-blue-950/30 px-2 py-0.5 rounded-lg">
                                                     <Activity className="h-3 w-3" />On track
                                                 </span>
                                             ) : (
-                                                <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-600 bg-amber-50 dark:bg-amber-950/30 px-2 py-0.5 rounded-full">
+                                                <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-600 bg-amber-50 dark:bg-amber-950/30 px-2 py-0.5 rounded-lg">
                                                     <ArrowDownRight className="h-3 w-3" />Needs attention
                                                 </span>
                                             )}
@@ -428,10 +428,10 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                             </div>
 
                             {/* Lead Status Breakdown */}
-                            <div className="p-4 rounded-xl bg-muted/40 border border-foreground/[0.04]">
+                            <div className="p-4 rounded-xl bg-accent/40 border border-foreground/[0.04]">
                                 <div className="flex items-center gap-2 mb-3">
                                     <BarChart3 className="h-3.5 w-3.5 text-foreground/35" />
-                                    <p className="text-[11px] font-semibold text-foreground tracking-tight">Lead Breakdown</p>
+                                    <p className="text-[11px] font-bold text-foreground tracking-tight">Lead Breakdown</p>
                                 </div>
                                 {leadStatusData.length > 0 ? (
                                     <div className="flex flex-col sm:flex-row items-center gap-3">
@@ -466,7 +466,7 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                                         </div>
                                         <div className="flex flex-wrap gap-2 justify-center sm:justify-start flex-1">
                                             {leadStatusData.map((entry) => (
-                                                <div key={entry.name} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-card border border-foreground/[0.04]">
+                                                <div key={entry.name} className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-card border border-foreground/[0.04]">
                                                     <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
                                                     <span className="text-[10px] font-medium text-foreground/60">{entry.name}</span>
                                                     <span className="text-[10px] font-bold text-foreground">{entry.value}</span>
@@ -487,11 +487,11 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                         {activeTab === "activity" && (<>
                         {/* ── Call Activity Chart (14 days) ────────────────────── */}
                         {callLogs.length > 0 && (
-                            <div className="p-4 rounded-xl bg-muted/40 border border-foreground/[0.04]">
+                            <div className="p-4 rounded-xl bg-accent/40 border border-foreground/[0.04]">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-2">
                                         <Activity className="h-3.5 w-3.5 text-foreground/35" />
-                                        <p className="text-[11px] font-semibold text-foreground tracking-tight">Call Activity — Last 14 Days</p>
+                                        <p className="text-[11px] font-bold text-foreground tracking-tight">Call Activity — Last 14 Days</p>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <div className="flex items-center gap-1.5">
@@ -535,10 +535,10 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
 
                         {/* ── Outcome Distribution ────────────────────────────── */}
                         {outcomeData.length > 0 && (
-                            <div className="p-4 rounded-xl bg-muted/40 border border-foreground/[0.04]">
+                            <div className="p-4 rounded-xl bg-accent/40 border border-foreground/[0.04]">
                                 <div className="flex items-center gap-2 mb-4">
                                     <Flame className="h-3.5 w-3.5 text-foreground/35" />
-                                    <p className="text-[11px] font-semibold text-foreground tracking-tight">Call Outcomes Distribution</p>
+                                    <p className="text-[11px] font-bold text-foreground tracking-tight">Call Outcomes Distribution</p>
                                 </div>
                                 <div className="h-36 sm:h-44">
                                     <ResponsiveContainer width="100%" height="100%">
@@ -582,11 +582,11 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
 
                         {activeTab === "leads" && (
                         <>                        {/* ── Assigned Leads List ──────────────────────────────── */}
-                        <div className="p-4 rounded-xl bg-muted/40 border border-foreground/[0.04]">
+                        <div className="p-4 rounded-xl bg-accent/40 border border-foreground/[0.04]">
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
                                     <Users className="h-3.5 w-3.5 text-foreground/35" />
-                                    <p className="text-[11px] font-semibold text-foreground tracking-tight">Assigned Leads</p>
+                                    <p className="text-[11px] font-bold text-foreground tracking-tight">Assigned Leads</p>
                                 </div>
                                 <span className="text-[10px] font-medium text-foreground/25">{leads.length} lead{leads.length !== 1 ? "s" : ""}</span>
                             </div>
@@ -612,11 +612,11 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                                         };
                                         const lsc = leadSc[lead.status] || leadSc.new;
                                         return (
-                                            <div key={lead.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-card border border-foreground/[0.04] hover:border-foreground/[0.08] transition-all">
+                                            <div key={lead.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-card border border-foreground/[0.04] hover:border-foreground/[0.08] transition-all duration-200">
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2">
                                                         <p className="text-[11px] font-semibold text-foreground truncate">{lead.name}</p>
-                                                        <span className={`inline-flex items-center gap-1 text-[9px] font-semibold px-2 py-0.5 rounded-full border ${lsc.bg} ${lsc.text} ${lsc.border}`}>
+                                                        <span className={`inline-flex items-center gap-1 text-[9px] font-semibold px-2 py-0.5 rounded-lg border ${lsc.bg} ${lsc.text} ${lsc.border}`}>
                                                             <span className={`h-1 w-1 rounded-full ${lsc.dot}`} />
                                                             {lsc.label}
                                                         </span>
@@ -641,11 +641,11 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                         {activeTab === "calls" && (
                         <>
                         {/* ── Recent Calls ─────────────────────────────────────── */}
-                        <div className="p-4 rounded-xl bg-muted/40 border border-foreground/[0.04]">
+                        <div className="p-4 rounded-xl bg-accent/40 border border-foreground/[0.04]">
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
                                     <Headphones className="h-3.5 w-3.5 text-foreground/35" />
-                                    <p className="text-[11px] font-semibold text-foreground tracking-tight">Recent Calls</p>
+                                    <p className="text-[11px] font-bold text-foreground tracking-tight">Recent Calls</p>
                                 </div>
                                 <span className="text-[10px] font-medium text-foreground/25">{callLogs.length} total</span>
                             </div>
@@ -663,13 +663,12 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                             ) : (
                                 <div className="space-y-2 max-h-52 overflow-y-auto scroll-container">
                                     {callLogs.slice(0, 15).map((call) => (
-                                        <div key={call.id} className="flex items-start gap-3 p-2.5 rounded-lg bg-card border border-foreground/[0.04] hover:border-foreground/[0.08] transition-all">
-                                            <div className={`h-7 w-7 rounded-lg flex items-center justify-center shrink-0 ${
+                                        <div key={call.id} className="flex items-start gap-3 p-2.5 rounded-xl bg-card border border-foreground/[0.04] hover:border-foreground/[0.08] transition-all duration-200">
+                                            <div className={`h-7 w-7 rounded-xl flex items-center justify-center shrink-0 ${
                                                 call.outcome === "interested" ? "bg-emerald-100 dark:bg-emerald-900/40" :
                                                 call.outcome === "not-interested" ? "bg-red-100 dark:bg-red-900/40" :
                                                 call.outcome === "callback" ? "bg-blue-100 dark:bg-blue-900/40" :
-                                                "bg-muted"
-                                            }`}>
+                                                "bg-accent"}`}>
                                                 <PhoneCall className={`h-3 w-3 ${
                                                     call.outcome === "interested" ? "text-emerald-600 dark:text-emerald-400" :
                                                     call.outcome === "not-interested" ? "text-red-600 dark:text-red-400" :
@@ -705,7 +704,7 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                             <span>·</span>
                             <span>Joined {formatDate(member.joinedAt)}</span>
                         </div>
-                        <button onClick={onClose} className="h-8 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all">
+                        <button onClick={onClose} className="h-8 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all duration-200">
                             Close
                         </button>
                     </div>

@@ -12,9 +12,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div
-        className="surface-elevated rounded-lg px-3 py-2 text-xs"
+        className="surface-elevated rounded-xl px-3 py-2 text-xs"
       >
-        <p className="font-semibold text-foreground">{label}</p>
+        <p className="font-bold text-foreground">{label}</p>
         <p className="text-foreground/40 mt-0.5">{payload[0].value} leads</p>
       </div>
     );
@@ -68,7 +68,7 @@ const LeadConversionChart = () => {
           <div key={d.stage} className="flex items-center gap-1.5 text-[11px]">
             <span className="h-2 w-2 rounded-sm" style={{ background: barColors[i % barColors.length] }} />
             <span className="text-foreground/40">{d.stage}</span>
-            <span className="font-semibold text-foreground">{d.pct}</span>
+            <span className="font-bold text-foreground">{d.pct}</span>
           </div>
         ))}
       </div>

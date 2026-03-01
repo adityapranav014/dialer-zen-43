@@ -103,7 +103,7 @@ const QuickActions = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <PopoverTrigger asChild>
-              <button className="hidden sm:flex items-center justify-center h-8 w-8 rounded-lg border border-border bg-muted hover:bg-accent text-foreground/50 hover:text-foreground transition-colors">
+              <button className="hidden sm:flex items-center justify-center h-8 w-8 rounded-xl border border-border bg-accent hover:bg-accent/80 text-foreground/50 hover:text-foreground transition-colors duration-200">
                 <Plus className="h-4 w-4" />
               </button>
             </PopoverTrigger>
@@ -123,7 +123,7 @@ const QuickActions = () => {
       >
         {/* Header */}
         <div className="px-4 pt-4 pb-2">
-          <p className="text-sm font-semibold text-foreground">Quick Actions</p>
+          <p className="text-sm font-bold text-foreground">Quick Actions</p>
           <p className="text-[11px] text-foreground/35 mt-0.5">
             {isAdmin ? "Admin shortcuts" : "Your shortcuts"}
           </p>
@@ -154,7 +154,7 @@ function ActionRow({
   return (
     <button
       onClick={() => onSelect(action)}
-      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors group"
+      className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-accent transition-colors duration-200 group"
     >
       <div
         className={`h-7 w-7 rounded-md ${action.iconBg} flex items-center justify-center shrink-0 transition-colors`}
@@ -162,7 +162,7 @@ function ActionRow({
         <Icon className={`h-3.5 w-3.5 ${action.iconColor}`} />
       </div>
       <div className="min-w-0 text-left">
-        <p className="text-[13px] font-medium text-foreground">{action.label}</p>
+        <p className="text-[13px] font-semibold text-foreground">{action.label}</p>
         <p className="text-[10px] text-foreground/30 leading-tight">{action.desc}</p>
       </div>
     </button>

@@ -70,7 +70,7 @@ function NotificationRow({
     <div
       className={`relative flex items-start gap-3 px-4 py-3 transition-colors group cursor-pointer ${
         notification.is_read
-          ? "hover:bg-muted/60"
+          ? "hover:bg-accent/60"
           : "bg-accent/40 hover:bg-accent/70"
       }`}
       onClick={() => {
@@ -85,7 +85,7 @@ function NotificationRow({
 
       {/* Type icon */}
       <div
-        className={`h-8 w-8 rounded-lg ${config.bg} flex items-center justify-center shrink-0 mt-0.5`}
+        className={`h-8 w-8 rounded-xl ${config.bg} flex items-center justify-center shrink-0 mt-0.5`}
       >
         <Icon className={`h-3.5 w-3.5 ${config.iconColor}`} />
       </div>
@@ -114,7 +114,7 @@ function NotificationRow({
         {(notification.priority === "high" || notification.priority === "urgent") &&
           !notification.is_read && (
             <span
-              className={`inline-block mt-1.5 text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+              className={`inline-block mt-1.5 text-[9px] font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded ${
                 notification.priority === "urgent"
                   ? "bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"
                   : "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"
@@ -166,10 +166,10 @@ const NotificationPanel = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <PopoverTrigger asChild>
-              <button className="relative h-8 w-8 rounded-lg flex items-center justify-center hover:bg-muted text-foreground/50 transition-colors">
+              <button className="relative h-8 w-8 rounded-xl flex items-center justify-center hover:bg-accent text-foreground/50 transition-colors duration-200">
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white px-1 leading-none ring-2 ring-card">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-md bg-red-500 text-[10px] font-bold text-white px-1 leading-none ring-2 ring-card">
                     {unreadCount > 99 ? "99+" : unreadCount}
                   </span>
                 )}
@@ -190,9 +190,9 @@ const NotificationPanel = () => {
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-3">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
+            <h3 className="text-sm font-bold text-foreground">Notifications</h3>
             {unreadCount > 0 && (
-              <span className="min-w-[20px] h-5 flex items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground px-1.5">
+              <span className="min-w-[20px] h-5 flex items-center justify-center rounded-md bg-primary text-[10px] font-bold text-primary-foreground px-1.5">
                 {unreadCount}
               </span>
             )}
@@ -200,7 +200,7 @@ const NotificationPanel = () => {
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="flex items-center gap-1 text-[11px] font-medium text-foreground/40 hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-[11px] font-semibold text-foreground/40 hover:text-foreground transition-colors duration-200"
             >
               <CheckCheck className="h-3 w-3" />
               Mark all read
@@ -213,7 +213,7 @@ const NotificationPanel = () => {
         {/* Notification list */}
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4">
-            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-3">
+            <div className="h-10 w-10 rounded-full bg-accent flex items-center justify-center mb-3">
               <Bell className="h-4 w-4 text-foreground/25" />
             </div>
             <p className="text-sm font-medium text-foreground/40">No notifications</p>

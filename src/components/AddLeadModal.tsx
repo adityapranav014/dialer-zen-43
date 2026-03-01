@@ -307,13 +307,13 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                     <div>
-                        <h3 className="text-sm font-semibold text-foreground tracking-tight">Add Leads</h3>
+                        <h3 className="text-sm font-bold text-foreground tracking-tight">Add Leads</h3>
                         <p className="text-xs text-foreground/40 mt-0.5">Add manually or import from CSV / Excel</p>
                     </div>
                     <button
                         onClick={onClose}
                         disabled={isBusy}
-                        className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors disabled:opacity-40"
+                        className="h-7 w-7 rounded-xl bg-accent flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors duration-200 disabled:opacity-40"
                     >
                         <X className="h-3.5 w-3.5" />
                     </button>
@@ -330,7 +330,7 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                         <button
                             key={t.id}
                             onClick={() => setTab(t.id)}
-                            className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-semibold transition-all border-b-2 ${
+                            className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-bold transition-all duration-200 border-b-2 ${
                                 tab === t.id
                                     ? "text-foreground border-foreground"
                                     : "text-foreground/35 border-transparent hover:text-foreground/60"
@@ -349,7 +349,7 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                         <div className="space-y-4">
                             {/* Name */}
                             <div>
-                                <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider block mb-1.5">
+                                <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">
                                     Full Name *
                                 </label>
                                 <div className="relative">
@@ -358,7 +358,7 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         placeholder="e.g. Rahul Sharma"
-                                        className="w-full h-10 pl-10 pr-4 bg-muted border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all"
+                                        className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200"
                                         autoFocus
                                     />
                                 </div>
@@ -366,7 +366,7 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
 
                             {/* Phone */}
                             <div>
-                                <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider block mb-1.5">
+                                <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">
                                     Phone Number *
                                 </label>
                                 <div className="relative">
@@ -375,14 +375,14 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
                                         placeholder="e.g. +91 98765 43210"
-                                        className="w-full h-10 pl-10 pr-4 bg-muted border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all"
+                                        className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200"
                                     />
                                 </div>
                             </div>
 
                             {/* Status */}
                             <div>
-                                <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider block mb-1.5">
+                                <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">
                                     Initial Status
                                 </label>
                                 <div className="flex gap-2">
@@ -390,7 +390,7 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                         <button
                                             key={s}
                                             onClick={() => setStatus(s)}
-                                            className={`flex-1 py-2 rounded-lg text-[11px] font-semibold capitalize border transition-all ${
+                                            className={`flex-1 py-2 rounded-xl text-[11px] font-bold capitalize border transition-all duration-200 ${
                                                 status === s
                                                     ? "bg-primary text-primary-foreground border-primary"
                                                     : "bg-card text-foreground/50 border-border hover:border-foreground/20 hover:text-foreground"
@@ -516,7 +516,7 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                     </>
                                 ) : (
                                     <>
-                                        <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
+                                        <div className="h-10 w-10 rounded-xl bg-accent flex items-center justify-center">
                                             <Upload className="h-5 w-5 text-foreground/30" />
                                         </div>
                                         <div className="text-center">
@@ -557,7 +557,7 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                             {/* Preview */}
                             {csvPreview && csvPreview.length > 0 && csvErrors.length === 0 && (
                                 <div className="rounded-xl border border-border overflow-hidden">
-                                    <div className="flex items-center justify-between px-4 py-2.5 bg-muted border-b border-border">
+                                    <div className="flex items-center justify-between px-4 py-2.5 bg-accent border-b border-border">
                                         <span className="text-[11px] font-semibold text-foreground/60">
                                             Preview · {csvPreview.length} lead{csvPreview.length !== 1 ? "s" : ""} ready
                                         </span>
@@ -630,7 +630,7 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                         <button
                             onClick={handleManualSubmit}
                             disabled={isBusy || !name.trim() || !phone.trim()}
-                            className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                             {addingLead ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -648,7 +648,7 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                         <button
                             onClick={handleCSVImport}
                             disabled={isBusy}
-                            className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                             {addingBulk ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />

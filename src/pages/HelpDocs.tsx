@@ -121,23 +121,23 @@ const HelpDocs = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search guides, FAQs..."
-          className="w-full h-9 pl-9 pr-3 rounded-lg bg-muted border border-border text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all"
+          className="w-full h-10 pl-9 pr-3 rounded-xl bg-muted/60 border border-border text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200"
         />
       </div>
 
       {/* Guides */}
-      <p className="text-[11px] font-medium uppercase tracking-wider text-foreground/30 px-1 mb-3">
+      <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
         Guides
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         {filteredGuides.map((guide) => (
           <div key={guide.title} className="surface-card p-4">
             <div className="flex items-start gap-3 mb-3">
-              <div className={`h-9 w-9 rounded-lg ${guide.color} flex items-center justify-center shrink-0`}>
+              <div className={`h-9 w-9 rounded-xl ${guide.color} flex items-center justify-center shrink-0`}>
                 <guide.icon className="h-4 w-4" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground">{guide.title}</p>
+                <p className="text-sm font-bold text-foreground">{guide.title}</p>
                 <p className="text-[11px] text-foreground/35">{guide.desc}</p>
               </div>
             </div>
@@ -145,7 +145,7 @@ const HelpDocs = () => {
               {guide.articles.map((article) => (
                 <button
                   key={article}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[12px] text-foreground/50 hover:text-foreground hover:bg-muted transition-colors text-left"
+                  className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-[12px] text-foreground/50 hover:text-foreground hover:bg-accent transition-colors duration-200 text-left"
                 >
                   <FileText className="h-3 w-3 shrink-0 text-foreground/20" />
                   <span className="truncate">{article}</span>
@@ -165,7 +165,7 @@ const HelpDocs = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* FAQs — takes 2 cols */}
         <div className="lg:col-span-2">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-foreground/30 px-1 mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
             Frequently Asked Questions
           </p>
           <div className="surface-card p-0 overflow-hidden">
@@ -173,16 +173,16 @@ const HelpDocs = () => {
               <div key={idx}>
                 <button
                   onClick={() => setExpandedFaq(expandedFaq === idx ? null : idx)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors text-left ${
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 hover:bg-accent transition-colors duration-200 text-left ${
                     idx < filteredFaqs.length - 1 ? "border-b border-foreground/[0.04]" : ""
                   }`}
                 >
-                  <div className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                  <div className="h-7 w-7 rounded-xl bg-accent flex items-center justify-center shrink-0">
                     <MessageCircleQuestion className="h-3.5 w-3.5 text-foreground/30" />
                   </div>
-                  <p className="flex-1 text-[13px] font-medium text-foreground">{faq.q}</p>
+                  <p className="flex-1 text-[13px] font-semibold text-foreground">{faq.q}</p>
                   <ChevronRight
-                    className={`h-3.5 w-3.5 text-foreground/20 transition-transform duration-150 shrink-0 ${
+                    className={`h-3.5 w-3.5 text-foreground/20 transition-transform duration-200 shrink-0 ${
                       expandedFaq === idx ? "rotate-90" : ""
                     }`}
                   />
@@ -204,26 +204,26 @@ const HelpDocs = () => {
 
         {/* Contact Support — takes 1 col */}
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-wider text-foreground/30 px-1 mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
             Contact Support
           </p>
           <div className="space-y-3">
             <div className="surface-card p-4 flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                <Mail className="h-4 w-4 text-foreground/40" />
+              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0">
+                <Mail className="h-4 w-4 text-foreground/35" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-foreground">Email Support</p>
+                <p className="text-sm font-semibold text-foreground">Email Support</p>
                 <p className="text-[11px] text-foreground/35">support@dialflow.com</p>
               </div>
               <ExternalLink className="h-3.5 w-3.5 text-foreground/15 shrink-0" />
             </div>
             <div className="surface-card p-4 flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                <Phone className="h-4 w-4 text-foreground/40" />
+              <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0">
+                <Phone className="h-4 w-4 text-foreground/35" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-foreground">Phone Support</p>
+                <p className="text-sm font-semibold text-foreground">Phone Support</p>
                 <p className="text-[11px] text-foreground/35">Mon–Fri, 9 AM – 6 PM</p>
               </div>
               <ExternalLink className="h-3.5 w-3.5 text-foreground/15 shrink-0" />

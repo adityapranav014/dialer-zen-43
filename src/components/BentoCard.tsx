@@ -11,7 +11,7 @@ const BentoCard = ({ children, className = "" }: BentoCardProps) => {
   return (
     <div
       className={cn(
-        "surface-card p-5",
+        "surface-card p-6",
         className
       )}
     >

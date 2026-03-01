@@ -93,10 +93,10 @@ const AddBDAModal = ({ open, onClose }: AddBDAModalProps) => {
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                     <div>
-                        <h3 className="text-sm font-semibold text-foreground tracking-tight">Add Team Member</h3>
+                        <h3 className="text-sm font-bold text-foreground tracking-tight">Add Team Member</h3>
                         <p className="text-xs text-foreground/40 mt-0.5">Add a new member to this company</p>
                     </div>
-                    <button onClick={onClose} disabled={addingMember} className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors disabled:opacity-40">
+                    <button onClick={onClose} disabled={addingMember} className="h-7 w-7 rounded-xl bg-accent flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors duration-200 disabled:opacity-40">
                         <X className="h-3.5 w-3.5" />
                     </button>
                 </div>
@@ -106,38 +106,38 @@ const AddBDAModal = ({ open, onClose }: AddBDAModalProps) => {
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider block mb-1.5">Full Name *</label>
+                            <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">Full Name *</label>
                             <div className="relative">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/20 pointer-events-none" />
-                                <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Rahul Sharma" className="w-full h-10 pl-10 pr-4 bg-muted border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all" autoFocus />
+                                <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Rahul Sharma" className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" autoFocus />
                             </div>
                         </div>
                         <div>
-                            <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider block mb-1.5">Email Address *</label>
+                            <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">Email Address *</label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/20 pointer-events-none" />
-                                <input value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. rahul@company.com" className="w-full h-10 pl-10 pr-4 bg-muted border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all" />
+                                <input value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. rahul@company.com" className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" />
                             </div>
                         </div>
                         <div>
-                            <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider block mb-1.5">Password *</label>
+                            <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">Password *</label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/20 pointer-events-none" />
-                                <input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Min 4 characters" className="w-full h-10 pl-10 pr-4 bg-muted border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all" />
+                                <input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Min 4 characters" className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" />
                             </div>
                         </div>
                         <div>
-                            <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider block mb-1.5">Phone <span className="text-foreground/25 normal-case">(optional)</span></label>
+                            <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">Phone <span className="text-foreground/25 normal-case">(optional)</span></label>
                             <div className="relative">
                                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/20 pointer-events-none" />
-                                <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="e.g. +91 98765 43210" className="w-full h-10 pl-10 pr-4 bg-muted border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all" />
+                                <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="e.g. +91 98765 43210" className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" />
                             </div>
                         </div>
                         </div>
 
                         {/* Role selector */}
                         <div>
-                            <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider block mb-1.5">Role</label>
+                            <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">Role</label>
                             <div className="flex gap-2">
                                 {(["member", "admin"] as MemberRole[]).map(r => (
                                     <button
@@ -173,7 +173,7 @@ const AddBDAModal = ({ open, onClose }: AddBDAModalProps) => {
 
                 {/* Footer */}
                 <div className="px-6 py-4 border-t border-border bg-card">
-                    <button onClick={handleSubmit} disabled={addingMember || !name.trim() || !email.trim() || password.length < 4} className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                    <button onClick={handleSubmit} disabled={addingMember || !name.trim() || !email.trim() || password.length < 4} className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed">
                         {addingMember ? <Loader2 className="h-4 w-4 animate-spin" /> : <><UserPlus className="h-3.5 w-3.5" />Add Member</>}
                     </button>
                 </div>

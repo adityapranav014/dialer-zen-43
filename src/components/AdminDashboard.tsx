@@ -26,8 +26,8 @@ const activityDotClass: Record<string, string> = {
 };
 
 const statusConfig: Record<string, { label: string; cls: string; icon: typeof CheckCircle2 }> = {
-    active: { label: "Active", cls: "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800", icon: CheckCircle2 },
-    idle: { label: "Idle", cls: "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800", icon: Activity },
+    active: { label: "Active", cls: "bg-emerald-50 text-emerald-600 border-emerald-200/60 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800", icon: CheckCircle2 },
+    idle: { label: "Idle", cls: "bg-amber-50 text-amber-600 border-amber-200/60 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800", icon: Activity },
     offline: { label: "Offline", cls: "bg-muted text-foreground/40 border-border", icon: Circle },
 };
 
@@ -58,32 +58,32 @@ const AdminDashboard = () => {
         <div className="flex flex-col md:h-full md:min-h-0">
             <div className="shrink-0">
             {/* Heading */}
-            <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+            <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
                 <div>
-                    <h2 className="text-lg font-semibold text-foreground tracking-tight">
+                    <h2 className="text-xl font-bold text-foreground tracking-tight">
                         {greeting}, {firstName}
                     </h2>
-                    <p className="text-xs text-foreground/40 mt-0.5 flex items-center gap-1.5">
+                    <p className="text-xs text-foreground/40 mt-1 flex items-center gap-1.5">
                         <span className="status-dot-live inline-block" />
                         {dateStr} · Team overview
                     </p>
                 </div>
-                <button onClick={() => navigate("/team")} className="h-9 px-3.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1.5 hover:bg-primary/90 transition-all shrink-0">
-                    <UserCheck className="h-3.5 w-3.5" />
+                <button onClick={() => navigate("/team")} className="h-10 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-2 hover:bg-primary/90 transition-all duration-200 shrink-0 shadow-sm">
+                    <UserCheck className="h-4 w-4" />
                     Manage Team
                 </button>
             </div>
 
             {/* Team Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {teamStatsDisplay.map((stat) => (
-                    <div key={stat.label} className="surface-card p-4 flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-accent flex items-center justify-center shrink-0">
-                            <stat.icon className="h-5 w-5 text-foreground" strokeWidth={1.5} />
+                    <div key={stat.label} className="surface-card p-5 flex items-center gap-4">
+                        <div className="h-11 w-11 rounded-2xl bg-accent flex items-center justify-center shrink-0">
+                            <stat.icon className="h-5 w-5 text-foreground/60" strokeWidth={1.5} />
                         </div>
                         <div>
-                            <p className="text-2xl font-semibold tracking-tight leading-none mb-1 text-foreground">{stat.value}</p>
-                            <p className="text-[10px] text-foreground/30 font-medium uppercase tracking-wider leading-tight">{stat.label}</p>
+                            <p className="text-2xl font-bold tracking-tight leading-none mb-1 text-foreground">{stat.value}</p>
+                            <p className="text-[10px] text-foreground/35 font-medium uppercase tracking-widest leading-tight">{stat.label}</p>
                         </div>
                     </div>
                 ))}
@@ -95,11 +95,11 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-4">
                 <BentoCard className="xl:col-span-2">
                     <div className="flex items-center justify-between mb-5">
-                        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                            <Users className="h-4 w-4 text-foreground/40" />
+                        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                            <Users className="h-4 w-4 text-foreground/35" />
                             BDA Status Board
                         </h3>
-                        <button className="text-foreground/30 hover:text-foreground transition-colors p-1.5 rounded-lg hover:bg-muted">
+                        <button className="text-foreground/25 hover:text-foreground transition-all duration-200 p-1.5 rounded-xl hover:bg-accent">
                             <MoreHorizontal className="h-4 w-4" />
                         </button>
                     </div>
@@ -108,11 +108,11 @@ const AdminDashboard = () => {
                         <table className="w-full text-xs">
                             <thead>
                                 <tr className="border-b border-border">
-                                    <th className="text-left pb-3 px-2 text-[11px] font-medium text-foreground/35 uppercase tracking-wider">BDA</th>
-                                    <th className="text-right pb-3 px-2 text-[11px] font-medium text-foreground/35 uppercase tracking-wider">Calls</th>
-                                    <th className="text-right pb-3 px-2 text-[11px] font-medium text-foreground/35 uppercase tracking-wider hidden sm:table-cell">Talk</th>
-                                    <th className="text-right pb-3 px-2 text-[11px] font-medium text-foreground/35 uppercase tracking-wider">Conv.</th>
-                                    <th className="text-right pb-3 px-2 text-[11px] font-medium text-foreground/35 uppercase tracking-wider">Status</th>
+                                    <th className="text-left pb-3 px-2 text-[11px] font-semibold text-foreground/30 uppercase tracking-widest">BDA</th>
+                                    <th className="text-right pb-3 px-2 text-[11px] font-semibold text-foreground/30 uppercase tracking-widest">Calls</th>
+                                    <th className="text-right pb-3 px-2 text-[11px] font-semibold text-foreground/30 uppercase tracking-widest hidden sm:table-cell">Talk</th>
+                                    <th className="text-right pb-3 px-2 text-[11px] font-semibold text-foreground/30 uppercase tracking-widest">Conv.</th>
+                                    <th className="text-right pb-3 px-2 text-[11px] font-semibold text-foreground/30 uppercase tracking-widest">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -122,11 +122,11 @@ const AdminDashboard = () => {
                                     return (
                                         <tr
                                             key={bda.id}
-                                            className="border-b border-foreground/[0.04] last:border-0 hover:bg-muted/60 transition-colors"
+                                            className="border-b border-foreground/[0.04] last:border-0 hover:bg-accent/50 transition-all duration-200"
                                         >
                                             <td className="py-3 px-2">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-[10px] font-semibold text-foreground/60 shrink-0">
+                                                    <div className="h-7 w-7 rounded-full bg-accent flex items-center justify-center text-[10px] font-bold text-foreground/60 shrink-0">
                                                         {bda.initials}
                                                     </div>
                                                     <span className="font-medium text-foreground text-[13px]">{bda.name}</span>
@@ -143,7 +143,7 @@ const AdminDashboard = () => {
                                             </td>
                                             <td className="py-3 px-2 text-right">
                                                 <span
-                                                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-md border text-[10px] font-semibold ${sc.cls}`}
+                                                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg border text-[10px] font-semibold ${sc.cls}`}
                                                 >
                                                     <StatusIcon className="h-3 w-3" />
                                                     {sc.label}
@@ -160,11 +160,11 @@ const AdminDashboard = () => {
                 {/* Team Activity Feed */}
                 <BentoCard>
                     <div className="flex items-center justify-between mb-5">
-                        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                            <Inbox className="h-4 w-4 text-foreground/40" />
+                        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                            <Inbox className="h-4 w-4 text-foreground/35" />
                             Team Activity
                         </h3>
-                        <span className="h-5 min-w-[20px] px-1 rounded-md bg-muted text-foreground/50 text-[10px] font-semibold flex items-center justify-center">
+                        <span className="h-5 min-w-[20px] px-1.5 rounded-lg bg-accent text-foreground/50 text-[10px] font-bold flex items-center justify-center">
                             {teamActivities.length}
                         </span>
                     </div>
@@ -193,11 +193,11 @@ const AdminDashboard = () => {
             {/* Conversion chart */}
             <BentoCard>
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-foreground/40" />
+                    <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-foreground/35" />
                         Lead Conversion Funnel
                     </h3>
-                    <span className="text-[11px] text-foreground/30 font-medium">This week</span>
+                    <span className="text-[11px] text-foreground/35 font-medium">This week</span>
                 </div>
                 <LeadConversionChart />
             </BentoCard>

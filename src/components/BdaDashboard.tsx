@@ -72,12 +72,12 @@ const BdaDashboard = () => {
         <div className="flex flex-col md:h-full md:min-h-0">
             <div className="shrink-0">
             {/* Heading row */}
-            <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+            <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
                 <div>
-                    <h2 className="text-lg font-semibold text-foreground tracking-tight">
+                    <h2 className="text-xl font-bold text-foreground tracking-tight">
                         {greeting}, {firstName}
                     </h2>
-                    <p className="text-xs text-foreground/40 mt-0.5 flex items-center gap-1.5">
+                    <p className="text-xs text-foreground/40 mt-1 flex items-center gap-1.5">
                         <span className="status-dot-live inline-block" />
                         {dateStr}
                     </p>
@@ -85,7 +85,7 @@ const BdaDashboard = () => {
                 <button
                     onClick={handleQuickCall}
                     disabled={calling || myLeads.length === 0}
-                    className={`h-9 px-3.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shrink-0 ${
+                    className={`h-10 px-4 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all duration-200 shrink-0 shadow-sm ${
                         calling
                             ? "bg-emerald-500 text-white"
                             : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -106,15 +106,15 @@ const BdaDashboard = () => {
             />
 
             {/* Stats row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {myStatsDisplay.map((stat) => (
-                    <div key={stat.label} className="surface-card p-4 flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-accent flex items-center justify-center shrink-0">
-                            <stat.icon className="h-5 w-5 text-foreground" strokeWidth={1.5} />
+                    <div key={stat.label} className="surface-card p-5 flex items-center gap-4">
+                        <div className="h-11 w-11 rounded-2xl bg-accent flex items-center justify-center shrink-0">
+                            <stat.icon className="h-5 w-5 text-foreground/60" strokeWidth={1.5} />
                         </div>
                         <div>
-                            <p className="text-2xl font-semibold tracking-tight leading-none mb-1 text-foreground">{stat.value}</p>
-                            <p className="text-[10px] text-foreground/30 font-medium uppercase tracking-wider leading-tight">{stat.label}</p>
+                            <p className="text-2xl font-bold tracking-tight leading-none mb-1 text-foreground">{stat.value}</p>
+                            <p className="text-[10px] text-foreground/35 font-medium uppercase tracking-widest leading-tight">{stat.label}</p>
                         </div>
                     </div>
                 ))}
@@ -127,11 +127,11 @@ const BdaDashboard = () => {
                 {/* Leaderboard */}
                 <BentoCard className="lg:col-span-2">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                        <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                             <Trophy className="h-4 w-4 text-amber-500" />
                             Top Performers
                         </h3>
-                        <span className="text-[11px] text-foreground/30 font-medium">This week</span>
+                        <span className="text-[11px] text-foreground/35 font-medium">This week</span>
                     </div>
                     <div className="space-y-0.5">
                         {leaderboard.map((entry, i) => {
@@ -139,19 +139,19 @@ const BdaDashboard = () => {
                             return (
                                 <div
                                     key={entry.id}
-                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
                                         isMe
-                                            ? "bg-accent"
+                                            ? "bg-accent shadow-sm"
                                             : "hover:bg-muted"
                                     }`}
                                 >
                                     <span className="text-xs font-semibold w-5 text-center text-foreground/40">
                                         {i + 1}
                                     </span>
-                                    <div className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 ${
+                                    <div className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
                                         isMe
                                             ? "bg-primary text-primary-foreground"
-                                            : "bg-muted text-foreground/60"
+                                            : "bg-accent text-foreground/60"
                                     }`}>
                                         {entry.initials}
                                     </div>
@@ -176,11 +176,11 @@ const BdaDashboard = () => {
                     {/* Talk Time */}
                     <BentoCard>
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                                <Clock className="h-4 w-4 text-foreground/40" />
+                            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                                <Clock className="h-4 w-4 text-foreground/35" />
                                 Talk Time
                             </h3>
-                            <span className="text-[11px] text-foreground/30 font-medium">Goal: 60m</span>
+                            <span className="text-[11px] text-foreground/35 font-medium">Goal: 60m</span>
                         </div>
                         <TalkTimeChart minutes={stats?.totalMinutes ?? 0} goal={60} />
                     </BentoCard>
@@ -188,11 +188,11 @@ const BdaDashboard = () => {
                     {/* My Activity */}
                     <BentoCard>
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                                <Inbox className="h-4 w-4 text-foreground/40" />
+                            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                                <Inbox className="h-4 w-4 text-foreground/35" />
                                 My Activity
                             </h3>
-                            <span className="text-[11px] text-foreground/30 font-medium">{myActivities.length}</span>
+                            <span className="text-[11px] text-foreground/35 font-medium">{myActivities.length}</span>
                         </div>
 
                         {myActivities.length === 0 ? (

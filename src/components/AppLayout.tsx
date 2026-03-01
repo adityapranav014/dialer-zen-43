@@ -99,12 +99,12 @@ export const AppLayout = ({
       {/* Main column */}
       <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden">
         {/* ─── Global Header ─── */}
-        <header className="shrink-0 h-14 flex items-center justify-between px-4 sm:px-6 border-b border-border bg-card z-30">
+        <header className="shrink-0 h-14 flex items-center justify-between px-4 sm:px-6 border-b border-border bg-card z-30 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
           {/* Left: Breadcrumb */}
           <div className="flex items-center gap-1.5 text-sm min-w-0">
             <button
               onClick={() => navigate(isSuperAdmin ? "/platform" : "/dashboard")}
-              className="text-foreground/40 font-medium hidden sm:inline hover:text-primary hover:underline decoration-primary/30 underline-offset-2 cursor-pointer transition-colors"
+              className="text-foreground/35 font-medium hidden sm:inline hover:text-foreground cursor-pointer transition-all duration-200"
             >
               DialFlow
             </button>
@@ -113,14 +113,14 @@ export const AppLayout = ({
                 <ChevronRight className="h-3.5 w-3.5 text-foreground/25 hidden sm:inline shrink-0" />
                 <button
                   onClick={() => navigate("/dashboard")}
-                  className="text-foreground/40 font-medium hidden sm:inline truncate max-w-[120px] hover:text-primary hover:underline decoration-primary/30 underline-offset-2 cursor-pointer transition-colors"
+                  className="text-foreground/35 font-medium hidden sm:inline truncate max-w-[120px] hover:text-foreground cursor-pointer transition-all duration-200"
                 >
                   {currentTenantName}
                 </button>
               </>
             )}
             <ChevronRight className="h-3.5 w-3.5 text-foreground/25 hidden sm:inline shrink-0" />
-            <span className="text-foreground font-semibold truncate">{currentPage}</span>
+            <span className="text-foreground font-bold truncate">{currentPage}</span>
           </div>
 
           {/* Right: Search + Notifications + Avatar */}
@@ -137,7 +137,7 @@ export const AppLayout = ({
                 <TooltipTrigger asChild>
                   <button
                     onClick={toggleFullscreen}
-                    className="hidden sm:inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground/50 hover:text-foreground hover:bg-muted transition-colors"
+                    className="hidden sm:inline-flex h-8 w-8 items-center justify-center rounded-xl text-foreground/40 hover:text-foreground hover:bg-accent transition-all duration-200"
                     aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
                   >
                     {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
@@ -155,7 +155,7 @@ export const AppLayout = ({
             {/* Profile avatar popover */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-[10px] font-semibold text-primary-foreground transition-transform hover:scale-105 active:scale-95 overflow-hidden">
+                <button className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-primary-foreground transition-all duration-200 hover:scale-105 active:scale-95 overflow-hidden ring-2 ring-background shadow-sm">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
                   ) : (
@@ -163,7 +163,7 @@ export const AppLayout = ({
                   )}
                 </button>
               </PopoverTrigger>
-              <PopoverContent align="end" sideOffset={8} className="w-72 p-0 rounded-xl border border-border shadow-lg bg-card">
+              <PopoverContent align="end" sideOffset={8} className="w-72 p-0 rounded-2xl border border-border shadow-xl bg-card">
                 {/* User info */}
                 <div className="p-4 flex items-center gap-3">
                   {avatarUrl ? (
@@ -174,9 +174,9 @@ export const AppLayout = ({
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
+                    <p className="text-sm font-bold text-foreground truncate">{displayName}</p>
                     <p className="text-[11px] text-foreground/40 truncate">{email}</p>
-                    <span className="inline-block mt-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-accent text-foreground">
+                    <span className="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-accent text-foreground/70">
                       {roleLabel}
                     </span>
                   </div>
@@ -186,17 +186,17 @@ export const AppLayout = ({
 
                 {/* Account section */}
                 <div className="py-1.5">
-                  <p className="px-4 pt-2 pb-1 text-[10px] font-medium uppercase tracking-wider text-foreground/30">Account</p>
+                  <p className="px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-foreground/30">Account</p>
                   {accountItems.map((item) => (
                     <button
                       key={item.label}
                       onClick={() => {
                         if (item.label === "Account Settings") navigate("/settings");
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-muted transition-colors group"
+                      className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-accent transition-all duration-200 group"
                     >
-                      <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 group-hover:bg-accent transition-colors">
-                        <item.icon className="h-3.5 w-3.5 text-foreground/40 group-hover:text-foreground transition-colors" />
+                      <div className="h-7 w-7 rounded-xl bg-accent flex items-center justify-center shrink-0 group-hover:bg-accent transition-all duration-200">
+                        <item.icon className="h-3.5 w-3.5 text-foreground/40 group-hover:text-foreground transition-all duration-200" />
                       </div>
                       <div className="min-w-0 text-left">
                         <p className="text-[13px] font-medium text-foreground">{item.label}</p>
@@ -205,29 +205,29 @@ export const AppLayout = ({
                     </button>
                   ))}
 
-                  {/* Appearance — inline theme picker */}
+                  {/* Appearance — inline theme picker */
                   <div className="px-4 py-2">
                     <button
                       onClick={() => setShowThemePicker((v) => !v)}
-                      className="w-full flex items-center gap-2.5 -mx-4 px-4 py-2 rounded-none hover:bg-muted transition-colors group"
+                      className="w-full flex items-center gap-2.5 -mx-4 px-4 py-2 rounded-none hover:bg-accent transition-all duration-200 group"
                       style={{ width: "calc(100% + 2rem)" }}
                     >
-                      <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 group-hover:bg-accent transition-colors">
-                        <Moon className="h-3.5 w-3.5 text-foreground/40 group-hover:text-foreground transition-colors" />
+                      <div className="h-7 w-7 rounded-xl bg-accent flex items-center justify-center shrink-0 group-hover:bg-accent transition-all duration-200">
+                        <Moon className="h-3.5 w-3.5 text-foreground/40 group-hover:text-foreground transition-all duration-200" />
                       </div>
                       <div className="min-w-0 text-left flex-1">
                         <p className="text-[13px] font-medium text-foreground">Appearance</p>
                         <p className="text-[10px] text-foreground/30">Theme & display</p>
                       </div>
-                      <ChevronRight className={`h-3.5 w-3.5 text-foreground/20 transition-transform duration-150 ${showThemePicker ? "rotate-90" : ""}`} />
+                      <ChevronRight className={`h-3.5 w-3.5 text-foreground/20 transition-transform duration-200 ${showThemePicker ? "rotate-90" : ""}`} />
                     </button>
                     {showThemePicker && (
-                      <div className="flex items-center gap-1.5 mt-2 p-1 bg-muted rounded-lg">
+                      <div className="flex items-center gap-1.5 mt-2 p-1 bg-accent/60 rounded-xl">
                         {themeOptions.map((opt) => (
                           <button
                             key={opt.id}
                             onClick={() => setTheme(opt.id)}
-                            className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-[11px] font-medium transition-all duration-150 ${
+                            className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-[11px] font-medium transition-all duration-200 ${
                               theme === opt.id
                                 ? "bg-primary text-primary-foreground shadow-sm"
                                 : "text-foreground/40 hover:text-foreground"
@@ -246,7 +246,7 @@ export const AppLayout = ({
 
                 {/* Support section */}
                 <div className="py-1.5">
-                  <p className="px-4 pt-2 pb-1 text-[10px] font-medium uppercase tracking-wider text-foreground/30">Support</p>
+                  <p className="px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-foreground/30">Support</p>
                   {supportItems.map((item) => (
                     <button
                       key={item.label}
@@ -254,10 +254,10 @@ export const AppLayout = ({
                         if (item.label === "Help & Docs") navigate("/help");
                         if (item.label === "What's New") navigate("/whats-new");
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-muted transition-colors group"
+                      className="w-full flex items-center gap-2.5 px-4 py-2 hover:bg-accent transition-all duration-200 group"
                     >
-                      <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 group-hover:bg-accent transition-colors">
-                        <item.icon className="h-3.5 w-3.5 text-foreground/40 group-hover:text-foreground transition-colors" />
+                      <div className="h-7 w-7 rounded-xl bg-accent flex items-center justify-center shrink-0 group-hover:bg-accent transition-all duration-200">
+                        <item.icon className="h-3.5 w-3.5 text-foreground/40 group-hover:text-foreground transition-all duration-200" />
                       </div>
                       <div className="min-w-0 text-left">
                         <p className="text-[13px] font-medium text-foreground">{item.label}</p>
@@ -273,9 +273,9 @@ export const AppLayout = ({
                 <div className="p-2">
                   <button
                     onClick={handleSignOut}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors group"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200 group"
                   >
-                    <div className="h-7 w-7 rounded-md bg-red-50 dark:bg-red-950/30 group-hover:bg-red-100 dark:group-hover:bg-red-950/50 flex items-center justify-center shrink-0 transition-colors">
+                    <div className="h-7 w-7 rounded-lg bg-red-50 dark:bg-red-950/30 group-hover:bg-red-100 dark:group-hover:bg-red-950/50 flex items-center justify-center shrink-0 transition-all duration-200">
                       <LogOut className="h-3.5 w-3.5 text-red-500" />
                     </div>
                     <p className="text-[13px] font-medium text-red-600 dark:text-red-400">Sign Out</p>

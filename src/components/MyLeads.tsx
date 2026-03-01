@@ -124,7 +124,7 @@ const LeadListRow = ({
     return (
         <button
             onClick={onSelect}
-            className={`w-full text-left px-4 py-3.5 flex items-center gap-3 transition-all duration-150 border-b border-border/50 hover:bg-accent/50 ${
+            className={`w-full text-left px-4 py-3.5 flex items-center gap-3 transition-all duration-200 border-b border-border/50 hover:bg-accent/50 ${
                 isSelected ? "bg-accent border-l-2 border-l-foreground" : "border-l-2 border-l-transparent"
             }`}
         >
@@ -136,11 +136,11 @@ const LeadListRow = ({
             {/* Info */}
             <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-[13px] font-semibold text-foreground leading-tight truncate">{lead.name}</h3>
+                    <h3 className="text-[13px] font-bold text-foreground leading-tight truncate">{lead.name}</h3>
                     <span className="text-[10px] text-foreground/25 shrink-0">{timeAgo(lead.created_at)}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full border ${cfg.pill} ${cfg.border}`}>
+                    <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-lg border ${cfg.pill} ${cfg.border}`}>
                         <span className={`h-1 w-1 rounded-full ${cfg.dot}`} />
                         {cfg.label}
                     </span>
@@ -252,7 +252,7 @@ const LeadDetailPanel = ({
                                     <TooltipTrigger asChild>
                                         <button
                                             onClick={() => setStatusOpen(v => !v)}
-                                            className={`flex items-center gap-1.5 h-7 pl-2.5 pr-2 rounded-full text-[11px] font-medium border transition-all ${cfg.pill} ${cfg.border} hover:opacity-80`}
+                                            className={`flex items-center gap-1.5 h-7 pl-2.5 pr-2 rounded-lg text-[11px] font-medium border transition-all ${cfg.pill} ${cfg.border} hover:opacity-80`}
                                         >
                                             <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${cfg.dot}`} />
                                             {cfg.label}
@@ -267,8 +267,8 @@ const LeadDetailPanel = ({
                                             <button
                                                 key={s}
                                                 onClick={() => { onStatusChange(s); setStatusOpen(false); }}
-                                                className={`flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-left text-xs font-medium transition-colors ${
-                                                    lead.status === s ? STATUS_CFG[s].pill : "text-foreground/60 hover:text-foreground hover:bg-muted"
+                                                className={`flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-left text-xs font-medium transition-colors duration-200 ${
+                                                    lead.status === s ? STATUS_CFG[s].pill : "text-foreground/60 hover:text-foreground hover:bg-accent"
                                                 }`}
                                             >
                                                 <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${STATUS_CFG[s].dot}`} />
@@ -287,7 +287,7 @@ const LeadDetailPanel = ({
                                 <TooltipTrigger asChild>
                                     <button
                                         onClick={onCall}
-                                        className="flex items-center gap-1.5 h-8 px-4 rounded-xl text-xs font-semibold text-primary-foreground bg-primary hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                                        className="flex items-center gap-1.5 h-8 px-4 rounded-xl text-xs font-bold text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                                     >
                                         <Phone className="h-3.5 w-3.5" />
                                         Call Now
@@ -320,8 +320,8 @@ const LeadDetailPanel = ({
                         <TooltipTrigger asChild>
                             <div className="bg-card p-3 flex flex-col items-center gap-1 cursor-default">
                                 <Icon className={`h-3.5 w-3.5 ${col}`} />
-                                <p className="text-sm font-semibold text-foreground leading-none">{value}</p>
-                                <p className="text-[9px] text-foreground/30 font-medium uppercase tracking-wider">{label}</p>
+                                <p className="text-sm font-bold text-foreground leading-none">{value}</p>
+                                <p className="text-[9px] text-foreground/30 font-medium uppercase tracking-widest">{label}</p>
                             </div>
                         </TooltipTrigger>
                         <TooltipContent side="bottom" className="text-xs">{tip}</TooltipContent>
@@ -331,7 +331,7 @@ const LeadDetailPanel = ({
 
             {/* ── Note ──────────────────────────────────────────────── */}
             {lead.note && (
-                <div className="shrink-0 mx-4 mt-4 flex items-start gap-2 bg-muted/60 border border-foreground/[0.04] rounded-xl px-3 py-2.5">
+                <div className="shrink-0 mx-4 mt-4 flex items-start gap-2 bg-accent/60 border border-foreground/[0.04] rounded-xl px-3 py-2.5">
                     <StickyNote className="h-3.5 w-3.5 text-foreground/25 shrink-0 mt-0.5" />
                     <p className="text-xs text-foreground/50 leading-relaxed">{lead.note}</p>
                 </div>
@@ -340,7 +340,7 @@ const LeadDetailPanel = ({
             {/* ── Activity Timeline ─────────────────────────────────── */}
             <div className="flex-1 overflow-y-auto min-h-0 scroll-container px-5 py-4">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
                         <Clock className="h-3.5 w-3.5 text-foreground/35" />
                         Call History
                     </h3>
@@ -381,16 +381,16 @@ const LeadDetailPanel = ({
                                             <div key={log.id} className="flex gap-3 group">
                                                 {/* Timeline dot */}
                                                 <div className="flex flex-col items-center pt-1">
-                                                    <div className="h-7 w-7 rounded-full bg-muted border border-border flex items-center justify-center shrink-0">
+                                                    <div className="h-7 w-7 rounded-full bg-accent border border-border flex items-center justify-center shrink-0">
                                                         <PhoneCall className="h-3 w-3 text-foreground/40" />
                                                     </div>
                                                 </div>
 
                                                 {/* Call card */}
-                                                <div className="flex-1 min-w-0 bg-muted/40 border border-foreground/[0.04] rounded-xl p-3 hover:border-foreground/[0.08] transition-colors">
+                                                <div className="flex-1 min-w-0 bg-accent/40 border border-foreground/[0.04] rounded-xl p-3 hover:border-foreground/[0.08] transition-colors duration-200">
                                                     <div className="flex items-center justify-between gap-2 mb-1">
                                                         <div className="flex items-center gap-2">
-                                                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${oCfg.bg} ${oCfg.color}`}>
+                                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${oCfg.bg} ${oCfg.color}`}>
                                                                 {log.outcome || "Call"}
                                                             </span>
                                                             <span className="text-[10px] text-foreground/25 font-mono flex items-center gap-1">
@@ -417,10 +417,10 @@ const LeadDetailPanel = ({
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center py-12 text-center">
-                        <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center mb-3 text-foreground/15">
+                        <div className="h-12 w-12 rounded-2xl bg-accent flex items-center justify-center mb-3 text-foreground/15">
                             <PhoneCall className="h-5 w-5" />
                         </div>
-                        <p className="text-xs font-semibold text-foreground/50">No call history</p>
+                        <p className="text-xs font-bold text-foreground/50">No call history</p>
                         <p className="text-[11px] text-foreground/25 mt-1">Make the first call to start tracking</p>
                     </div>
                 )}
@@ -433,7 +433,7 @@ const LeadDetailPanel = ({
                         <TooltipTrigger asChild>
                             <button
                                 onClick={onCall}
-                                className="h-9 px-4 rounded-xl text-xs font-semibold text-primary-foreground bg-primary hover:bg-primary/90 flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0"
+                                className="h-9 px-4 rounded-xl text-xs font-bold text-primary-foreground bg-primary hover:bg-primary/90 flex items-center gap-1.5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shrink-0"
                             >
                                 <Phone className="h-3.5 w-3.5" />
                                 Call
@@ -441,7 +441,7 @@ const LeadDetailPanel = ({
                         </TooltipTrigger>
                         <TooltipContent side="top" className="text-xs">Start a call</TooltipContent>
                     </Tooltip>
-                    <div className="flex-1 flex items-center gap-2 bg-muted border border-border rounded-xl px-3 h-9">
+                    <div className="flex-1 flex items-center gap-2 bg-accent/60 border border-border rounded-xl px-3 h-9">
                         <input
                             type="text"
                             placeholder="Add a quick note…"
@@ -600,7 +600,7 @@ const MyLeads = () => {
                         ].map(({ label, tip, value, icon: Icon, cls }) => (
                             <Tooltip key={label}>
                                 <TooltipTrigger asChild>
-                                    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold cursor-default ${cls}`}>
+                                    <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-bold cursor-default ${cls}`}>
                                         <Icon className="h-3 w-3" />
                                         <span>{value}</span>
                                     </div>
@@ -643,13 +643,13 @@ const MyLeads = () => {
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`relative flex items-center gap-1 px-3 py-2.5 text-[11px] font-medium whitespace-nowrap shrink-0 transition-colors duration-150 ${
+                                    className={`relative flex items-center gap-1 px-3 py-2.5 text-[11px] font-semibold whitespace-nowrap shrink-0 transition-colors duration-200 ${
                                         isActive ? "text-foreground" : "text-foreground/35 hover:text-foreground"
                                     }`}
                                 >
                                     {tab.label}
                                     {count > 0 && (
-                                        <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full font-mono ${
+                                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full font-mono ${
                                             isActive ? "bg-accent text-foreground" : "bg-transparent text-foreground/30"
                                         }`}>
                                             {count}
@@ -677,10 +677,10 @@ const MyLeads = () => {
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-                            <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center mb-3 text-foreground/15">
+                            <div className="h-12 w-12 rounded-2xl bg-accent flex items-center justify-center mb-3 text-foreground/15">
                                 <Search className="h-5 w-5" />
                             </div>
-                            <p className="text-xs font-semibold text-foreground/50 mb-0.5">No leads found</p>
+                            <p className="text-xs font-bold text-foreground/50 mb-0.5">No leads found</p>
                             <p className="text-[11px] text-foreground/30">Try adjusting your filter or search</p>
                             {(search || activeTab !== "all") && (
                                 <button
@@ -713,10 +713,10 @@ const MyLeads = () => {
                     </div>
                 ) : (
                     <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
-                        <div className="h-16 w-16 rounded-3xl bg-muted flex items-center justify-center mb-4 text-foreground/10">
+                        <div className="h-16 w-16 rounded-3xl bg-accent flex items-center justify-center mb-4 text-foreground/10">
                             <ExternalLink className="h-7 w-7" />
                         </div>
-                        <p className="text-sm font-semibold text-foreground/40 mb-1">Select a lead</p>
+                        <p className="text-sm font-bold text-foreground/40 mb-1">Select a lead</p>
                         <p className="text-xs text-foreground/25 max-w-[200px]">
                             Choose a lead from your pipeline to view details & call history
                         </p>

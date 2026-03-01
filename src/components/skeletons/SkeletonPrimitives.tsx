@@ -84,7 +84,7 @@ export const SkeletonActivityItem = () => (
 
 /* ─── Lead Card (Kanban) ──────────────────────── */
 export const SkeletonLeadCard = () => (
-  <div className="surface-card p-3.5 space-y-3">
+  <div className="surface-card p-4 space-y-3">
     <div className="flex items-center justify-between gap-2">
       <Skeleton className="h-3.5 w-28 rounded-md" />
       <Skeleton className="h-4 w-10 rounded-md" />
@@ -115,7 +115,7 @@ export const SkeletonLeadListCard = () => (
             <Skeleton className="h-3.5 w-32 rounded-md" />
             <Skeleton className="h-2.5 w-24 rounded-full" />
           </div>
-          <Skeleton className="h-6 w-20 rounded-full shrink-0" />
+          <Skeleton className="h-6 w-20 rounded-lg shrink-0" />
         </div>
         <Skeleton className="h-3 w-16 rounded-md" />
         <div className="flex items-center justify-between pt-2">
@@ -132,7 +132,7 @@ export const SkeletonLeadListCard = () => (
 
 /* ─── Leaderboard Row ─────────────────────────── */
 export const SkeletonLeaderboardRow = () => (
-  <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg">
+  <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl">
     <Skeleton className="h-3 w-5 rounded" />
     <Skeleton className="h-7 w-7 rounded-full shrink-0" />
     <Skeleton className="h-3.5 w-28 rounded-md flex-1" />
@@ -192,7 +192,7 @@ export const SkeletonTeamTableRow = () => (
     </div>
     {/* Status */}
     <div className="px-3">
-      <Skeleton className="h-6 w-16 rounded-full" />
+      <Skeleton className="h-6 w-16 rounded-lg" />
     </div>
     {/* Leads */}
     <div className="px-3 space-y-1.5">
@@ -240,7 +240,7 @@ export const SkeletonPerformerCard = () => (
     </div>
     <div className="grid grid-cols-3 gap-2">
       {[1, 2, 3].map((i) => (
-        <div key={i} className="text-center px-2 py-1.5 rounded-lg bg-muted">
+        <div key={i} className="text-center px-2 py-1.5 rounded-xl bg-accent"> 
           <Skeleton className="h-4 w-8 rounded-md mx-auto mb-1" />
           <Skeleton className="h-2 w-10 rounded-full mx-auto" />
         </div>

@@ -30,7 +30,7 @@ const BottomNav = () => {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card border-t border-border"
+      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card/95 backdrop-blur-lg border-t border-border shadow-[0_-1px_3px_rgba(0,0,0,0.04)]"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <nav className="flex items-center justify-around h-14">
@@ -51,13 +51,13 @@ const BottomNav = () => {
             <Link
               key={tab.path}
               to={tab.path}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
+              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 ${
                 isActive
                   ? "text-foreground"
-                  : "text-foreground/35 hover:text-foreground/60"
+                  : "text-foreground/30 hover:text-foreground/60"
               }`}
             >
-              <div className={`p-1 rounded-md ${isActive ? "bg-accent" : ""}`}>
+              <div className={`p-1.5 rounded-xl transition-all duration-200 ${isActive ? "bg-accent shadow-sm" : ""}`}>
                 <tab.icon
                   className="h-4.5 w-4.5"
                   strokeWidth={isActive ? 2 : 1.5}

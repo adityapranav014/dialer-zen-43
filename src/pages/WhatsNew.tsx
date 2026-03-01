@@ -106,7 +106,7 @@ const WhatsNew = () => {
     <AppLayout title="What's New">
       {/* Latest badge */}
       <div className="flex items-center gap-2 mb-6">
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-xs font-bold">
           <Sparkles className="h-3 w-3" />
           Latest: v{releases[0].version}
         </span>
@@ -125,7 +125,7 @@ const WhatsNew = () => {
               <div className={`absolute left-0 top-0 z-10 h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
                 rIdx === 0
                   ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                  : "bg-muted text-foreground/40 border border-foreground/[0.06]"
+                  : "bg-accent text-foreground/40 border border-foreground/[0.06]"
               }`}>
                 <release.icon className="h-4 w-4" />
               </div>
@@ -134,8 +134,8 @@ const WhatsNew = () => {
               <div className="ml-14">
                 {/* Header */}
                 <div className="flex flex-wrap items-baseline gap-2 mb-1">
-                  <h2 className="text-base font-semibold text-foreground">v{release.version}</h2>
-                  <span className="text-xs text-foreground/30 font-medium">{release.date}</span>
+                  <h2 className="text-base font-bold text-foreground">v{release.version}</h2>
+                  <span className="text-xs text-foreground/30 font-semibold">{release.date}</span>
                 </div>
                 <p className="text-sm text-foreground/50 mb-4">{release.headline}</p>
 
@@ -152,18 +152,18 @@ const WhatsNew = () => {
                         }`}
                       >
                         {Icon ? (
-                          <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                          <div className="h-7 w-7 rounded-xl bg-accent flex items-center justify-center shrink-0 mt-0.5">
                             <Icon className="h-3.5 w-3.5 text-foreground/30" />
                           </div>
                         ) : (
-                          <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                          <div className="h-7 w-7 rounded-xl bg-accent flex items-center justify-center shrink-0 mt-0.5">
                             <ArrowUpRight className="h-3.5 w-3.5 text-foreground/30" />
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <p className="text-sm font-medium text-foreground">{change.title}</p>
-                            <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold border ${badge.className}`}>
+                            <p className="text-sm font-semibold text-foreground">{change.title}</p>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold border ${badge.className}`}>
                               {badge.label}
                             </span>
                           </div>
@@ -179,7 +179,7 @@ const WhatsNew = () => {
         </div>
       </div>
 
-      <p className="text-[10px] text-foreground/20 text-center mt-12 mb-4 font-medium">
+      <p className="text-[10px] text-foreground/20 text-center mt-12 mb-4 font-semibold">
         DialFlow Changelog — Built with care
       </p>
     </AppLayout>

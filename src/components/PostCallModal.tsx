@@ -17,7 +17,7 @@ const dispositions = [
   { id: "Not Interested", label: "Not Interested", icon: ThumbsDown, color: "text-red-500", bg: "bg-red-50 hover:bg-red-100/60 border-red-200/60 data-[selected=true]:border-red-400 data-[selected=true]:bg-red-50" },
   { id: "Follow Up", label: "Follow Up", icon: Calendar, color: "text-foreground", bg: "bg-accent hover:bg-accent/80 border-border data-[selected=true]:border-foreground/30 data-[selected=true]:bg-accent" },
   { id: "Voicemail", label: "Voicemail", icon: Voicemail, color: "text-amber-600", bg: "bg-amber-50 hover:bg-amber-100/60 border-amber-200/60 data-[selected=true]:border-amber-400 data-[selected=true]:bg-amber-50" },
-  { id: "Wrong Number", label: "Wrong Number", icon: AlertCircle, color: "text-foreground/40", bg: "bg-muted hover:bg-muted/80 border-border data-[selected=true]:border-foreground/20 data-[selected=true]:bg-muted" },
+  { id: "Wrong Number", label: "Wrong Number", icon: AlertCircle, color: "text-foreground/40", bg: "bg-accent hover:bg-accent/80 border-border data-[selected=true]:border-foreground/20 data-[selected=true]:bg-accent" },
   { id: "Closed Won", label: "Closed Won", icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50 hover:bg-emerald-100/60 border-emerald-200/60 data-[selected=true]:border-emerald-400 data-[selected=true]:bg-emerald-50" },
 ];
 
@@ -72,7 +72,7 @@ const PostCallModal = ({ open, onClose, leadId, leadName, duration, leadStatus =
                 <div className="h-6 w-6 rounded-full bg-emerald-50 flex items-center justify-center">
                   <Phone className="h-3 w-3 text-emerald-600" />
                 </div>
-                <h2 className="text-base font-semibold text-foreground">Post-Call Log</h2>
+                <h2 className="text-base font-bold text-foreground">Post-Call Log</h2>
               </div>
               <div className="flex items-center gap-2 pl-8">
                 <span className="text-sm text-foreground/50">{leadName}</span>
@@ -85,14 +85,14 @@ const PostCallModal = ({ open, onClose, leadId, leadName, duration, leadStatus =
             </div>
             <button
               onClick={onClose}
-              className="h-8 w-8 rounded-lg bg-muted hover:bg-accent flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors"
+              className="h-8 w-8 rounded-xl bg-accent hover:bg-accent/80 flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors duration-200"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
           <div className="mb-5">
-            <label className="text-[11px] font-medium uppercase tracking-wider text-foreground/40 mb-3 block">
+            <label className="text-[11px] font-medium uppercase tracking-widest text-foreground/40 mb-3 block">
               Call Outcome
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -104,7 +104,7 @@ const PostCallModal = ({ open, onClose, leadId, leadName, duration, leadStatus =
                     onClick={() => setSelectedDisposition(d.id)}
                     data-selected={isSelected}
                     disabled={isLogging}
-                    className={`flex flex-col items-center gap-2 px-2 py-3 rounded-xl border text-center transition-all duration-150 ${d.bg}`}
+                    className={`flex flex-col items-center gap-2 px-2 py-3 rounded-xl border text-center transition-all duration-200 ${d.bg}`}
                   >
                     <d.icon className={`h-4 w-4 ${d.color}`} />
                     <span className={`text-[11px] font-medium leading-tight ${isSelected ? d.color : "text-foreground/40"}`}>
@@ -117,7 +117,7 @@ const PostCallModal = ({ open, onClose, leadId, leadName, duration, leadStatus =
           </div>
 
           <div className="mb-6">
-            <label className="text-[11px] font-medium uppercase tracking-wider text-foreground/40 mb-2 flex items-center gap-1.5">
+            <label className="text-[11px] font-medium uppercase tracking-widest text-foreground/40 mb-2 flex items-center gap-1.5">
               <MessageSquare className="h-3.5 w-3.5" />
               Notes
             </label>
@@ -127,17 +127,17 @@ const PostCallModal = ({ open, onClose, leadId, leadName, duration, leadStatus =
               disabled={isLogging}
               placeholder="Summarize the call..."
               rows={3}
-              className="w-full bg-muted border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 resize-none transition-all"
+              className="w-full bg-muted/60 border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 resize-none transition-all duration-200"
             />
           </div>
 
           <button
             onClick={handleSave}
             disabled={!selectedDisposition || isLogging}
-            className={`w-full py-3.5 rounded-xl font-medium text-sm transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed ${
+            className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed ${
               selectedDisposition
                 ? "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98]"
-                : "bg-muted text-foreground/40"
+                : "bg-accent text-foreground/40"
             }`}
           >
             {isLogging ? "Saving..." : "Save & Continue"}

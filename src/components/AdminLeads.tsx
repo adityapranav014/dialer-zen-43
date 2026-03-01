@@ -125,17 +125,17 @@ const statusBDACfg: Record<string, string> = {
 // ─── Lead Card Content (pure presentational) ─────────────────────────────────
 
 const LeadCardContent = ({ lead, onAssign, onViewDetail, isDragOverlay = false }: { lead: Lead; onAssign?: (lead: Lead) => void; onViewDetail?: (lead: Lead) => void; isDragOverlay?: boolean }) => (
-    <div className={`group/card bg-card rounded-[10px] select-none transition-all duration-200 ${
+    <div className={`group/card bg-card rounded-2xl select-none transition-all duration-200 ${
         isDragOverlay
-            ? "shadow-2xl ring-2 ring-primary/20 scale-[1.02] rotate-[1deg] p-3.5"
-            : "shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_3px_12px_rgba(0,0,0,0.08)] border border-border/50 hover:border-border p-3.5"
+            ? "shadow-2xl ring-2 ring-primary/20 scale-[1.02] rotate-[1deg] p-4"
+            : "shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-border/50 hover:border-border p-4"
     }`}>
         <div className="flex-1 min-w-0">
             {/* Name + value */}
             <div className="flex items-center justify-between gap-2 mb-1.5">
                 <button
                     onClick={(e) => { e.stopPropagation(); e.preventDefault(); onViewDetail?.(lead); }}
-                    className="text-[13px] font-semibold text-foreground truncate tracking-tight leading-snug text-left hover:text-primary hover:underline decoration-primary/30 underline-offset-2 transition-colors cursor-pointer"
+                    className="text-[13px] font-bold text-foreground truncate tracking-tight leading-snug text-left hover:text-primary hover:underline decoration-primary/30 underline-offset-2 transition-colors duration-200 cursor-pointer"
                     title="View lead details"
                 >{lead.name}</button>
                 {lead.value && <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded-md shrink-0">{lead.value}</span>}
@@ -149,7 +149,7 @@ const LeadCardContent = ({ lead, onAssign, onViewDetail, isDragOverlay = false }
 
             {/* Assigned BDA badge */}
             {lead.assignedTo && (
-                <div className="mt-2 flex items-center gap-2 px-2 py-1.5 rounded-lg bg-muted/60 dark:bg-muted/40">
+                <div className="mt-2.5 flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-accent/60 dark:bg-accent/40">
                     <div className={`h-5 w-5 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0 ${lead.assignedToColor || "bg-primary text-primary-foreground"}`}>
                         {lead.assignedToInitials || lead.assignedTo.split(" ").map(n => n[0]).join("")}
                     </div>
@@ -166,7 +166,7 @@ const LeadCardContent = ({ lead, onAssign, onViewDetail, isDragOverlay = false }
                 {onAssign && (
                     <button
                         onClick={(e) => { e.stopPropagation(); onAssign(lead); }}
-                        className={`flex items-center gap-1 text-[10px] font-semibold rounded-md px-2 py-1 transition-all duration-150 ${
+                        className={`flex items-center gap-1 text-[10px] font-bold rounded-lg px-2 py-1 transition-all duration-200 ${
                             lead.assignedTo
                                 ? "text-foreground/30 opacity-0 group-hover/card:opacity-100 hover:!text-primary hover:!bg-primary/10"
                                 : "text-primary bg-primary/[0.06] hover:bg-primary/10"
@@ -191,7 +191,7 @@ const DraggableLead = ({ lead, onAssign, onViewDetail }: { lead: Lead; onAssign:
             ref={setNodeRef}
             {...attributes}
             {...listeners}
-            className={`cursor-grab active:cursor-grabbing touch-none outline-none rounded-[10px] transition-all duration-150 ${
+            className={`cursor-grab active:cursor-grabbing touch-none outline-none rounded-2xl transition-all duration-200 ${
                 isDragging
                     ? "opacity-0 scale-[0.98] h-0 overflow-hidden p-0 m-0 border-0"
                     : "opacity-100 hover:-translate-y-0.5"
@@ -217,15 +217,15 @@ interface KanbanColumnProps {
 const KanbanColumnHeader = ({ color, headerBg, border, dot, label, count }: {
     color: string; headerBg: string; border: string; dot: string; label: string; count: number;
 }) => (
-    <div className={`flex items-center justify-between px-4 py-2.5 rounded-lg border ${headerBg} ${border} shadow-[0_1px_2px_rgba(0,0,0,0.03)]`}>
+    <div className={`flex items-center justify-between px-4 py-3 rounded-xl border ${headerBg} ${border} shadow-[0_1px_3px_rgba(0,0,0,0.04)]`}>
         <div className="flex items-center gap-2.5">
             <div className="relative flex items-center justify-center h-4 w-4">
                 <span className={`absolute inset-0 rounded-full ${dot} opacity-15`} />
                 <span className={`h-2 w-2 rounded-full ${dot}`} />
             </div>
-            <span className={`text-sm font-semibold tracking-tight ${color}`}>{label}</span>
+            <span className={`text-sm font-bold tracking-tight ${color}`}>{label}</span>
         </div>
-        <span className={`text-xs font-bold tabular-nums min-w-[24px] text-center py-0.5 px-1.5 rounded-md bg-foreground/[0.05] ${color}`}>
+        <span className={`text-xs font-bold tabular-nums min-w-[24px] text-center py-0.5 px-2 rounded-lg bg-foreground/[0.05] ${color}`}>
             {count}
         </span>
     </div>
@@ -248,7 +248,7 @@ const KanbanColumn = ({ colId, dropBg, leads, onAssign, onViewDetail }: KanbanCo
             {/* Leads — grows naturally */}
             <div className="flex flex-col gap-2 p-1.5 flex-1">
                 {leads.length === 0 && (
-                    <div className={`flex flex-col items-center justify-center py-10 flex-1 min-h-[100px] text-center rounded-lg border border-dashed transition-all duration-200 ${
+                    <div className={`flex flex-col items-center justify-center py-10 flex-1 min-h-[100px] text-center rounded-xl border border-dashed transition-all duration-200 ${
                         isOver
                             ? "border-primary/40 bg-primary/[0.04]"
                             : "border-foreground/[0.06]"
@@ -297,10 +297,10 @@ const AssignSheet = ({ lead, bdas, onAssign, onClose }: AssignSheetProps) => {
                     >
                         <div className="flex items-start justify-between mb-4">
                             <div>
-                                <p className="text-sm font-semibold text-foreground">Assign Lead</p>
+                                <p className="text-sm font-bold text-foreground">Assign Lead</p>
                                 <p className="text-xs text-foreground/40 mt-0.5">{lead.name} · {lead.phone}</p>
                             </div>
-                            <button onClick={onClose} className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors">
+                            <button onClick={onClose} className="h-7 w-7 rounded-xl bg-accent flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors duration-200">
                                 <X className="h-3.5 w-3.5" />
                             </button>
                         </div>
@@ -312,7 +312,7 @@ const AssignSheet = ({ lead, bdas, onAssign, onClose }: AssignSheetProps) => {
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search BDA..."
-                                className="w-full h-9 pl-9 pr-3 bg-muted border border-border rounded-lg text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 transition-all"
+                                className="w-full h-9 pl-9 pr-3 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 transition-all duration-200"
                                 autoFocus
                             />
                         </div>
@@ -332,7 +332,7 @@ const AssignSheet = ({ lead, bdas, onAssign, onClose }: AssignSheetProps) => {
                                         <p className="text-xs font-medium text-foreground">{bda.name}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full border ${statusBDACfg[bda.status]}`}>
+                                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-lg border ${statusBDACfg[bda.status]}`}>
                                             {bda.status}
                                         </span>
                                         {lead.assigned_to === bda.id && <Check className="h-3.5 w-3.5 text-foreground" />}
@@ -614,8 +614,8 @@ const AdminLeads = () => {
                     <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
                         <div className="flex items-center gap-4 flex-1 min-w-0">
                             <div className="min-w-0">
-                                <h2 className="text-lg font-semibold text-foreground tracking-tight">Lead Management</h2>
-                                <p className="text-xs text-foreground/40 mt-0.5">Drag leads between stages or assign to BDAs</p>
+                                <h2 className="text-xl font-bold text-foreground tracking-tight">Lead Management</h2>
+                                <p className="text-xs text-foreground/40 mt-1">Drag leads between stages or assign to BDAs</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2.5">
@@ -626,12 +626,12 @@ const AdminLeads = () => {
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder="Search leads…"
-                                    className="h-9 w-48 lg:w-56 pl-9 pr-3 bg-card border border-border rounded-lg text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all"
+                                    className="h-9 w-48 lg:w-56 pl-9 pr-3 bg-card border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200"
                                 />
                             </div>
                             <button
                                 onClick={() => setAddLeadOpen(true)}
-                                className="h-9 px-3.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1.5 hover:bg-primary/90 transition-all shrink-0"
+                                className="h-10 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-2 hover:bg-primary/90 transition-all duration-200 shrink-0 shadow-sm"
                             >
                                 <Plus className="h-3.5 w-3.5" />
                                 <span className="hidden sm:inline">Add Lead</span>
@@ -641,7 +641,7 @@ const AdminLeads = () => {
 
                     {/* ── Team Workload Strip ── */}
                     <div className="mb-4 min-w-0">
-                        <p className="text-[10px] font-medium uppercase tracking-wider text-foreground/30 mb-2">Team Workload · click to filter</p>
+                        <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground/30 mb-2">Team Workload · click to filter</p>
                         <div className="flex items-center gap-2.5 min-w-0">
                                 {/* BDA search — fixed, does not scroll */}
                                 <div className="relative shrink-0 group">
@@ -746,7 +746,7 @@ const AdminLeads = () => {
                                 {selectedBdas.size > 0 && (
                                     <button
                                         onClick={() => setSelectedBdas(new Set())}
-                                        className="shrink-0 h-8 px-3 rounded-lg border border-border bg-card text-[11px] font-medium text-foreground/50 hover:text-foreground hover:border-foreground/15 transition-all flex items-center gap-1.5"
+                                        className="shrink-0 h-8 px-3 rounded-xl border border-border bg-card text-[11px] font-semibold text-foreground/50 hover:text-foreground hover:border-foreground/15 transition-all duration-200 flex items-center gap-1.5"
                                     >
                                         <X className="h-3 w-3" />
                                         Clear{selectedBdas.size > 1 ? ` (${selectedBdas.size})` : ""}

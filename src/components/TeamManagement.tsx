@@ -100,10 +100,10 @@ const RoleSheet = ({ member, onSave, onClose, saving }: RoleSheetProps) => {
                 <div className="pointer-events-auto w-full max-w-sm rounded-2xl bg-card border border-border shadow-xl overflow-y-auto max-h-full scroll-container">
                     <div className="flex items-start justify-between p-5 pb-3">
                         <div>
-                            <p className="text-sm font-semibold text-foreground">Edit Member</p>
+                            <p className="text-sm font-bold text-foreground">Edit Member</p>
                             <p className="text-xs text-foreground/40 mt-0.5">{member.name}</p>
                         </div>
-                        <button onClick={onClose} className="h-7 w-7 rounded-lg bg-muted flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors">
+                        <button onClick={onClose} className="h-7 w-7 rounded-xl bg-accent flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors duration-200">
                             <X className="h-3.5 w-3.5" />
                         </button>
                     </div>
@@ -111,7 +111,7 @@ const RoleSheet = ({ member, onSave, onClose, saving }: RoleSheetProps) => {
                     <div className="px-5 space-y-4">
                         {/* Role */}
                         <div>
-                            <label className="text-[10px] font-semibold uppercase tracking-wider text-foreground/35 mb-2 block">Role</label>
+                            <label className="text-[10px] font-semibold uppercase tracking-widest text-foreground/35 mb-2 block">Role</label>
                             <div className="flex gap-2">
                                 {(["member", "admin"] as MemberRole[]).map(r => (
                                     <button
@@ -131,9 +131,9 @@ const RoleSheet = ({ member, onSave, onClose, saving }: RoleSheetProps) => {
                         </div>
 
                         {/* Active toggle */}
-                        <div className="flex items-center justify-between p-3 rounded-xl bg-muted/60 border border-border">
+                        <div className="flex items-center justify-between p-3.5 rounded-xl bg-accent/60 border border-border">
                             <div>
-                                <p className="text-xs font-semibold text-foreground">Active Status</p>
+                                <p className="text-xs font-bold text-foreground">Active Status</p>
                                 <p className="text-[10px] text-foreground/35">Inactive members cannot log in</p>
                             </div>
                             <button
@@ -149,7 +149,7 @@ const RoleSheet = ({ member, onSave, onClose, saving }: RoleSheetProps) => {
                         <button
                             onClick={() => onSave(member.membershipId, { role, is_active: isActive })}
                             disabled={saving}
-                            className="w-full h-9 rounded-xl bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all disabled:opacity-40"
+                            className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all duration-200 disabled:opacity-40"
                         >
                             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Check className="h-3.5 w-3.5" />Save Changes</>}
                         </button>
@@ -180,7 +180,7 @@ const DeleteConfirm = ({ member, onConfirm, onClose, deleting }: DeleteConfirmPr
                         <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
                     </div>
                     <div>
-                        <p className="text-sm font-semibold text-foreground">Remove Team Member</p>
+                        <p className="text-sm font-bold text-foreground">Remove Team Member</p>
                         <p className="text-xs text-foreground/40 mt-0.5">This will unassign all their leads</p>
                     </div>
                 </div>
@@ -191,8 +191,8 @@ const DeleteConfirm = ({ member, onConfirm, onClose, deleting }: DeleteConfirmPr
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <button onClick={onClose} className="flex-1 h-9 rounded-xl border border-border text-xs font-semibold text-foreground/60 hover:bg-muted transition-colors">Cancel</button>
-                    <button onClick={() => onConfirm(member.membershipId)} disabled={deleting} className="flex-1 h-9 rounded-xl bg-red-600 text-white text-xs font-semibold flex items-center justify-center gap-2 hover:bg-red-700 transition-colors disabled:opacity-40">
+                    <button onClick={onClose} className="flex-1 h-10 rounded-xl border border-border text-xs font-bold text-foreground/60 hover:bg-accent transition-colors duration-200">Cancel</button>
+                    <button onClick={() => onConfirm(member.membershipId)} disabled={deleting} className="flex-1 h-10 rounded-xl bg-red-600 text-white text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-700 transition-colors duration-200 disabled:opacity-40">
                         {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Trash2 className="h-3.5 w-3.5" />Remove</>}
                     </button>
                 </div>
@@ -331,11 +331,11 @@ const TeamManagement = () => {
                 {/* Page Header */}
                 <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
                     <div>
-                        <h2 className="text-lg font-semibold text-foreground tracking-tight">Team Management</h2>
-                        <p className="text-xs text-foreground/40 mt-0.5">Monitor performance and manage your sales team</p>
+                        <h2 className="text-xl font-bold text-foreground tracking-tight">Team Management</h2>
+                        <p className="text-xs text-foreground/40 mt-1">Monitor performance and manage your sales team</p>
                     </div>
-                    <button onClick={() => setAddOpen(true)} className="h-9 px-3.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1.5 hover:bg-primary/90 transition-all shrink-0">
-                        <Plus className="h-3.5 w-3.5" />
+                    <button onClick={() => setAddOpen(true)} className="h-10 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-2 hover:bg-primary/90 transition-all duration-200 shrink-0 shadow-sm">
+                        <Plus className="h-4 w-4" />
                         <span className="hidden sm:inline">Add Member</span>
                     </button>
                 </div>
@@ -345,7 +345,7 @@ const TeamManagement = () => {
                     <div className="mb-6">
                         <div className="flex items-center gap-2 mb-3">
                             <Trophy className="h-4 w-4 text-amber-500" />
-                            <span className="text-xs font-semibold text-foreground tracking-tight">Top Performers</span>
+                            <span className="text-xs font-bold text-foreground tracking-tight">Top Performers</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {topPerformers.map((m, i) => (
@@ -357,21 +357,21 @@ const TeamManagement = () => {
                                             <span className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card ${m.isActive ? "bg-emerald-500" : "bg-gray-400"}`} />
                                         </div>
                                         <div className="min-w-0">
-                                            <button onClick={() => setViewingMember(m)} className="text-xs font-semibold text-foreground truncate text-left hover:text-primary hover:underline decoration-primary/30 underline-offset-2 transition-colors cursor-pointer block max-w-full" title="View member details">{m.name}</button>
+                                            <button onClick={() => setViewingMember(m)} className="text-xs font-bold text-foreground truncate text-left hover:text-primary hover:underline decoration-primary/30 underline-offset-2 transition-colors duration-200 cursor-pointer block max-w-full" title="View member details">{m.name}</button>
                                             <p className="text-[10px] text-foreground/35">{m.email}</p>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-3 gap-2">
-                                        <div className="text-center px-2 py-1.5 rounded-lg bg-muted">
-                                            <p className="text-sm font-semibold text-foreground">{m.conversionRate}%</p>
+                                        <div className="text-center px-2 py-1.5 rounded-xl bg-accent">
+                                            <p className="text-sm font-bold text-foreground">{m.conversionRate}%</p>
                                             <p className="text-[9px] text-foreground/30 font-medium uppercase">Conv.</p>
                                         </div>
-                                        <div className="text-center px-2 py-1.5 rounded-lg bg-muted">
-                                            <p className="text-sm font-semibold text-foreground">{m.closedLeads}</p>
+                                        <div className="text-center px-2 py-1.5 rounded-xl bg-accent">
+                                            <p className="text-sm font-bold text-foreground">{m.closedLeads}</p>
                                             <p className="text-[9px] text-foreground/30 font-medium uppercase">Closed</p>
                                         </div>
-                                        <div className="text-center px-2 py-1.5 rounded-lg bg-muted">
-                                            <p className="text-sm font-semibold text-foreground">{m.totalCalls}</p>
+                                        <div className="text-center px-2 py-1.5 rounded-xl bg-accent">
+                                            <p className="text-sm font-bold text-foreground">{m.totalCalls}</p>
                                             <p className="text-[9px] text-foreground/30 font-medium uppercase">Calls</p>
                                         </div>
                                     </div>
@@ -385,7 +385,7 @@ const TeamManagement = () => {
                 <div className="flex items-center gap-3 flex-wrap">
                     <div className="relative group flex-1 min-w-[200px] max-w-xs">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/25 group-focus-within:text-foreground transition-colors pointer-events-none" />
-                        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, email…" className="h-9 w-full pl-9 pr-3 bg-card border border-border rounded-lg text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all" />
+                        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, email…" className="h-9 w-full pl-9 pr-3 bg-card border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" />
                     </div>
                     <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
                         <Filter className="h-3.5 w-3.5 text-foreground/25 shrink-0" />
@@ -398,7 +398,7 @@ const TeamManagement = () => {
                                 <button
                                     key={s.id}
                                     onClick={() => setFilterStatus(s.id)}
-                                    className={`h-8 px-3 rounded-lg text-[11px] font-semibold capitalize border transition-all whitespace-nowrap shrink-0 ${
+                                    className={`h-8 px-3 rounded-xl text-[11px] font-bold capitalize border transition-all duration-200 whitespace-nowrap shrink-0 ${
                                         filterStatus === s.id
                                             ? "bg-primary text-primary-foreground border-primary"
                                             : "bg-card text-foreground/45 border-border hover:border-foreground/15 hover:text-foreground"
@@ -414,7 +414,7 @@ const TeamManagement = () => {
 
             {/* Members Table */}
             <div className="md:flex-1 md:min-h-0 flex flex-col pb-4">
-                <div className="rounded-xl border border-border bg-card flex flex-col overflow-hidden md:flex-1 md:min-h-0">
+                <div className="rounded-2xl border border-border bg-card flex flex-col overflow-hidden md:flex-1 md:min-h-0 shadow-sm">
                     {/* Header */}
                     <div className="shrink-0 border-b border-border bg-card/95 backdrop-blur-sm z-10">
                         <div className="overflow-x-auto">
@@ -436,13 +436,13 @@ const TeamManagement = () => {
                         <div className="min-w-[900px]">
                             {filteredMembers.length === 0 && (
                                 <div className="py-16 text-center">
-                                    <div className="h-14 w-14 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+                                    <div className="h-14 w-14 rounded-2xl bg-accent flex items-center justify-center mx-auto mb-4">
                                         <Users className="h-6 w-6 text-foreground/20" />
                                     </div>
                                     <p className="text-sm font-medium text-foreground/35">No team members found</p>
                                     {search && <p className="text-xs text-foreground/20 mt-1.5">Try adjusting your search or filters</p>}
                                     {!search && (
-                                        <button onClick={() => setAddOpen(true)} className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all">
+                                        <button onClick={() => setAddOpen(true)} className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm">
                                             <Plus className="h-3.5 w-3.5" />Add your first member
                                         </button>
                                     )}
@@ -468,7 +468,7 @@ const TeamManagement = () => {
                                                 <span className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-[1.5px] border-card ${member.isActive ? "bg-emerald-500" : "bg-gray-400"}`} />
                                             </div>
                                             <div className="min-w-0">
-                                                <button onClick={() => setViewingMember(member)} className="text-[13px] font-semibold text-foreground truncate leading-tight text-left hover:text-primary hover:underline decoration-primary/30 underline-offset-2 transition-colors cursor-pointer block max-w-full" title="View member details">{member.name}</button>
+                                                <button onClick={() => setViewingMember(member)} className="text-[13px] font-bold text-foreground truncate leading-tight text-left hover:text-primary hover:underline decoration-primary/30 underline-offset-2 transition-colors duration-200 cursor-pointer block max-w-full" title="View member details">{member.name}</button>
                                                 <div className="flex items-center gap-1.5 mt-0.5">
                                                     <Mail className="h-2.5 w-2.5 text-foreground/15 shrink-0" />
                                                     <p className="text-[10px] text-foreground/30 truncate leading-tight">{member.email}</p>
@@ -484,7 +484,7 @@ const TeamManagement = () => {
 
                                         {/* Status */}
                                         <div className="px-3 py-3.5">
-                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-semibold ${
+                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-bold ${
                                                 member.isActive
                                                     ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border-emerald-200/60 dark:border-emerald-800"
                                                     : "bg-gray-100 dark:bg-gray-800/40 text-gray-500 dark:text-gray-400 border-gray-200/60 dark:border-gray-700"
@@ -569,17 +569,17 @@ const TeamManagement = () => {
                                         <div className="px-2 py-3.5 relative" ref={isMenuOpen ? actionMenuRef : undefined}>
                                             <button
                                                 onClick={() => setActionMenuId(isMenuOpen ? null : member.id)}
-                                                className={`h-7 w-7 rounded-lg flex items-center justify-center transition-all ${
+                                                className={`h-7 w-7 rounded-xl flex items-center justify-center transition-all duration-200 ${
                                                     isMenuOpen
                                                         ? "bg-primary text-primary-foreground"
-                                                        : "text-foreground/15 hover:text-foreground hover:bg-muted opacity-0 group-hover:opacity-100"
+                                                        : "text-foreground/15 hover:text-foreground hover:bg-accent opacity-0 group-hover:opacity-100"
                                                 }`}
                                             >
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </button>
                                             {isMenuOpen && (
                                                 <div className="absolute right-2 top-full mt-1 z-30 w-44 bg-card border border-border rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] overflow-hidden py-1">
-                                                    <button onClick={() => { setEditingMember(member); setActionMenuId(null); }} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors">
+                                                    <button onClick={() => { setEditingMember(member); setActionMenuId(null); }} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium text-foreground hover:bg-accent transition-colors duration-200">
                                                         <ShieldCheck className="h-3.5 w-3.5 text-foreground/35" />Edit Role & Status
                                                     </button>
                                                     <div className="mx-3 my-0.5 border-t border-foreground/[0.04]" />
@@ -597,7 +597,7 @@ const TeamManagement = () => {
 
                     {/* Footer */}
                     {filteredMembers.length > 0 && (
-                        <div className="shrink-0 border-t border-border bg-muted z-10">
+                        <div className="shrink-0 border-t border-border bg-accent/60 z-10">
                             <div className="overflow-x-auto">
                                 <div className="grid grid-cols-[minmax(220px,2.2fr)_minmax(100px,0.9fr)_minmax(120px,1fr)_minmax(130px,1.1fr)_minmax(100px,0.9fr)_minmax(110px,1fr)_minmax(80px,0.5fr)_44px] gap-0 min-w-[900px] items-center">
                                     <div className="px-5 py-3 flex items-center gap-3">
@@ -608,7 +608,7 @@ const TeamManagement = () => {
                                             </button>
                                         )}
                                     </div>
-                                    <div className="px-3 py-3"><span className="text-[9px] font-semibold text-foreground/20 uppercase tracking-wider">Totals</span></div>
+                                    <div className="px-3 py-3"><span className="text-[9px] font-semibold text-foreground/20 uppercase tracking-widest">Totals</span></div>
                                     <div className="px-3 py-3"><p className="text-[11px] font-bold text-foreground/50 tabular-nums">{filteredMembers.reduce((s, m) => s + m.totalLeads, 0)}</p></div>
                                     <div className="px-3 py-3"><p className="text-[11px] font-bold text-foreground/50 tabular-nums">{filteredMembers.length > 0 ? (filteredMembers.reduce((s, m) => s + m.conversionRate, 0) / filteredMembers.length).toFixed(1) : "0"}% <span className="text-[9px] font-medium text-foreground/25 ml-1">avg</span></p></div>
                                     <div className="px-3 py-3"><p className="text-[11px] font-bold text-foreground/50 tabular-nums">{filteredMembers.reduce((s, m) => s + m.totalCalls, 0)}</p></div>

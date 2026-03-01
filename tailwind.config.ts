@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["'General Sans'", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["'Inter'", "system-ui", "-apple-system", "sans-serif"],
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
       },
       colors: {
@@ -71,9 +71,9 @@ export default {
         },
         /* Explicit palette tokens */
         zen: {
-          dark: "#1f1f1f",
-          warm: "#f6f7ed",
-          base: "#f4f4f4",
+          dark: "#1B1918",
+          warm: "#F5F0EB",
+          base: "#F7F6F4",
           white: "#ffffff",
         },
       },

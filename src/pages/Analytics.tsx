@@ -49,19 +49,19 @@ const Analytics = () => {
       {/* Period selector */}
       <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-foreground tracking-tight">Performance Report</h2>
-          <p className="text-xs text-foreground/40 mt-0.5">
+          <h2 className="text-xl font-bold text-foreground tracking-tight">Performance Report</h2>
+          <p className="text-xs text-foreground/40 mt-1">
             {activePeriod === "Week" ? "This week's" : activePeriod === "Month" ? "This month's" : "This quarter's"} metrics
           </p>
         </div>
-        <div className="flex items-center gap-0.5 p-1 bg-card rounded-lg border border-border">
+        <div className="flex items-center gap-0.5 p-1 bg-card rounded-xl border border-border shadow-sm">
           {timePeriods.map((p) => (
             <button
               key={p}
               onClick={() => setActivePeriod(p)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150 ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
                 activePeriod === p
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-foreground/40 hover:text-foreground"
               }`}
             >
@@ -72,15 +72,15 @@ const Analytics = () => {
       </div>
 
       {/* Summary stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {summaryStatsDisplay.map((s) => (
-          <div key={s.label} className="surface-card p-4 flex items-center gap-4">
-            <div className="h-10 w-10 rounded-xl bg-accent flex items-center justify-center shrink-0">
-              <s.icon className="h-5 w-5 text-foreground" strokeWidth={1.5} />
+          <div key={s.label} className="surface-card p-5 flex items-center gap-4">
+            <div className="h-11 w-11 rounded-2xl bg-accent flex items-center justify-center shrink-0">
+              <s.icon className="h-5 w-5 text-foreground/60" strokeWidth={1.5} />
             </div>
             <div>
-              <p className="text-2xl font-semibold tracking-tight leading-none mb-1 text-foreground">{s.value}</p>
-              <p className="text-[10px] text-foreground/30 font-medium uppercase tracking-wider leading-tight">{s.label}</p>
+              <p className="text-2xl font-bold tracking-tight leading-none mb-1 text-foreground">{s.value}</p>
+              <p className="text-[10px] text-foreground/35 font-medium uppercase tracking-widest leading-tight">{s.label}</p>
             </div>
           </div>
         ))}
@@ -93,8 +93,8 @@ const Analytics = () => {
         {/* Area chart */}
         <BentoCard className="md:col-span-2">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <BarChart2 className="h-4 w-4 text-foreground/40" />
+            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+              <BarChart2 className="h-4 w-4 text-foreground/35" />
               Daily Calls & Conversions
             </h3>
             <div className="flex items-center gap-4 text-[11px]">
@@ -134,8 +134,8 @@ const Analytics = () => {
 
         {/* Peak hours */}
         <BentoCard>
-          <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Clock className="h-4 w-4 text-foreground/40" />
+          <h3 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+            <Clock className="h-4 w-4 text-foreground/35" />
             Peak Calling Hours
           </h3>
           <div className="h-48">
@@ -153,8 +153,8 @@ const Analytics = () => {
 
         {/* Conversion rates */}
         <BentoCard>
-          <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Target className="h-4 w-4 text-foreground/40" />
+          <h3 className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
+            <Target className="h-4 w-4 text-foreground/35" />
             Conversion Breakdown
           </h3>
           <div className="space-y-4">

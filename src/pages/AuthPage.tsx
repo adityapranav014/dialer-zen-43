@@ -101,19 +101,19 @@ const AuthPage = () => {
     <div className="h-[100dvh] w-screen overflow-hidden flex items-center justify-center bg-background p-6">
       <div className="w-full max-w-[420px]">
         {/* ── Brand ── */}
-        <div className="flex flex-col items-center mb-8 text-center">
-          <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-5 shadow-lg shadow-primary/20">
-            <PhoneCall className="h-7 w-7 text-primary-foreground" />
+        <div className="flex flex-col items-center mb-10 text-center">
+          <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-lg shadow-primary/10">
+            <PhoneCall className="h-8 w-8 text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">DialFlow</h1>
-          <p className="text-sm text-foreground/40 mt-1.5">
+          <p className="text-sm text-foreground/40 mt-2">
             {isSignUp ? "Create your account to get started" : "Sign in to your account"}
           </p>
         </div>
 
         {/* ── Connection Error Banner ── */}
         {connectionError && (
-          <div className="mb-4 p-4 rounded-lg bg-destructive/10 border border-destructive/20 text-sm">
+          <div className="mb-4 p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-sm">
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
               <div className="flex-1">
@@ -124,7 +124,7 @@ const AuthPage = () => {
                 type="button"
                 onClick={checkConnection}
                 disabled={checkingConnection}
-                className="shrink-0 p-1.5 rounded-md hover:bg-destructive/10 text-destructive transition-colors"
+                className="shrink-0 p-1.5 rounded-xl hover:bg-destructive/10 text-destructive transition-all duration-200"
               >
                 <RefreshCw className={`h-4 w-4 ${checkingConnection ? "animate-spin" : ""}`} />
               </button>
@@ -133,11 +133,11 @@ const AuthPage = () => {
         )}
 
         {/* ── Form Card ── */}
-        <div className="surface-card p-6 sm:p-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="surface-card p-7 sm:p-8">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Company URL — always shown */}
             <div>
-              <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider mb-1.5 block">
+              <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-2 block">
                 Company URL {!isSignUp && <span className="text-foreground/25 normal-case">(leave empty for super admin)</span>}
               </label>
               <div className="relative">
@@ -149,7 +149,7 @@ const AuthPage = () => {
                   placeholder="your-company"
                   required={isSignUp}
                   autoComplete="organization"
-                  className="w-full h-11 pl-10 pr-4 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                  className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
                 />
                 {companySlug && (
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-foreground/30">
@@ -163,7 +163,7 @@ const AuthPage = () => {
               <>
                 {/* Full Name */}
                 <div>
-                  <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider mb-1.5 block">
+                  <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-1.5 block">
                     Full Name
                   </label>
                   <div className="relative">
@@ -175,14 +175,14 @@ const AuthPage = () => {
                       placeholder="John Doe"
                       required
                       autoComplete="name"
-                      className="w-full h-11 pl-10 pr-4 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
                     />
                   </div>
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider mb-1.5 block">
+                  <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-1.5 block">
                     Email Address
                   </label>
                   <div className="relative">
@@ -194,14 +194,14 @@ const AuthPage = () => {
                       placeholder="you@company.com"
                       required
                       autoComplete="email"
-                      className="w-full h-11 pl-10 pr-4 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
                     />
                   </div>
                 </div>
 
                 {/* Phone (optional) */}
                 <div>
-                  <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider mb-1.5 block">
+                  <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-1.5 block">
                     Phone Number <span className="text-foreground/25 normal-case">(optional)</span>
                   </label>
                   <div className="relative">
@@ -212,7 +212,7 @@ const AuthPage = () => {
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+91 98765 43210"
                       autoComplete="tel"
-                      className="w-full h-11 pl-10 pr-4 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
                     />
                   </div>
                 </div>
@@ -221,7 +221,7 @@ const AuthPage = () => {
               <>
                 {/* Email or Phone */}
                 <div>
-                  <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider mb-1.5 block">
+                  <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-1.5 block">
                     Email or Phone Number
                   </label>
                   <div className="relative">
@@ -233,7 +233,7 @@ const AuthPage = () => {
                       placeholder="you@company.com or +91 98765 43210"
                       required
                       autoComplete="email"
-                      className="w-full h-11 pl-10 pr-4 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
                     />
                   </div>
                 </div>
@@ -242,7 +242,7 @@ const AuthPage = () => {
 
             {/* Password */}
             <div>
-              <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider mb-1.5 block">
+              <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-1.5 block">
                 Password
               </label>
               <div className="relative">
@@ -255,7 +255,7 @@ const AuthPage = () => {
                   required
                   minLength={6}
                   autoComplete={isSignUp ? "new-password" : "current-password"}
-                  className="w-full h-11 pl-10 pr-11 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                  className="w-full h-11 pl-10 pr-11 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
                 />
                 <button
                   type="button"
@@ -275,7 +275,7 @@ const AuthPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-11 bg-primary text-primary-foreground font-semibold text-sm rounded-lg flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] transition-all disabled:opacity-50 mt-2 shadow-sm shadow-primary/10"
+              className="w-full h-12 bg-primary text-primary-foreground font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 mt-3 shadow-sm"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -293,7 +293,7 @@ const AuthPage = () => {
               {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
               <button
                 onClick={switchMode}
-                className="font-semibold text-primary hover:text-primary/80 transition-colors"
+                className="font-bold text-primary hover:text-primary/80 transition-all duration-200"
               >
                 {isSignUp ? "Sign in" : "Create one"}
               </button>

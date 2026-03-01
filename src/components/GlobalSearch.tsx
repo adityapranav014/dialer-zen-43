@@ -233,10 +233,10 @@ const GlobalSearch = () => {
       {/* Desktop trigger */}
       <button
         onClick={() => setOpen(true)}
-        className="hidden sm:flex items-center gap-2 h-8 px-3 rounded-lg border border-border bg-muted hover:bg-accent text-sm text-foreground/40 transition-colors"
+        className="hidden sm:flex items-center gap-2 h-8 px-3 rounded-xl border border-border bg-accent hover:bg-accent/80 text-sm text-foreground/40 transition-colors duration-200"
       >
         <Search className="h-3.5 w-3.5" />
-        <span className="font-medium">Search…</span>
+        <span className="font-semibold">Search…</span>
         <kbd className="ml-4 text-[10px] font-semibold text-foreground/25 border border-border rounded px-1 py-0.5 bg-card">
           ⌘K
         </kbd>
@@ -245,7 +245,7 @@ const GlobalSearch = () => {
       {/* Mobile trigger */}
       <button
         onClick={() => setOpen(true)}
-        className="sm:hidden h-8 w-8 rounded-lg flex items-center justify-center hover:bg-muted text-foreground/50 transition-colors"
+        className="sm:hidden h-8 w-8 rounded-xl flex items-center justify-center hover:bg-accent text-foreground/50 transition-colors duration-200"
       >
         <Search className="h-4 w-4" />
       </button>
@@ -290,7 +290,7 @@ const GlobalSearch = () => {
                 {recents.length > 0 && (
                   <div className="px-2 py-1">
                     <div className="flex items-center justify-between px-3 py-2">
-                      <p className="text-[10px] font-medium uppercase tracking-wider text-foreground/30 flex items-center gap-1.5">
+                      <p className="text-[10px] font-medium uppercase tracking-widest text-foreground/30 flex items-center gap-1.5">
                         <Clock className="h-3 w-3" />
                         Recent Searches
                       </p>
@@ -305,9 +305,9 @@ const GlobalSearch = () => {
                       <button
                         key={term}
                         onClick={() => setQuery(term)}
-                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors group"
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-accent transition-colors duration-200 group"
                       >
-                        <div className="h-7 w-7 rounded-md bg-muted flex items-center justify-center shrink-0 group-hover:bg-accent transition-colors">
+                        <div className="h-7 w-7 rounded-lg bg-accent flex items-center justify-center shrink-0 group-hover:bg-accent/80 transition-colors duration-200">
                           <Clock className="h-3 w-3 text-foreground/30" />
                         </div>
                         <span className="text-[13px] text-foreground/60 font-medium">{term}</span>
@@ -324,10 +324,10 @@ const GlobalSearch = () => {
             {/* ── No results ── */}
             {noResults && (
               <div className="flex flex-col items-center justify-center py-14 px-6">
-                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                <div className="h-12 w-12 rounded-full bg-accent flex items-center justify-center mb-4">
                   <Search className="h-5 w-5 text-foreground/20" />
                 </div>
-                <p className="text-sm font-semibold text-foreground/50 mb-1">
+                <p className="text-sm font-bold text-foreground/50 mb-1">
                   No results for "{query}"
                 </p>
                 <p className="text-[12px] text-foreground/30 text-center max-w-[240px]">
@@ -341,10 +341,10 @@ const GlobalSearch = () => {
               <div className="py-2">
                 {groupedResults.map((group) => (
                   <div key={group.key} className="px-2 py-1">
-                    <p className="px-3 py-2 text-[10px] font-medium uppercase tracking-wider text-foreground/30 flex items-center gap-1.5">
+                    <p className="px-3 py-2 text-[10px] font-medium uppercase tracking-widest text-foreground/30 flex items-center gap-1.5">
                       <group.icon className="h-3 w-3" />
                       {group.label}
-                      <span className="ml-auto bg-muted rounded px-1.5 py-0.5 text-[9px] font-semibold text-foreground/25">
+                      <span className="ml-auto bg-accent rounded px-1.5 py-0.5 text-[9px] font-semibold text-foreground/25">
                         {group.items.length}
                       </span>
                     </p>
@@ -357,12 +357,12 @@ const GlobalSearch = () => {
                           key={result.id}
                           onClick={() => selectResult(result)}
                           onMouseEnter={() => setSelectedIdx(itemIdx)}
-                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group ${
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-200 group ${
                             isSelected ? "bg-accent" : "hover:bg-muted"
                           }`}
                         >
                           <div
-                            className={`h-8 w-8 rounded-lg ${result.iconBg} flex items-center justify-center shrink-0 transition-colors`}
+                            className={`h-8 w-8 rounded-xl ${result.iconBg} flex items-center justify-center shrink-0 transition-colors`}
                           >
                             <Icon className={`h-3.5 w-3.5 ${result.iconColor}`} />
                           </div>
@@ -396,7 +396,7 @@ const GlobalSearch = () => {
           </div>
 
           {/* Footer hints */}
-          <div className="flex items-center justify-between px-4 sm:px-5 py-2.5 border-t border-border bg-muted">
+          <div className="flex items-center justify-between px-4 sm:px-5 py-2.5 border-t border-border bg-accent">
             <div className="flex items-center gap-3">
               <span className="hidden sm:flex items-center gap-1 text-[10px] text-foreground/25 font-medium">
                 <kbd className="px-1 py-0.5 rounded border border-border bg-card text-[9px] font-semibold">↑↓</kbd>

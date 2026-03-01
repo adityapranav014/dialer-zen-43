@@ -171,23 +171,23 @@ const Platform = () => {
       <header className="sticky top-0 z-40 border-b border-border bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
               <Shield className="h-4 w-4 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-sm font-semibold text-foreground">DialFlow Platform</h1>
+              <h1 className="text-sm font-bold text-foreground">DialFlow Platform</h1>
               <p className="text-[10px] text-foreground/40">Super Admin Console</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {/* Theme switcher */}
-            <div className="hidden sm:flex items-center gap-1 p-1 bg-muted rounded-lg">
+            <div className="hidden sm:flex items-center gap-1 p-1 bg-accent/60 rounded-xl">
               {themeOptions.map((opt) => (
                 <button
                   key={opt.id}
                   onClick={() => setTheme(opt.id)}
-                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium transition-all ${
+                  className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-bold transition-all duration-200 ${
                     theme === opt.id
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-foreground/40 hover:text-foreground"
@@ -200,18 +200,18 @@ const Platform = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-[10px] font-semibold text-primary-foreground">
+              <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-[10px] font-bold text-primary-foreground">
                 {initials}
               </div>
               <div className="hidden sm:block">
-                <p className="text-xs font-medium text-foreground">{displayName}</p>
+                <p className="text-xs font-semibold text-foreground">{displayName}</p>
                 <p className="text-[10px] text-foreground/40">Super Admin</p>
               </div>
             </div>
 
             <button
               onClick={handleSignOut}
-              className="h-8 w-8 flex items-center justify-center rounded-md text-foreground/40 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              className="h-8 w-8 flex items-center justify-center rounded-xl text-foreground/40 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
               title="Sign out"
             >
               <LogOut className="h-4 w-4" />
@@ -230,7 +230,7 @@ const Platform = () => {
             { label: "Total Calls", value: platformStats?.calls ?? 0, icon: PhoneCall, color: "text-orange-500" },
           ].map((stat) => (
             <div key={stat.label} className="surface-card p-4 flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-xl bg-muted flex items-center justify-center ${stat.color}`}>
+              <div className={`h-11 w-11 rounded-2xl bg-accent flex items-center justify-center ${stat.color}`}>
                 <stat.icon className="h-5 w-5" />
               </div>
               <div>
@@ -243,7 +243,7 @@ const Platform = () => {
 
         {/* Company List Header */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h2 className="text-lg font-semibold text-foreground">Companies</h2>
+          <h2 className="text-lg font-bold text-foreground">Companies</h2>
           <div className="flex items-center gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/25" />
@@ -252,12 +252,12 @@ const Platform = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search companies..."
-                className="h-9 pl-9 pr-4 w-56 bg-muted border border-border rounded-lg text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="h-10 pl-9 pr-4 w-56 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <button
               onClick={() => setShowNewCompany(true)}
-              className="h-9 px-3 bg-primary text-primary-foreground text-sm font-medium rounded-lg flex items-center gap-1.5 hover:bg-primary/90 transition-colors"
+              className="h-10 px-4 bg-primary text-primary-foreground text-sm font-bold rounded-xl shadow-sm flex items-center gap-1.5 hover:bg-primary/90 transition-colors"
             >
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">New Company</span>
@@ -268,14 +268,14 @@ const Platform = () => {
         {/* New Company Form */}
         {showNewCompany && (
           <div className="surface-card p-5 space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">Create New Company</h3>
+            <h3 className="text-sm font-bold text-foreground">Create New Company</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <input
                 type="text"
                 value={newCompany.name}
                 onChange={(e) => setNewCompany({ ...newCompany, name: e.target.value })}
                 placeholder="Company Name"
-                className="h-10 px-3 bg-muted border border-border rounded-lg text-sm"
+                className="h-10 px-3 bg-muted/60 border border-border rounded-xl text-sm"
               />
               <input
                 type="text"
@@ -287,12 +287,12 @@ const Platform = () => {
                   })
                 }
                 placeholder="company-url"
-                className="h-10 px-3 bg-muted border border-border rounded-lg text-sm"
+                className="h-10 px-3 bg-muted/60 border border-border rounded-xl text-sm"
               />
               <select
                 value={newCompany.plan}
                 onChange={(e) => setNewCompany({ ...newCompany, plan: e.target.value })}
-                className="h-10 px-3 bg-muted border border-border rounded-lg text-sm"
+                className="h-10 px-3 bg-muted/60 border border-border rounded-xl text-sm"
               >
                 <option value="free">Free</option>
                 <option value="starter">Starter</option>
@@ -303,14 +303,12 @@ const Platform = () => {
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setShowNewCompany(false)}
-                className="h-9 px-4 text-sm font-medium text-foreground/60 hover:text-foreground rounded-lg hover:bg-muted transition-colors"
-              >
-                Cancel
+                className="h-9 px-4 text-sm font-medium text-foreground/60 hover:text-foreground rounded-xl hover:bg-accent transition-colors duration-200">Cancel
               </button>
               <button
                 onClick={handleCreateCompany}
                 disabled={creating}
-                className="h-9 px-4 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center gap-1.5"
+                className="h-9 px-4 bg-primary text-primary-foreground text-sm font-bold rounded-xl hover:bg-primary/90 disabled:opacity-50 flex items-center gap-1.5"
               >
                 {creating && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 Create
@@ -334,16 +332,15 @@ const Platform = () => {
                   className="surface-card p-4 sm:p-5 flex items-center justify-between gap-4 group hover:border-primary/20 transition-colors"
                 >
                   <div className="flex items-center gap-4 min-w-0">
-                    <div className="h-11 w-11 rounded-xl bg-muted flex items-center justify-center shrink-0">
-                      <Building2 className="h-5 w-5 text-foreground/40" />
+                    <div className="h-11 w-11 rounded-xl bg-accent flex items-center justify-center shrink-0"><Building2 className="h-5 w-5 text-foreground/40" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-foreground truncate">
+                        <p className="text-sm font-bold text-foreground truncate">
                           {tenant.name}
                         </p>
                         <span
-                          className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${
+                          className={`text-[10px] font-bold px-1.5 py-0.5 rounded-lg ${
                             tenant.is_active
                               ? "bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400"
                               : "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400"
@@ -351,7 +348,7 @@ const Platform = () => {
                         >
                           {tenant.is_active ? "Active" : "Inactive"}
                         </span>
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-accent text-foreground/60 uppercase">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-lg bg-accent text-foreground/60 uppercase">
                           {tenant.plan}
                         </span>
                       </div>
@@ -365,15 +362,15 @@ const Platform = () => {
                     {/* Stats */}
                     <div className="hidden sm:flex items-center gap-5 text-center">
                       <div>
-                        <p className="text-sm font-semibold text-foreground">{ts?.members ?? 0}</p>
+                        <p className="text-sm font-bold text-foreground">{ts?.members ?? 0}</p>
                         <p className="text-[10px] text-foreground/30">Users</p>
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-foreground">{ts?.leads ?? 0}</p>
+                        <p className="text-sm font-bold text-foreground">{ts?.leads ?? 0}</p>
                         <p className="text-[10px] text-foreground/30">Leads</p>
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-foreground">{ts?.calls ?? 0}</p>
+                        <p className="text-sm font-bold text-foreground">{ts?.calls ?? 0}</p>
                         <p className="text-[10px] text-foreground/30">Calls</p>
                       </div>
                     </div>
@@ -382,7 +379,7 @@ const Platform = () => {
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => toggleTenantActive.mutate({ id: tenant.id, isActive: tenant.is_active })}
-                        className="h-8 w-8 flex items-center justify-center rounded-md text-foreground/30 hover:text-foreground hover:bg-muted transition-colors"
+                        className="h-8 w-8 flex items-center justify-center rounded-xl text-foreground/30 hover:text-foreground hover:bg-accent transition-colors"
                         title={tenant.is_active ? "Deactivate" : "Activate"}
                       >
                         {tenant.is_active ? (
@@ -393,7 +390,7 @@ const Platform = () => {
                       </button>
                       <button
                         onClick={() => handleSwitchToCompany(tenant.id)}
-                        className="h-8 px-3 bg-primary/10 text-primary text-xs font-medium rounded-lg flex items-center gap-1 hover:bg-primary/20 transition-colors"
+                        className="h-8 px-3 bg-primary/10 text-primary text-xs font-bold rounded-xl flex items-center gap-1 hover:bg-primary/20 transition-colors"
                       >
                         Enter
                         <ArrowRight className="h-3 w-3" />

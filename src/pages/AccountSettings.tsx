@@ -23,13 +23,13 @@ import { useSettings } from "@/hooks/useSettings";
 const Toggle = ({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) => (
   <button
     onClick={onToggle}
-    className={`relative h-5 w-9 rounded-full transition-colors duration-200 shrink-0 ${
+    className={`relative h-6 w-11 rounded-full transition-colors duration-200 shrink-0 ${
       enabled ? "bg-primary" : "bg-foreground/15"
     }`}
   >
     <span
-      className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200 ${
-        enabled ? "translate-x-4" : "translate-x-0"
+      className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
+        enabled ? "translate-x-5" : "translate-x-0"
       }`}
     />
   </button>
@@ -54,11 +54,11 @@ const SettingRow = ({
       !last ? "border-b border-foreground/[0.04]" : ""
     }`}
   >
-    <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-      <Icon className="h-3.5 w-3.5 text-foreground/40" />
+    <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0">
+      <Icon className="h-4 w-4 text-foreground/35" />
     </div>
     <div className="flex-1 min-w-0">
-      <p className="text-sm font-medium text-foreground">{label}</p>
+      <p className="text-sm font-semibold text-foreground">{label}</p>
       <p className="text-[11px] text-foreground/35">{desc}</p>
     </div>
     <div className="shrink-0">{children}</div>
@@ -91,7 +91,7 @@ const AccountSettings = () => {
         <div className="lg:col-span-1 space-y-5">
           {/* Profile Info */}
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wider text-foreground/30 px-1 mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
               Profile
             </p>
             <div className="surface-card p-5">
@@ -104,28 +104,28 @@ const AccountSettings = () => {
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="h-16 w-16 rounded-full bg-primary flex items-center justify-center text-lg font-semibold text-primary-foreground mb-3">
+                  <div className="h-16 w-16 rounded-full bg-primary flex items-center justify-center text-lg font-bold text-primary-foreground mb-3">
                     {initials}
                   </div>
                 )}
-                <p className="text-sm font-semibold text-foreground">{displayName}</p>
+                <p className="text-sm font-bold text-foreground">{displayName}</p>
                 <p className="text-[11px] text-foreground/40">{email}</p>
-                <span className="mt-1.5 text-[10px] font-medium px-2 py-0.5 rounded-md bg-accent text-foreground">
+                <span className="mt-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-accent text-foreground">
                   {isAdmin ? "Admin" : "Member"}
                 </span>
               </div>
               <div className="space-y-2">
-                <div className="flex items-center justify-between px-3 py-2 bg-muted rounded-lg">
+                <div className="flex items-center justify-between px-3 py-2.5 bg-accent/60 rounded-xl">
                   <span className="text-[11px] text-foreground/40">Full Name</span>
-                  <span className="text-[11px] font-medium text-foreground">{displayName}</span>
+                  <span className="text-[11px] font-semibold text-foreground">{displayName}</span>
                 </div>
-                <div className="flex items-center justify-between px-3 py-2 bg-muted rounded-lg">
+                <div className="flex items-center justify-between px-3 py-2.5 bg-accent/60 rounded-xl">
                   <span className="text-[11px] text-foreground/40">Email</span>
-                  <span className="text-[11px] font-medium text-foreground truncate ml-4">{email}</span>
+                  <span className="text-[11px] font-semibold text-foreground truncate ml-4">{email}</span>
                 </div>
-                <div className="flex items-center justify-between px-3 py-2 bg-muted rounded-lg">
+                <div className="flex items-center justify-between px-3 py-2.5 bg-accent/60 rounded-xl">
                   <span className="text-[11px] text-foreground/40">Role</span>
-                  <span className="text-[11px] font-medium text-foreground">{isAdmin ? "Admin" : "Member"}</span>
+                  <span className="text-[11px] font-semibold text-foreground">{isAdmin ? "Admin" : "Member"}</span>
                 </div>
               </div>
             </div>
@@ -133,25 +133,25 @@ const AccountSettings = () => {
 
           {/* Appearance */}
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wider text-foreground/30 px-1 mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
               Appearance
             </p>
             <div className="surface-card p-4">
               <div className="flex items-center gap-3 mb-3">
-                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                  <Moon className="h-3.5 w-3.5 text-foreground/40" />
+                <div className="h-9 w-9 rounded-xl bg-accent flex items-center justify-center shrink-0">
+                  <Moon className="h-4 w-4 text-foreground/35" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">Theme</p>
+                  <p className="text-sm font-semibold text-foreground">Theme</p>
                   <p className="text-[11px] text-foreground/35">Choose your preferred appearance</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 p-1 bg-muted rounded-lg">
+              <div className="flex items-center gap-2 p-1 bg-accent/60 rounded-xl">
                 {themeOptions.map((opt) => (
                   <button
                     key={opt.id}
                     onClick={() => setTheme(opt.id)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium transition-all duration-150 ${
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-xs font-bold transition-all duration-200 ${
                       theme === opt.id
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-foreground/40 hover:text-foreground"
@@ -167,7 +167,7 @@ const AccountSettings = () => {
 
           {/* General */}
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wider text-foreground/30 px-1 mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
               General
             </p>
             <div className="surface-card p-0 overflow-hidden">
@@ -175,7 +175,7 @@ const AccountSettings = () => {
                 <select
                   value={settings.timezone}
                   onChange={(e) => set("timezone", e.target.value)}
-                  className="text-[11px] font-medium text-foreground bg-muted border border-border rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  className="text-[11px] font-semibold text-foreground bg-muted/60 border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors duration-200"
                 >
                   <option value="Asia/Kolkata">IST (UTC+5:30)</option>
                   <option value="America/New_York">EST (UTC-5)</option>
@@ -188,7 +188,7 @@ const AccountSettings = () => {
                 <select
                   value={settings.language}
                   onChange={(e) => set("language", e.target.value)}
-                  className="text-[11px] font-medium text-foreground bg-muted border border-border rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  className="text-[11px] font-semibold text-foreground bg-muted/60 border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors duration-200"
                 >
                   <option value="English">English</option>
                   <option value="Hindi">Hindi</option>
@@ -202,7 +202,7 @@ const AccountSettings = () => {
         <div className="lg:col-span-2 space-y-5">
           {/* Notification Preferences */}
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wider text-foreground/30 px-1 mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
               Notifications
             </p>
             <div className="surface-card p-0 overflow-hidden">
@@ -228,7 +228,7 @@ const AccountSettings = () => {
 
           {/* Calling Preferences */}
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wider text-foreground/30 px-1 mb-3">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
               Calling
             </p>
             <div className="surface-card p-0 overflow-hidden">
@@ -239,7 +239,7 @@ const AccountSettings = () => {
                 <select
                   value={String(settings.cooldown_timer)}
                   onChange={(e) => set("cooldown_timer", Number(e.target.value))}
-                  className="text-[11px] font-medium text-foreground bg-muted border border-border rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  className="text-[11px] font-semibold text-foreground bg-muted/60 border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors duration-200"
                 >
                   <option value="10">10s</option>
                   <option value="15">15s</option>
@@ -260,7 +260,7 @@ const AccountSettings = () => {
           {/* Lead Management (Admin only) */}
           {isAdmin && (
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-wider text-foreground/30 px-1 mb-3">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
                 Lead Management
               </p>
               <div className="surface-card p-0 overflow-hidden">
@@ -268,7 +268,7 @@ const AccountSettings = () => {
                   <select
                     value={settings.default_lead_status}
                     onChange={(e) => set("default_lead_status", e.target.value)}
-                    className="text-[11px] font-medium text-foreground bg-muted border border-border rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                    className="text-[11px] font-semibold text-foreground bg-muted/60 border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors duration-200"
                   >
                     <option value="new">New</option>
                     <option value="contacted">Contacted</option>
