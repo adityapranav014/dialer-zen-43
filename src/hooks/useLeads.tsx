@@ -3,6 +3,8 @@ import { db } from "@/integrations/turso/db";
 import { leads } from "@/integrations/turso/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { useAuth } from "./useAuth";
+import { createActivity } from "@/services/activityService";
+import { createNotification } from "@/services/notificationService";
 import type { Lead, LeadStatus } from "@/integrations/turso/types";
 
 export type { Lead, LeadStatus };
@@ -48,6 +50,7 @@ export const useLeads = () => {
                 .update(leads)
                 .set({ status, updated_at: new Date().toISOString() })
                 .where(eq(leads.id, leadId));
+            return { leadId, status };
         },
         onMutate: async ({ leadId, status }) => {
             await queryClient.cancelQueries({ queryKey: ["leads"] });
@@ -62,6 +65,18 @@ export const useLeads = () => {
         onError: (_err, _vars, context) => {
             if (context?.previousAll) queryClient.setQueryData(["leads", "all", currentTenantId], context.previousAll);
             if (context?.previousMy) queryClient.setQueryData(["leads", "my", user?.id, currentTenantId], context.previousMy);
+        },
+        onSuccess: (_data, variables) => {
+            if (user && currentTenantId) {
+                const statusLabel = variables.status.charAt(0).toUpperCase() + variables.status.slice(1);
+                createActivity({
+                    tenant_id: currentTenantId,
+                    user_id: user.id,
+                    action: variables.status === "closed" ? "milestone" : "info",
+                    description: `Lead status changed to ${statusLabel}`,
+                }).catch(() => {});
+            }
+            queryClient.invalidateQueries({ queryKey: ["activities"] });
         },
     });
 
@@ -86,6 +101,29 @@ export const useLeads = () => {
         onError: (_err, _vars, context) => {
             if (context?.previousAll) queryClient.setQueryData(["leads", "all", currentTenantId], context.previousAll);
             if (context?.previousMy) queryClient.setQueryData(["leads", "my", user?.id, currentTenantId], context.previousMy);
+        },
+        onSuccess: (_data, variables) => {
+            // Notify the assigned BDA
+            if (variables.userId && currentTenantId) {
+                createNotification({
+                    tenant_id: currentTenantId,
+                    user_id: variables.userId,
+                    type: "lead_assigned",
+                    title: "New Lead Assigned",
+                    message: "A new lead has been assigned to you",
+                    priority: "normal",
+                    action_url: "/leads",
+                }).catch(() => {});
+
+                createActivity({
+                    tenant_id: currentTenantId,
+                    user_id: user?.id ?? variables.userId,
+                    action: "info",
+                    description: `Lead assigned to team member`,
+                }).catch(() => {});
+            }
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
+            queryClient.invalidateQueries({ queryKey: ["activities"] });
         },
     });
 

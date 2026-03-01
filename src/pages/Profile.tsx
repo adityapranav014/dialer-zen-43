@@ -1,4 +1,4 @@
-import { LogOut, Moon, Sun, Monitor, ChevronRight, Settings, HelpCircle, Star } from "lucide-react";
+import { LogOut, Moon, Sun, Monitor, ChevronRight, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
@@ -27,9 +27,7 @@ const Profile = () => {
   ];
 
   const quickLinks = [
-    { label: "Account Settings", icon: Settings, desc: "Notifications, calling & lead preferences", path: "/settings" },
-    { label: "Help & Docs", icon: HelpCircle, desc: "Guides and documentation", path: "/help" },
-    { label: "What's New", icon: Star, desc: "Latest features and updates", path: "/whats-new" },
+    { label: "Account Settings", icon: Settings, desc: "Preferences & appearance", path: "/settings" },
   ];
 
   return (
@@ -153,9 +151,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <p className="text-[10px] text-foreground/20 text-center mt-8 font-medium">
-        DialFlow v1.0.0
-      </p>
+
     </AppLayout>
   );
 };

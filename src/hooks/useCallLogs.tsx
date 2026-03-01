@@ -3,6 +3,8 @@ import { eq } from "drizzle-orm";
 import { db } from "@/integrations/turso/db";
 import { call_logs, leads } from "@/integrations/turso/schema";
 import { useAuth } from "./useAuth";
+import { createActivity } from "@/services/activityService";
+import { createNotification } from "@/services/notificationService";
 
 /** Determine new lead status after a call outcome. Returns null if no change needed. */
 const computeLeadStatus = (outcome: string, currentStatus: string): string | null => {
@@ -55,11 +57,36 @@ export const useCallLogs = () => {
                     .where(eq(leads.id, leadId));
             }
         },
-        onSuccess: () => {
+        onSuccess: (_data, variables) => {
+            // Log activity
+            if (user && currentTenantId) {
+                const outcomeLabel = variables.outcome || "Call";
+                createActivity({
+                    tenant_id: currentTenantId,
+                    user_id: user.id,
+                    action: outcomeLabel === "Closed Won" || outcomeLabel === "Interested" ? "success" : "neutral",
+                    description: `Logged call — ${outcomeLabel}`,
+                }).catch(() => {});
+
+                // Trigger conversion notification for admins when a deal is closed
+                if (outcomeLabel === "Closed Won" || outcomeLabel === "Interested") {
+                    createNotification({
+                        tenant_id: currentTenantId,
+                        user_id: user.id,
+                        type: "conversion",
+                        title: "Lead Conversion",
+                        message: `Call outcome: ${outcomeLabel}`,
+                        priority: "normal",
+                    }).catch(() => {});
+                }
+            }
+
             queryClient.invalidateQueries({ queryKey: ["call_logs"] });
             queryClient.invalidateQueries({ queryKey: ["leads"] });
             queryClient.invalidateQueries({ queryKey: ["lead-funnel"] });
             queryClient.invalidateQueries({ queryKey: ["stats"] });
+            queryClient.invalidateQueries({ queryKey: ["activities"] });
+            queryClient.invalidateQueries({ queryKey: ["notifications"] });
         },
     });
 

@@ -1,4 +1,3 @@
-import { useState, useRef } from "react";
 import {
     PhoneCall,
     TrendingUp,
@@ -9,11 +8,9 @@ import {
 } from "lucide-react";
 import BentoCard from "@/components/BentoCard";
 import TalkTimeChart from "@/components/TalkTimeChart";
-import PostCallModal from "@/components/PostCallModal";
 import { BdaDashboardSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
-import { useLeads } from "@/hooks/useLeads";
 import { useActivities } from "@/hooks/useActivities";
 
 const activityDotClass: Record<string, string> = {
@@ -26,14 +23,7 @@ const activityDotClass: Record<string, string> = {
 const BdaDashboard = () => {
     const { user } = useAuth();
     const { stats, leaderboard, loading } = useDashboardStats();
-    const { myLeads } = useLeads();
     const { activities: myActivities } = useActivities("my");
-
-    const [calling, setCalling] = useState(false);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [activeLead, setActiveLead] = useState<{ id: string; name: string; status: string } | null>(null);
-    const [callDuration, setCallDuration] = useState(0);
-    const callStartRef = useRef<number>(0);
 
     const firstName = user?.display_name?.split(" ")[0] || "there";
     const hour = new Date().getHours();
@@ -54,20 +44,6 @@ const BdaDashboard = () => {
         { label: "Rank", value: `#${myRank || "—"}`, icon: Star },
     ];
 
-    const handleQuickCall = () => {
-        const nextLead = myLeads[0];
-        if (!nextLead) return;
-        setActiveLead({ id: nextLead.id, name: nextLead.name, status: nextLead.status });
-        setCalling(true);
-        callStartRef.current = Date.now();
-        setTimeout(() => {
-            const elapsed = Math.round((Date.now() - callStartRef.current) / 1000);
-            setCallDuration(elapsed);
-            setCalling(false);
-            setModalOpen(true);
-        }, 2000);
-    };
-
     return (
         <div className="flex flex-col md:h-full md:min-h-0">
             <div className="shrink-0">
@@ -82,28 +58,7 @@ const BdaDashboard = () => {
                         {dateStr}
                     </p>
                 </div>
-                <button
-                    onClick={handleQuickCall}
-                    disabled={calling || myLeads.length === 0}
-                    className={`h-10 px-4 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all duration-200 shrink-0 shadow-sm ${
-                        calling
-                            ? "bg-emerald-500 text-white"
-                            : "bg-primary text-primary-foreground hover:bg-primary/90"
-                    }`}
-                >
-                    <PhoneCall className={`h-3.5 w-3.5 ${calling ? "animate-pulse" : ""}`} />
-                    {calling ? `Calling ${activeLead?.name}…` : "Quick Call"}
-                </button>
             </div>
-
-            <PostCallModal
-                open={modalOpen}
-                onClose={() => setModalOpen(false)}
-                leadId={activeLead?.id || ""}
-                leadName={activeLead?.name || ""}
-                duration={callDuration}
-                leadStatus={activeLead?.status || "new"}
-            />
 
             {/* Stats row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

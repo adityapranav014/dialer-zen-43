@@ -1,10 +1,9 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
     Phone,
     Clock,
     Search,
     CheckCircle2,
-    MessageSquare,
     TrendingUp,
     Star,
     Flame,
@@ -18,7 +17,6 @@ import {
     Calendar,
     PhoneCall,
     Timer,
-    Send,
     ExternalLink,
 } from "lucide-react";
 import PostCallModal from "@/components/PostCallModal";
@@ -290,19 +288,12 @@ const LeadDetailPanel = ({
                                         className="flex items-center gap-1.5 h-8 px-4 rounded-xl text-xs font-bold text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                                     >
                                         <Phone className="h-3.5 w-3.5" />
-                                        Call Now
+                                        Log Call
                                     </button>
                                 </TooltipTrigger>
-                                <TooltipContent side="bottom" className="text-xs">Start a call with {lead.name}</TooltipContent>
+                                <TooltipContent side="bottom" className="text-xs">Log a call with {lead.name}</TooltipContent>
                             </Tooltip>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <button className="h-8 w-8 rounded-xl bg-muted hover:bg-accent border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors">
-                                        <MessageSquare className="h-3.5 w-3.5" />
-                                    </button>
-                                </TooltipTrigger>
-                                <TooltipContent side="bottom" className="text-xs">Send WhatsApp message</TooltipContent>
-                            </Tooltip>
+
                         </div>
                     </div>
                 </div>
@@ -426,37 +417,20 @@ const LeadDetailPanel = ({
                 )}
             </div>
 
-            {/* ── Quick Note Bar (bottom) ───────────────────────────── */}
+            {/* ── Bottom Call Action ───────────────────────────── */}
             <div className="shrink-0 border-t border-border bg-card px-4 py-3">
-                <div className="flex items-center gap-2">
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <button
-                                onClick={onCall}
-                                className="h-9 px-4 rounded-xl text-xs font-bold text-primary-foreground bg-primary hover:bg-primary/90 flex items-center gap-1.5 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shrink-0"
-                            >
-                                <Phone className="h-3.5 w-3.5" />
-                                Call
-                            </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="text-xs">Start a call</TooltipContent>
-                    </Tooltip>
-                    <div className="flex-1 flex items-center gap-2 bg-accent/60 border border-border rounded-xl px-3 h-9">
-                        <input
-                            type="text"
-                            placeholder="Add a quick note…"
-                            className="flex-1 bg-transparent text-xs text-foreground placeholder:text-foreground/25 focus:outline-none"
-                        />
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <button className="text-foreground/25 hover:text-foreground transition-colors shrink-0">
-                                    <Send className="h-3.5 w-3.5" />
-                                </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">Send note</TooltipContent>
-                        </Tooltip>
-                    </div>
-                </div>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button
+                            onClick={onCall}
+                            className="w-full h-9 rounded-xl text-xs font-bold text-primary-foreground bg-primary hover:bg-primary/90 flex items-center justify-center gap-1.5 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
+                        >
+                            <Phone className="h-3.5 w-3.5" />
+                            Log a Call
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="text-xs">Log a call for this lead</TooltipContent>
+                </Tooltip>
             </div>
         </div>
     );
@@ -471,10 +445,8 @@ const MyLeads = () => {
     const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
     const [callingLead, setCallingLead] = useState<{ id: string; name: string; status: string } | null>(null);
     const [showPostCall, setShowPostCall] = useState(false);
-    const [callDuration, setCallDuration] = useState(0);
     const [callLogs, setCallLogs] = useState<CallLog[]>([]);
     const [loadingCalls, setLoadingCalls] = useState(false);
-    const callStartRef = useRef<number>(0);
 
     const selectedLead = useMemo(() => leads.find(l => l.id === selectedLeadId) || null, [leads, selectedLeadId]);
 
@@ -503,11 +475,7 @@ const MyLeads = () => {
 
     const handleCall = (id: string, name: string, status: string = "new") => {
         setCallingLead({ id, name, status });
-        callStartRef.current = Date.now();
-        setTimeout(() => {
-            setCallDuration(Math.max(1, Math.round((Date.now() - callStartRef.current) / 1000)));
-            setShowPostCall(true);
-        }, 1500);
+        setShowPostCall(true);
     };
 
     const handleStatusUpdate = (leadId: string, status: DbLeadStatus) => {
@@ -742,7 +710,7 @@ const MyLeads = () => {
                 }}
                 leadId={callingLead?.id || ""}
                 leadName={callingLead?.name || ""}
-                duration={callDuration}
+                duration={0}
                 leadStatus={callingLead?.status || "new"}
             />
         </div>

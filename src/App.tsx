@@ -12,9 +12,7 @@ import Leads from "./pages/Leads";
 import Analytics from "./pages/Analytics";
 import Team from "./pages/Team";
 import Profile from "./pages/Profile";
-import HelpDocs from "./pages/HelpDocs";
 import AccountSettings from "./pages/AccountSettings";
-import WhatsNew from "./pages/WhatsNew";
 import Platform from "./pages/Platform";
 import NotFound from "./pages/NotFound";
 
@@ -36,9 +34,7 @@ const App = () => (
               <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/help" element={<ProtectedRoute><HelpDocs /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
-              <Route path="/whats-new" element={<ProtectedRoute><WhatsNew /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>

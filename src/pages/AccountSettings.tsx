@@ -1,13 +1,6 @@
 import {
-  User,
-  Building2,
-  Phone,
   Bell,
-  Globe,
-  Clock,
   Volume2,
-  PhoneOff,
-  Timer,
   FileText,
   Check,
   Moon,
@@ -43,7 +36,7 @@ const SettingRow = ({
   children,
   last = false,
 }: {
-  icon: typeof User;
+  icon: typeof Bell;
   label: string;
   desc: string;
   children: React.ReactNode;
@@ -66,7 +59,7 @@ const SettingRow = ({
 );
 
 const AccountSettings = () => {
-  const { user, isAdmin, avatarUrl, displayName } = useAuth();
+  const { user, isAdmin, isSuperAdmin, avatarUrl, displayName } = useAuth();
   const { theme, setTheme } = useTheme();
   const { settings, toggle, set } = useSettings();
   const email = user?.email || "";
@@ -78,6 +71,8 @@ const AccountSettings = () => {
     .slice(0, 2)
     .toUpperCase();
 
+  const roleLabel = isSuperAdmin ? "Super Admin" : isAdmin ? "Admin" : "Member";
+
   const themeOptions: { id: "light" | "dark" | "system"; label: string; icon: typeof Sun }[] = [
     { id: "light", label: "Light", icon: Sun },
     { id: "dark", label: "Dark", icon: Moon },
@@ -85,9 +80,9 @@ const AccountSettings = () => {
   ];
 
   return (
-    <AppLayout title="Account Settings">
+    <AppLayout title="Settings">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ── Left column: Profile info + Appearance ── */}
+        {/* ── Left column: Profile + Appearance ── */}
         <div className="lg:col-span-1 space-y-5">
           {/* Profile Info */}
           <div>
@@ -111,7 +106,7 @@ const AccountSettings = () => {
                 <p className="text-sm font-bold text-foreground">{displayName}</p>
                 <p className="text-[11px] text-foreground/40">{email}</p>
                 <span className="mt-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-accent text-foreground">
-                  {isAdmin ? "Admin" : "Member"}
+                  {roleLabel}
                 </span>
               </div>
               <div className="space-y-2">
@@ -125,7 +120,7 @@ const AccountSettings = () => {
                 </div>
                 <div className="flex items-center justify-between px-3 py-2.5 bg-accent/60 rounded-xl">
                   <span className="text-[11px] text-foreground/40">Role</span>
-                  <span className="text-[11px] font-semibold text-foreground">{isAdmin ? "Admin" : "Member"}</span>
+                  <span className="text-[11px] font-semibold text-foreground">{roleLabel}</span>
                 </div>
               </div>
             </div>
@@ -164,41 +159,9 @@ const AccountSettings = () => {
               </div>
             </div>
           </div>
-
-          {/* General */}
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
-              General
-            </p>
-            <div className="surface-card p-0 overflow-hidden">
-              <SettingRow icon={Clock} label="Timezone" desc="Set your local timezone">
-                <select
-                  value={settings.timezone}
-                  onChange={(e) => set("timezone", e.target.value)}
-                  className="text-[11px] font-semibold text-foreground bg-muted/60 border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors duration-200"
-                >
-                  <option value="Asia/Kolkata">IST (UTC+5:30)</option>
-                  <option value="America/New_York">EST (UTC-5)</option>
-                  <option value="Europe/London">GMT (UTC+0)</option>
-                  <option value="Asia/Dubai">GST (UTC+4)</option>
-                  <option value="Asia/Singapore">SGT (UTC+8)</option>
-                </select>
-              </SettingRow>
-              <SettingRow icon={Globe} label="Language" desc="Interface language" last>
-                <select
-                  value={settings.language}
-                  onChange={(e) => set("language", e.target.value)}
-                  className="text-[11px] font-semibold text-foreground bg-muted/60 border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors duration-200"
-                >
-                  <option value="English">English</option>
-                  <option value="Hindi">Hindi</option>
-                </select>
-              </SettingRow>
-            </div>
-          </div>
         </div>
 
-        {/* ── Right column: Notifications, Calling, Leads ── */}
+        {/* ── Right column: Notifications + Workflow ── */}
         <div className="lg:col-span-2 space-y-5">
           {/* Notification Preferences */}
           <div>
@@ -209,62 +172,38 @@ const AccountSettings = () => {
               <SettingRow icon={Bell} label="New Lead Assigned" desc="Get notified when a lead is assigned to you">
                 <Toggle enabled={settings.notif_new_lead} onToggle={() => toggle("notif_new_lead")} />
               </SettingRow>
-              <SettingRow icon={PhoneOff} label="Missed Call Alert" desc="Alert when a scheduled call is missed">
-                <Toggle enabled={settings.notif_missed_call} onToggle={() => toggle("notif_missed_call")} />
-              </SettingRow>
-              <SettingRow icon={Check} label="Lead Conversion" desc="Notify when a lead is converted">
+              <SettingRow
+                icon={Check}
+                label="Lead Conversion"
+                desc="Notify when a lead is converted"
+                last={!isAdmin}
+              >
                 <Toggle enabled={settings.notif_conversion} onToggle={() => toggle("notif_conversion")} />
               </SettingRow>
               {isAdmin && (
-                <SettingRow icon={Building2} label="Team Updates" desc="Activity updates from your team members">
+                <SettingRow icon={Bell} label="Team Updates" desc="Activity updates from your team members" last>
                   <Toggle enabled={settings.notif_team_updates} onToggle={() => toggle("notif_team_updates")} />
                 </SettingRow>
               )}
-              <SettingRow icon={FileText} label="Daily Summary" desc="Receive a daily performance summary email" last>
-                <Toggle enabled={settings.notif_daily_summary} onToggle={() => toggle("notif_daily_summary")} />
-              </SettingRow>
             </div>
           </div>
 
-          {/* Calling Preferences */}
+          {/* Workflow */}
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
-              Calling
+              Workflow
             </p>
             <div className="surface-card p-0 overflow-hidden">
-              <SettingRow icon={Phone} label="Auto-Dial Next Lead" desc="Automatically dial the next lead after a call ends">
-                <Toggle enabled={settings.auto_dial_next} onToggle={() => toggle("auto_dial_next")} />
-              </SettingRow>
-              <SettingRow icon={Timer} label="Cooldown Timer" desc="Wait time (seconds) between auto-dial calls">
-                <select
-                  value={String(settings.cooldown_timer)}
-                  onChange={(e) => set("cooldown_timer", Number(e.target.value))}
-                  className="text-[11px] font-semibold text-foreground bg-muted/60 border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors duration-200"
-                >
-                  <option value="10">10s</option>
-                  <option value="15">15s</option>
-                  <option value="30">30s</option>
-                  <option value="45">45s</option>
-                  <option value="60">60s</option>
-                </select>
-              </SettingRow>
-              <SettingRow icon={Volume2} label="Post-Call Notes" desc="Show note-taking modal after each call">
+              <SettingRow
+                icon={Volume2}
+                label="Post-Call Notes"
+                desc="Show note-taking modal after logging a call"
+                last={!isAdmin}
+              >
                 <Toggle enabled={settings.show_post_call_modal} onToggle={() => toggle("show_post_call_modal")} />
               </SettingRow>
-              <SettingRow icon={Volume2} label="Call Recording" desc="Automatically record all outbound calls" last>
-                <Toggle enabled={settings.call_recording} onToggle={() => toggle("call_recording")} />
-              </SettingRow>
-            </div>
-          </div>
-
-          {/* Lead Management (Admin only) */}
-          {isAdmin && (
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
-                Lead Management
-              </p>
-              <div className="surface-card p-0 overflow-hidden">
-                <SettingRow icon={FileText} label="Default Lead Status" desc="Status assigned to newly added leads">
+              {isAdmin && (
+                <SettingRow icon={FileText} label="Default Lead Status" desc="Status assigned to newly added leads" last>
                   <select
                     value={settings.default_lead_status}
                     onChange={(e) => set("default_lead_status", e.target.value)}
@@ -275,12 +214,9 @@ const AccountSettings = () => {
                     <option value="qualified">Qualified</option>
                   </select>
                 </SettingRow>
-                <SettingRow icon={User} label="Auto-Assign Leads" desc="Automatically distribute new leads to available BDAs" last>
-                  <Toggle enabled={settings.auto_assign_leads} onToggle={() => toggle("auto_assign_leads")} />
-                </SettingRow>
-              </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </AppLayout>

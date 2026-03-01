@@ -34,15 +34,15 @@ const LeadConversionChart = () => {
 
   if (isLoading) {
     return (
-      <div className="h-44 flex items-center justify-center">
+      <div className="h-20 flex items-center justify-center">
         <span className="text-xs text-foreground/30">Loading…</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
-      <div className="w-full h-44">
+    <div className="space-y-2">
+      <div className="w-full h-20">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} barCategoryGap="28%">
             <XAxis
