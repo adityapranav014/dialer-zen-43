@@ -281,7 +281,7 @@ const GlobalSearch = () => {
                 onKeyDown={handleKeyDown}
                 placeholder="Search leads, team members, phone numbers…"
                 autoFocus
-                className="flex-1 bg-transparent text-[14px] text-foreground placeholder:text-foreground/30 focus:outline-none font-medium leading-none"
+                className="flex-1 bg-transparent text-[14px] text-foreground placeholder:text-foreground/30 focus:outline-none font-medium leading-normal"
               />
               {hasQuery ? (
                 <button
