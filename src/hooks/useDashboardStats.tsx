@@ -4,7 +4,7 @@ import { call_logs, tenant_memberships, app_users, leads } from "@/integrations/
 import { eq, and, gte, inArray, desc } from "drizzle-orm";
 import { useAuth } from "./useAuth";
 
-export const useDashboardStats = () => {
+export const useDashboardStats = (period?: string) => {
     const { user, isAdmin, currentTenantId } = useAuth();
 
     // 1. Call Stats for Today
@@ -36,7 +36,7 @@ export const useDashboardStats = () => {
 
     // 2. Leaderboard
     const { data: bdaStats = [], isLoading: loadingBdas } = useQuery({
-        queryKey: ["stats", "leaderboard", currentTenantId],
+        queryKey: ["stats", "leaderboard", period ?? "all", currentTenantId],
         enabled: !!user?.id && !!currentTenantId,
         queryFn: async () => {
             const memberships = await db
@@ -48,13 +48,26 @@ export const useDashboardStats = () => {
 
             const userIds = memberships.map((m) => m.user_id);
 
+            // Compute date filter based on period
+            const logsConditions: ReturnType<typeof eq>[] = [
+                eq(call_logs.tenant_id, currentTenantId!),
+                inArray(call_logs.user_id, userIds) as any,
+            ];
+            if (period) {
+                const days = period === "Quarter" ? 90 : period === "Month" ? 30 : 7;
+                const since = new Date();
+                since.setDate(since.getDate() - (days - 1));
+                since.setHours(0, 0, 0, 0);
+                logsConditions.push(gte(call_logs.created_at, since.toISOString()) as any);
+            }
+
             const [users, logs] = await Promise.all([
                 db.select({ id: app_users.id, display_name: app_users.display_name })
                     .from(app_users)
                     .where(inArray(app_users.id, userIds)),
                 db.select({ user_id: call_logs.user_id, outcome: call_logs.outcome, duration_seconds: call_logs.duration_seconds })
                     .from(call_logs)
-                    .where(and(eq(call_logs.tenant_id, currentTenantId!), inArray(call_logs.user_id, userIds))),
+                    .where(and(...logsConditions)),
             ]);
 
             const userMap = Object.fromEntries(users.map((u) => [u.id, u.display_name]));

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search,
@@ -67,6 +67,7 @@ const GlobalSearch = () => {
   const [query, setQuery] = useState("");
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [recents, setRecents] = useState<string[]>(getRecents);
+  const listRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const { allLeads } = useLeads();
@@ -156,6 +157,16 @@ const GlobalSearch = () => {
     setSelectedIdx(0);
   }, [results.length]);
 
+  // Auto-scroll selected item into view
+  useEffect(() => {
+    const container = listRef.current;
+    if (!container) return;
+    const el = container.querySelector(`[data-search-idx="${selectedIdx}"]`) as HTMLElement | null;
+    if (el) {
+      el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }, [selectedIdx]);
+
   // ── Navigate to result & open detail popup ─────────────────────────
   const selectResult = useCallback(
     (result: SearchResult) => {
@@ -233,19 +244,21 @@ const GlobalSearch = () => {
       {/* Desktop trigger */}
       <button
         onClick={() => setOpen(true)}
-        className="hidden sm:flex items-center gap-2 h-8 px-3 rounded-xl border border-border bg-accent hover:bg-accent/80 text-sm text-foreground/40 transition-colors duration-200"
+        className="hidden sm:flex items-center gap-2.5 h-9 pl-3 pr-2.5 min-w-[210px] rounded-xl border border-border bg-card hover:bg-accent/60 text-foreground/40 hover:text-foreground/60 transition-all duration-200 shadow-sm"
       >
-        <Search className="h-3.5 w-3.5" />
-        <span className="font-semibold">Search…</span>
-        <kbd className="ml-4 text-[10px] font-semibold text-foreground/25 border border-border rounded px-1 py-0.5 bg-card">
-          ⌘K
-        </kbd>
+        <Search className="h-3.5 w-3.5 shrink-0" />
+        <span className="flex-1 text-left text-[13px] font-medium">Search…</span>
+        <span className="flex items-center gap-0.5">
+          <kbd className="text-[10px] font-semibold text-foreground/35 border border-border rounded-md px-1.5 py-0.5 bg-accent leading-none">⌘</kbd>
+          <kbd className="text-[10px] font-semibold text-foreground/35 border border-border rounded-md px-1.5 py-0.5 bg-accent leading-none">K</kbd>
+        </span>
       </button>
 
       {/* Mobile trigger */}
       <button
         onClick={() => setOpen(true)}
-        className="sm:hidden h-8 w-8 rounded-xl flex items-center justify-center hover:bg-accent text-foreground/50 transition-colors duration-200"
+        className="sm:hidden h-8 w-8 rounded-xl flex items-center justify-center bg-accent/60 hover:bg-accent border border-border text-foreground/50 hover:text-foreground transition-all duration-200"
+        aria-label="Open search"
       >
         <Search className="h-4 w-4" />
       </button>
@@ -253,35 +266,38 @@ const GlobalSearch = () => {
       {/* Search Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogPortal>
-          <DialogOverlay className="bg-black/50" />
+          <DialogOverlay className="search-overlay bg-black/50 backdrop-blur-sm !animate-none" />
           <DialogPrimitive.Content
-            className="fixed left-[50%] translate-x-[-50%] top-[12%] sm:top-[18%] z-50 w-[calc(100vw-32px)] max-w-[560px] rounded-2xl border border-border shadow-2xl bg-card overflow-hidden duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-top-4 data-[state=closed]:slide-out-to-top-4 outline-none"
+            className="search-modal fixed left-[50%] top-[12%] sm:top-[18%] z-50 w-[calc(100vw-32px)] max-w-[560px] rounded-2xl border border-border/80 shadow-[0_8px_40px_rgba(0,0,0,0.12),0_2px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4),0_2px_12px_rgba(0,0,0,0.2)] bg-card overflow-hidden outline-none"
           >
             <DialogTitle className="sr-only">Global Search</DialogTitle>
 
-          {/* Search input */}
-          <div className="flex items-center gap-3 px-4 sm:px-5 h-14 border-b border-border">
-            <Search className="h-4 w-4 text-foreground/30 shrink-0" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Search leads, actions, team…"
-              autoFocus
-              className="flex-1 text-sm text-foreground placeholder:text-foreground/30 bg-transparent outline-none font-medium"
-            />
-            {hasQuery && (
-              <button
-                onClick={() => setQuery("")}
-                className="h-5 w-5 rounded flex items-center justify-center text-foreground/25 hover:text-foreground/60 transition-colors"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
+            {/* Search input */}
+            <div className="flex items-center gap-3 px-4 sm:px-5 h-14 border-b border-border/60">
+              <Search className="h-4 w-4 text-foreground/35 shrink-0" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Search leads, team members, phone numbers…"
+                autoFocus
+                className="flex-1 bg-transparent text-[14px] text-foreground placeholder:text-foreground/30 focus:outline-none font-medium leading-none"
+              />
+              {hasQuery ? (
+                <button
+                  onClick={() => setQuery("")}
+                  className="h-5 w-5 rounded-full flex items-center justify-center bg-foreground/8 hover:bg-foreground/15 text-foreground/40 hover:text-foreground/60 transition-colors duration-150 shrink-0"
+                  aria-label="Clear search"
+                >
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              ) : (
+                <kbd className="hidden sm:block text-[10px] font-semibold text-foreground/25 border border-border/60 rounded-md px-1.5 py-0.5 bg-accent/60 leading-none shrink-0">ESC</kbd>
+              )}
+            </div>
 
           {/* Results area */}
-          <div className="max-h-[min(60vh,440px)] overflow-y-auto scroll-container">
+          <div ref={listRef} className="max-h-[min(60vh,440px)] overflow-y-auto scroll-container">
 
             {/* ── Empty state: no query — show recents & suggestions ── */}
             {!hasQuery && (
@@ -290,13 +306,13 @@ const GlobalSearch = () => {
                 {recents.length > 0 && (
                   <div className="px-2 py-1">
                     <div className="flex items-center justify-between px-3 py-2">
-                      <p className="text-[10px] font-medium uppercase tracking-widest text-foreground/30 flex items-center gap-1.5">
+                      <p className="text-[10px] font-medium uppercase tracking-widest text-foreground/45 flex items-center gap-1.5">
                         <Clock className="h-3 w-3" />
                         Recent Searches
                       </p>
                       <button
                         onClick={() => { clearRecents(); setRecents([]); }}
-                        className="text-[10px] font-medium text-foreground/25 hover:text-foreground/50 transition-colors"
+                        className="text-[10px] font-medium text-foreground/40 hover:text-foreground/60 transition-colors"
                       >
                         Clear
                       </button>
@@ -308,7 +324,7 @@ const GlobalSearch = () => {
                         className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-accent transition-colors duration-200 group"
                       >
                         <div className="h-7 w-7 rounded-lg bg-accent flex items-center justify-center shrink-0 group-hover:bg-accent/80 transition-colors duration-200">
-                          <Clock className="h-3 w-3 text-foreground/30" />
+                          <Clock className="h-3 w-3 text-foreground/45" />
                         </div>
                         <span className="text-[13px] text-foreground/60 font-medium">{term}</span>
                         <ArrowRight className="h-3 w-3 text-foreground/15 ml-auto group-hover:text-foreground/40 transition-colors" />
@@ -325,12 +341,12 @@ const GlobalSearch = () => {
             {noResults && (
               <div className="flex flex-col items-center justify-center py-14 px-6">
                 <div className="h-12 w-12 rounded-full bg-accent flex items-center justify-center mb-4">
-                  <Search className="h-5 w-5 text-foreground/20" />
+                  <Search className="h-5 w-5 text-foreground/40" />
                 </div>
                 <p className="text-sm font-bold text-foreground/50 mb-1">
                   No results for "{query}"
                 </p>
-                <p className="text-[12px] text-foreground/30 text-center max-w-[240px]">
+                <p className="text-[12px] text-foreground/45 text-center max-w-[240px]">
                   Try searching for lead names, phone numbers, or pages like "dashboard".
                 </p>
               </div>
@@ -341,10 +357,10 @@ const GlobalSearch = () => {
               <div className="py-2">
                 {groupedResults.map((group) => (
                   <div key={group.key} className="px-2 py-1">
-                    <p className="px-3 py-2 text-[10px] font-medium uppercase tracking-widest text-foreground/30 flex items-center gap-1.5">
+                    <p className="px-3 py-2 text-[10px] font-medium uppercase tracking-widest text-foreground/45 flex items-center gap-1.5">
                       <group.icon className="h-3 w-3" />
                       {group.label}
-                      <span className="ml-auto bg-accent rounded px-1.5 py-0.5 text-[9px] font-semibold text-foreground/25">
+                      <span className="ml-auto bg-accent rounded px-1.5 py-0.5 text-[10px] font-semibold text-foreground/40">
                         {group.items.length}
                       </span>
                     </p>
@@ -355,6 +371,7 @@ const GlobalSearch = () => {
                       return (
                         <button
                           key={result.id}
+                          data-search-idx={itemIdx}
                           onClick={() => selectResult(result)}
                           onMouseEnter={() => setSelectedIdx(itemIdx)}
                           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors duration-200 group ${
@@ -370,7 +387,7 @@ const GlobalSearch = () => {
                             <p className="text-[13px] font-medium text-foreground truncate">
                               {result.label}
                             </p>
-                            <p className="text-[10px] text-foreground/30 truncate">{result.desc}</p>
+                            <p className="text-[10px] text-foreground/45 truncate">{result.desc}</p>
                           </div>
                           {result.meta && (
                             <span
@@ -396,24 +413,24 @@ const GlobalSearch = () => {
           </div>
 
           {/* Footer hints */}
-          <div className="flex items-center justify-between px-4 sm:px-5 py-2.5 border-t border-border bg-accent">
+          <div className="flex items-center justify-between px-4 sm:px-5 h-9 border-t border-border/50 bg-accent/30">
             <div className="flex items-center gap-3">
-              <span className="hidden sm:flex items-center gap-1 text-[10px] text-foreground/25 font-medium">
-                <kbd className="px-1 py-0.5 rounded border border-border bg-card text-[9px] font-semibold">↑↓</kbd>
+              <span className="hidden sm:flex items-center gap-1.5 text-[10px] text-foreground/30 font-medium">
+                <kbd className="px-1 py-px rounded border border-border/60 bg-card text-[9px] font-bold leading-none">↑↓</kbd>
                 Navigate
               </span>
-              <span className="hidden sm:flex items-center gap-1 text-[10px] text-foreground/25 font-medium">
-                <kbd className="px-1 py-0.5 rounded border border-border bg-card text-[9px] font-semibold">↵</kbd>
-                Select
+              <span className="hidden sm:flex items-center gap-1.5 text-[10px] text-foreground/30 font-medium">
+                <kbd className="px-1 py-px rounded border border-border/60 bg-card text-[9px] font-bold leading-none">↵</kbd>
+                Open
               </span>
-              <span className="hidden sm:flex items-center gap-1 text-[10px] text-foreground/25 font-medium">
-                <kbd className="px-1.5 py-0.5 rounded border border-border bg-card text-[9px] font-semibold">ESC</kbd>
+              <span className="hidden sm:flex items-center gap-1.5 text-[10px] text-foreground/30 font-medium">
+                <kbd className="px-1 py-px rounded border border-border/60 bg-card text-[9px] font-bold leading-none">ESC</kbd>
                 Close
               </span>
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-foreground/20 font-medium">
-              <Hash className="h-3 w-3" />
-              {results.length > 0 ? `${results.length} results` : "Search DialFlow"}
+            <div className="flex items-center gap-1.5 text-[10px] text-foreground/30 font-medium">
+              <Hash className="h-2.5 w-2.5" />
+              {results.length > 0 ? `${results.length} result${results.length !== 1 ? "s" : ""}` : "DialFlow Search"}
             </div>
           </div>
           </DialogPrimitive.Content>

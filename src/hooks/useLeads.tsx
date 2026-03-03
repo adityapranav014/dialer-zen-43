@@ -69,11 +69,15 @@ export const useLeads = () => {
         onSuccess: (_data, variables) => {
             if (user && currentTenantId) {
                 const statusLabel = variables.status.charAt(0).toUpperCase() + variables.status.slice(1);
+                const cachedLeads = queryClient.getQueryData<Lead[]>(["leads", "all", currentTenantId]);
+                const lead = cachedLeads?.find(l => l.id === variables.leadId);
+                const actorName = user.display_name?.split(" ")[0] || "Someone";
+                const leadName = lead?.name || "a lead";
                 createActivity({
                     tenant_id: currentTenantId,
                     user_id: user.id,
                     action: variables.status === "closed" ? "milestone" : "info",
-                    description: `Lead status changed to ${statusLabel}`,
+                    description: `${actorName} moved ${leadName} → ${statusLabel}`,
                 }).catch(() => {});
             }
             queryClient.invalidateQueries({ queryKey: ["activities"] });
@@ -103,24 +107,41 @@ export const useLeads = () => {
             if (context?.previousMy) queryClient.setQueryData(["leads", "my", user?.id, currentTenantId], context.previousMy);
         },
         onSuccess: (_data, variables) => {
-            // Notify the assigned BDA
-            if (variables.userId && currentTenantId) {
-                createNotification({
-                    tenant_id: currentTenantId,
-                    user_id: variables.userId,
-                    type: "lead_assigned",
-                    title: "New Lead Assigned",
-                    message: "A new lead has been assigned to you",
-                    priority: "normal",
-                    action_url: "/leads",
-                }).catch(() => {});
+            if (currentTenantId) {
+                const cachedLeads = queryClient.getQueryData<Lead[]>(["leads", "all", currentTenantId]);
+                const cachedMembers = queryClient.getQueryData<{ id: string; name: string }[]>(["team", "members", currentTenantId]);
+                const lead = cachedLeads?.find(l => l.id === variables.leadId);
+                const leadName = lead?.name || "a lead";
 
-                createActivity({
-                    tenant_id: currentTenantId,
-                    user_id: user?.id ?? variables.userId,
-                    action: "info",
-                    description: `Lead assigned to team member`,
-                }).catch(() => {});
+                if (variables.userId) {
+                    // Notify the assigned BDA
+                    createNotification({
+                        tenant_id: currentTenantId,
+                        user_id: variables.userId,
+                        type: "lead_assigned",
+                        title: "New Lead Assigned",
+                        message: `${leadName} has been assigned to you`,
+                        priority: "normal",
+                        action_url: "/leads",
+                    }).catch(() => {});
+
+                    const assignee = cachedMembers?.find(m => m.id === variables.userId);
+                    const bdaName = assignee?.name || "a team member";
+                    createActivity({
+                        tenant_id: currentTenantId,
+                        user_id: user?.id ?? variables.userId,
+                        action: "info",
+                        description: `${leadName} assigned to ${bdaName}`,
+                    }).catch(() => {});
+                } else if (user) {
+                    // Unassign — still worth logging
+                    createActivity({
+                        tenant_id: currentTenantId,
+                        user_id: user.id,
+                        action: "neutral",
+                        description: `${leadName} unassigned`,
+                    }).catch(() => {});
+                }
             }
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
             queryClient.invalidateQueries({ queryKey: ["activities"] });

@@ -3,7 +3,6 @@ import {
     Users,
     Search,
     Plus,
-    Trophy,
     Phone,
     AlertCircle,
     ChevronDown,
@@ -296,14 +295,6 @@ const TeamManagement = () => {
         return list;
     }, [members, search, filterStatus, sortBy, sortAsc]);
 
-    const topPerformers = useMemo(() =>
-        [...members]
-            .filter(m => m.totalLeads >= 5)
-            .sort((a, b) => b.conversionRate - a.conversionRate)
-            .slice(0, 3),
-        [members]
-    );
-
     const handleSort = (key: SortKey) => {
         if (sortBy === key) setSortAsc(!sortAsc);
         else { setSortBy(key); setSortAsc(false); }
@@ -321,7 +312,6 @@ const TeamManagement = () => {
 
     if (loading) return <TeamManagementSkeleton />;
 
-    const podiumLabels = ["🥇", "🥈", "🥉"];
     const activeCount = members.filter(m => m.isActive).length;
     const inactiveCount = members.length - activeCount;
 
@@ -340,55 +330,14 @@ const TeamManagement = () => {
                     </button>
                 </div>
 
-                {/* Top Performers */}
-                {topPerformers.length > 0 && (
-                    <div className="mb-6">
-                        <div className="flex items-center gap-2 mb-3">
-                            <Trophy className="h-4 w-4 text-amber-500" />
-                            <span className="text-xs font-bold text-foreground tracking-tight">Top Performers</span>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            {topPerformers.map((m, i) => (
-                                <div key={m.id} className={`surface-card p-4 relative overflow-hidden ${i === 0 ? "ring-1 ring-amber-200/60" : ""}`}>
-                                    <div className="absolute top-3 right-3 text-lg">{podiumLabels[i]}</div>
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className={`h-10 w-10 rounded-full ${getAvatarClasses(m.avatarColor, m.id)} flex items-center justify-center text-xs font-bold shrink-0 relative`}>
-                                            {getInitials(m.name)}
-                                            <span className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card ${m.isActive ? "bg-emerald-500" : "bg-gray-400"}`} />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <button onClick={() => setViewingMember(m)} className="text-xs font-bold text-foreground truncate text-left hover:text-primary hover:underline decoration-primary/30 underline-offset-2 transition-colors duration-200 cursor-pointer block max-w-full" title="View member details">{m.name}</button>
-                                            <p className="text-[10px] text-foreground/35">{m.email}</p>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        <div className="text-center px-2 py-1.5 rounded-xl bg-accent">
-                                            <p className="text-sm font-bold text-foreground">{m.conversionRate}%</p>
-                                            <p className="text-[9px] text-foreground/30 font-medium uppercase">Conv.</p>
-                                        </div>
-                                        <div className="text-center px-2 py-1.5 rounded-xl bg-accent">
-                                            <p className="text-sm font-bold text-foreground">{m.closedLeads}</p>
-                                            <p className="text-[9px] text-foreground/30 font-medium uppercase">Closed</p>
-                                        </div>
-                                        <div className="text-center px-2 py-1.5 rounded-xl bg-accent">
-                                            <p className="text-sm font-bold text-foreground">{m.totalCalls}</p>
-                                            <p className="text-[9px] text-foreground/30 font-medium uppercase">Calls</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
                 {/* Search + Filter Bar */}
                 <div className="flex items-center gap-3 flex-wrap">
                     <div className="relative group flex-1 min-w-[200px] max-w-xs">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/25 group-focus-within:text-foreground transition-colors pointer-events-none" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/40 group-focus-within:text-foreground transition-colors pointer-events-none" />
                         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, email…" className="h-9 w-full pl-9 pr-3 bg-card border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" />
                     </div>
                     <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
-                        <Filter className="h-3.5 w-3.5 text-foreground/25 shrink-0" />
+                        <Filter className="h-3.5 w-3.5 text-foreground/40 shrink-0" />
                         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
                             {([
                                 { id: "all" as FilterStatus, label: `All (${stats.totalMembers})` },
@@ -413,7 +362,7 @@ const TeamManagement = () => {
             </div>
 
             {/* Members Table */}
-            <div className="md:flex-1 md:min-h-0 flex flex-col pb-4">
+            <div className="md:flex-1 md:min-h-0 flex flex-col pb-6">
                 <div className="rounded-2xl border border-border bg-card flex flex-col overflow-hidden md:flex-1 md:min-h-0 shadow-sm">
                     {/* Header */}
                     <div className="shrink-0 border-b border-border bg-card/95 backdrop-blur-sm z-10">
@@ -437,10 +386,10 @@ const TeamManagement = () => {
                             {filteredMembers.length === 0 && (
                                 <div className="py-16 text-center">
                                     <div className="h-14 w-14 rounded-2xl bg-accent flex items-center justify-center mx-auto mb-4">
-                                        <Users className="h-6 w-6 text-foreground/20" />
+                                        <Users className="h-6 w-6 text-foreground/40" />
                                     </div>
-                                    <p className="text-sm font-medium text-foreground/35">No team members found</p>
-                                    {search && <p className="text-xs text-foreground/20 mt-1.5">Try adjusting your search or filters</p>}
+                                    <p className="text-sm font-medium text-foreground/55">No team members found</p>
+                                    {search && <p className="text-xs text-foreground/40 mt-1.5">Try adjusting your search or filters</p>}
                                     {!search && (
                                         <button onClick={() => setAddOpen(true)} className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all duration-200 shadow-sm">
                                             <Plus className="h-3.5 w-3.5" />Add your first member
@@ -471,12 +420,12 @@ const TeamManagement = () => {
                                                 <button onClick={() => setViewingMember(member)} className="text-[13px] font-bold text-foreground truncate leading-tight text-left hover:text-primary hover:underline decoration-primary/30 underline-offset-2 transition-colors duration-200 cursor-pointer block max-w-full" title="View member details">{member.name}</button>
                                                 <div className="flex items-center gap-1.5 mt-0.5">
                                                     <Mail className="h-2.5 w-2.5 text-foreground/15 shrink-0" />
-                                                    <p className="text-[10px] text-foreground/30 truncate leading-tight">{member.email}</p>
+                                                    <p className="text-[10px] text-foreground/45 truncate leading-tight">{member.email}</p>
                                                 </div>
                                                 {member.phone && (
                                                     <div className="flex items-center gap-1.5 mt-0.5">
                                                         <Phone className="h-2.5 w-2.5 text-foreground/15 shrink-0" />
-                                                        <p className="text-[10px] text-foreground/20 truncate leading-tight">{member.phone}</p>
+                                                        <p className="text-[10px] text-foreground/40 truncate leading-tight">{member.phone}</p>
                                                     </div>
                                                 )}
                                             </div>
@@ -493,7 +442,7 @@ const TeamManagement = () => {
                                                 {member.isActive ? "Active" : "Inactive"}
                                             </span>
                                             {member.role === "admin" && (
-                                                <p className="text-[9px] text-foreground/25 mt-1 pl-0.5 font-medium flex items-center gap-1">
+                                                <p className="text-[10px] text-foreground/40 mt-1 pl-0.5 font-medium flex items-center gap-1">
                                                     <ShieldCheck className="h-2.5 w-2.5" /> Admin
                                                 </p>
                                             )}
@@ -503,7 +452,7 @@ const TeamManagement = () => {
                                         <div className="px-3 py-3.5">
                                             <p className="text-[13px] font-bold text-foreground tabular-nums">{member.totalLeads}</p>
                                             <div className="flex items-center gap-1 mt-1">
-                                                <span className="inline-flex items-center gap-1 text-[9px] font-medium text-foreground/30 bg-muted px-1.5 py-0.5 rounded">{member.activeLeads} active</span>
+                                                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-foreground/45 bg-muted px-1.5 py-0.5 rounded">{member.activeLeads} active</span>
                                                 <span className="inline-flex items-center gap-1 text-[9px] font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded">{member.closedLeads} won</span>
                                             </div>
                                         </div>
@@ -540,8 +489,8 @@ const TeamManagement = () => {
                                                 <PhoneCall className="h-3 w-3 text-foreground/15" />
                                                 <p className="text-[13px] font-bold text-foreground tabular-nums">{member.totalCalls}</p>
                                             </div>
-                                            <p className="text-[9px] text-foreground/25 mt-1 font-medium tabular-nums">
-                                                {callsPerLead} <span className="text-foreground/15">/ lead</span>
+                                            <p className="text-[10px] text-foreground/40 mt-1 font-medium tabular-nums">
+                                                {callsPerLead} <span className="text-foreground/30">/ lead</span>
                                             </p>
                                         </div>
 
@@ -551,12 +500,12 @@ const TeamManagement = () => {
                                                 <Headphones className="h-3 w-3 text-foreground/15" />
                                                 <p className="text-[13px] font-bold text-foreground tabular-nums">
                                                     {member.talkTimeMinutes >= 60
-                                                        ? <>{Math.floor(member.talkTimeMinutes / 60)}<span className="text-[10px] text-foreground/30 font-medium">h</span> {member.talkTimeMinutes % 60}<span className="text-[10px] text-foreground/30 font-medium">m</span></>
-                                                        : <>{member.talkTimeMinutes}<span className="text-[10px] text-foreground/30 font-medium">m</span></>}
+                                                        ? <>{Math.floor(member.talkTimeMinutes / 60)}<span className="text-[10px] text-foreground/45 font-medium">h</span> {member.talkTimeMinutes % 60}<span className="text-[10px] text-foreground/45 font-medium">m</span></>
+                                                        : <>{member.talkTimeMinutes}<span className="text-[10px] text-foreground/45 font-medium">m</span></>}
                                                 </p>
                                             </div>
-                                            <p className="text-[9px] text-foreground/25 mt-1 font-medium tabular-nums">
-                                                ~{avgTalk}m <span className="text-foreground/15">avg/call</span>
+                                            <p className="text-[10px] text-foreground/40 mt-1 font-medium tabular-nums">
+                                                ~{avgTalk}m <span className="text-foreground/30">avg/call</span>
                                             </p>
                                         </div>
 
@@ -601,14 +550,14 @@ const TeamManagement = () => {
                             <div className="overflow-x-auto">
                                 <div className="grid grid-cols-[minmax(220px,2.2fr)_minmax(100px,0.9fr)_minmax(120px,1fr)_minmax(130px,1.1fr)_minmax(100px,0.9fr)_minmax(110px,1fr)_minmax(80px,0.5fr)_44px] gap-0 min-w-[900px] items-center">
                                     <div className="px-5 py-3 flex items-center gap-3">
-                                        <span className="text-[11px] font-medium text-foreground/35">{filteredMembers.length} of {members.length} member{members.length !== 1 ? "s" : ""}</span>
+                                        <span className="text-[11px] font-medium text-foreground/50">{filteredMembers.length} of {members.length} member{members.length !== 1 ? "s" : ""}</span>
                                         {filterStatus !== "all" && (
-                                            <button onClick={() => setFilterStatus("all")} className="flex items-center gap-1 text-[10px] font-medium text-foreground/25 hover:text-foreground transition-colors">
+                                            <button onClick={() => setFilterStatus("all")} className="flex items-center gap-1 text-[10px] font-medium text-foreground/40 hover:text-foreground transition-colors">
                                                 <X className="h-2.5 w-2.5" /> Clear filter
                                             </button>
                                         )}
                                     </div>
-                                    <div className="px-3 py-3"><span className="text-[9px] font-semibold text-foreground/20 uppercase tracking-widest">Totals</span></div>
+                                    <div className="px-3 py-3"><span className="text-[9px] font-semibold text-foreground/35 uppercase tracking-widest">Totals</span></div>
                                     <div className="px-3 py-3"><p className="text-[11px] font-bold text-foreground/50 tabular-nums">{filteredMembers.reduce((s, m) => s + m.totalLeads, 0)}</p></div>
                                     <div className="px-3 py-3"><p className="text-[11px] font-bold text-foreground/50 tabular-nums">{filteredMembers.length > 0 ? (filteredMembers.reduce((s, m) => s + m.conversionRate, 0) / filteredMembers.length).toFixed(1) : "0"}% <span className="text-[9px] font-medium text-foreground/25 ml-1">avg</span></p></div>
                                     <div className="px-3 py-3"><p className="text-[11px] font-bold text-foreground/50 tabular-nums">{filteredMembers.reduce((s, m) => s + m.totalCalls, 0)}</p></div>

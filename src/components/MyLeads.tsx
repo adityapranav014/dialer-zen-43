@@ -135,7 +135,7 @@ const LeadListRow = ({
             <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                     <h3 className="text-[13px] font-bold text-foreground leading-tight truncate">{lead.name}</h3>
-                    <span className="text-[10px] text-foreground/25 shrink-0">{timeAgo(lead.created_at)}</span>
+                    <span className="text-[11px] text-foreground/40 shrink-0">{timeAgo(lead.created_at)}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                     <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-lg border ${cfg.pill} ${cfg.border}`}>
@@ -312,7 +312,7 @@ const LeadDetailPanel = ({
                             <div className="bg-card p-3 flex flex-col items-center gap-1 cursor-default">
                                 <Icon className={`h-3.5 w-3.5 ${col}`} />
                                 <p className="text-sm font-bold text-foreground leading-none">{value}</p>
-                                <p className="text-[9px] text-foreground/30 font-medium uppercase tracking-widest">{label}</p>
+                                <p className="text-[10px] text-foreground/45 font-medium uppercase tracking-widest">{label}</p>
                             </div>
                         </TooltipTrigger>
                         <TooltipContent side="bottom" className="text-xs">{tip}</TooltipContent>
@@ -323,7 +323,7 @@ const LeadDetailPanel = ({
             {/* ── Note ──────────────────────────────────────────────── */}
             {lead.note && (
                 <div className="shrink-0 mx-4 mt-4 flex items-start gap-2 bg-accent/60 border border-foreground/[0.04] rounded-xl px-3 py-2.5">
-                    <StickyNote className="h-3.5 w-3.5 text-foreground/25 shrink-0 mt-0.5" />
+                    <StickyNote className="h-3.5 w-3.5 text-foreground/40 shrink-0 mt-0.5" />
                     <p className="text-xs text-foreground/50 leading-relaxed">{lead.note}</p>
                 </div>
             )}
@@ -336,7 +336,7 @@ const LeadDetailPanel = ({
                         Call History
                     </h3>
                     {totalCalls > 0 && (
-                        <span className="text-[10px] text-foreground/30 font-medium">
+                        <span className="text-[11px] text-foreground/45 font-medium">
                             {totalCalls} call{totalCalls !== 1 ? "s" : ""} · {formatDuration(totalTalkTime)} total
                         </span>
                     )}
@@ -361,7 +361,7 @@ const LeadDetailPanel = ({
                                 {/* Date separator */}
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="h-px flex-1 bg-border" />
-                                    <span className="text-[10px] text-foreground/25 font-medium shrink-0">{group.date}</span>
+                                    <span className="text-[11px] text-foreground/40 font-medium shrink-0">{group.date}</span>
                                     <div className="h-px flex-1 bg-border" />
                                 </div>
 
@@ -384,12 +384,12 @@ const LeadDetailPanel = ({
                                                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${oCfg.bg} ${oCfg.color}`}>
                                                                 {log.outcome || "Call"}
                                                             </span>
-                                                            <span className="text-[10px] text-foreground/25 font-mono flex items-center gap-1">
+                                                            <span className="text-[11px] text-foreground/45 font-mono flex items-center gap-1">
                                                                 <Timer className="h-2.5 w-2.5" />
                                                                 {formatDuration(log.duration_seconds)}
                                                             </span>
                                                         </div>
-                                                        <span className="text-[10px] text-foreground/20">
+                                                        <span className="text-[11px] text-foreground/40">
                                                             {formatTime(log.created_at)}
                                                         </span>
                                                     </div>
@@ -412,7 +412,7 @@ const LeadDetailPanel = ({
                             <PhoneCall className="h-5 w-5" />
                         </div>
                         <p className="text-xs font-bold text-foreground/50">No call history</p>
-                        <p className="text-[11px] text-foreground/25 mt-1">Make the first call to start tracking</p>
+                        <p className="text-[11px] text-foreground/40 mt-1">Make the first call to start tracking</p>
                     </div>
                 )}
             </div>
@@ -580,7 +580,7 @@ const MyLeads = () => {
 
                     {/* Search */}
                     <div className="relative group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/25 group-focus-within:text-foreground transition-colors pointer-events-none" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/40 group-focus-within:text-foreground transition-colors pointer-events-none" />
                         <input
                             value={search}
                             onChange={e => setSearch(e.target.value)}
@@ -612,13 +612,13 @@ const MyLeads = () => {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`relative flex items-center gap-1 px-3 py-2.5 text-[11px] font-semibold whitespace-nowrap shrink-0 transition-colors duration-200 ${
-                                        isActive ? "text-foreground" : "text-foreground/35 hover:text-foreground"
+                                        isActive ? "text-foreground" : "text-foreground/50 hover:text-foreground"
                                     }`}
                                 >
                                     {tab.label}
                                     {count > 0 && (
-                                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full font-mono ${
-                                            isActive ? "bg-accent text-foreground" : "bg-transparent text-foreground/30"
+                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full font-mono ${
+                                            isActive ? "bg-accent text-foreground" : "bg-transparent text-foreground/45"
                                         }`}>
                                             {count}
                                         </span>
@@ -649,7 +649,7 @@ const MyLeads = () => {
                                 <Search className="h-5 w-5" />
                             </div>
                             <p className="text-xs font-bold text-foreground/50 mb-0.5">No leads found</p>
-                            <p className="text-[11px] text-foreground/30">Try adjusting your filter or search</p>
+                            <p className="text-[11px] text-foreground/45">Try adjusting your filter or search</p>
                             {(search || activeTab !== "all") && (
                                 <button
                                     onClick={() => { setSearch(""); setActiveTab("all"); }}
@@ -681,11 +681,11 @@ const MyLeads = () => {
                     </div>
                 ) : (
                     <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
-                        <div className="h-16 w-16 rounded-3xl bg-accent flex items-center justify-center mb-4 text-foreground/10">
+                        <div className="h-16 w-16 rounded-3xl bg-accent flex items-center justify-center mb-4 text-foreground/25">
                             <ExternalLink className="h-7 w-7" />
                         </div>
-                        <p className="text-sm font-bold text-foreground/40 mb-1">Select a lead</p>
-                        <p className="text-xs text-foreground/25 max-w-[200px]">
+                        <p className="text-sm font-bold text-foreground/55 mb-1">Select a lead</p>
+                        <p className="text-xs text-foreground/40 max-w-[200px]">
                             Choose a lead from your pipeline to view details & call history
                         </p>
                     </div>

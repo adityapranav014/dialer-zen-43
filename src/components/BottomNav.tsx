@@ -51,19 +51,22 @@ const BottomNav = () => {
             <Link
               key={tab.path}
               to={tab.path}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 ${
+              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 relative ${
                 isActive
                   ? "text-foreground"
-                  : "text-foreground/30 hover:text-foreground/60"
+                  : "text-foreground/45 hover:text-foreground/70"
               }`}
             >
+              {isActive && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-5 rounded-full bg-foreground" />
+              )}
               <div className={`p-1.5 rounded-xl transition-all duration-200 ${isActive ? "bg-accent shadow-sm" : ""}`}>
                 <tab.icon
-                  className="h-4.5 w-4.5"
-                  strokeWidth={isActive ? 2 : 1.5}
+                  className="h-[18px] w-[18px]"
+                  strokeWidth={isActive ? 2.25 : 1.5}
                 />
               </div>
-              <span className={`text-[10px] ${isActive ? "font-semibold" : "font-medium"}`}>
+              <span className={`text-[10px] ${isActive ? "font-bold" : "font-medium"}`}>
                 {tab.label}
               </span>
             </Link>

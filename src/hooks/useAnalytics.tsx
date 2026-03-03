@@ -27,28 +27,28 @@ export const useAnalytics = (period: string = "Week") => {
   const { data: summaryStats, isLoading: loadingSummary } = useQuery({
     queryKey: ["analytics", "summary", period, currentTenantId],
     enabled,
-    queryFn: () => fetchSummaryStats({ tenantId: currentTenantId! }),
+    queryFn: () => fetchSummaryStats({ tenantId: currentTenantId!, period }),
     staleTime: 60_000,
   });
 
   const { data: weeklyData, isLoading: loadingWeekly } = useQuery({
     queryKey: ["analytics", "weekly", period, currentTenantId],
     enabled,
-    queryFn: () => fetchWeeklyCallData(currentTenantId!),
+    queryFn: () => fetchWeeklyCallData(currentTenantId!, period),
     staleTime: 60_000,
   });
 
   const { data: hourlyData, isLoading: loadingHourly } = useQuery({
     queryKey: ["analytics", "hourly", period, currentTenantId],
     enabled,
-    queryFn: () => fetchHourlyCallData(currentTenantId!),
+    queryFn: () => fetchHourlyCallData(currentTenantId!, period),
     staleTime: 60_000,
   });
 
   const { data: conversionBreakdown, isLoading: loadingConversion } = useQuery({
     queryKey: ["analytics", "conversion-breakdown", period, currentTenantId],
     enabled,
-    queryFn: () => fetchConversionBreakdown(currentTenantId!),
+    queryFn: () => fetchConversionBreakdown(currentTenantId!, period),
     staleTime: 60_000,
   });
 

@@ -108,29 +108,29 @@ const AddBDAModal = ({ open, onClose }: AddBDAModalProps) => {
                         <div>
                             <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">Full Name *</label>
                             <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/20 pointer-events-none" />
-                                <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Rahul Sharma" className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" autoFocus />
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/35 pointer-events-none" />
+                                <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Rahul Sharma" className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" autoFocus />
                             </div>
                         </div>
                         <div>
                             <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">Email Address *</label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/20 pointer-events-none" />
-                                <input value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. rahul@company.com" className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/35 pointer-events-none" />
+                                <input value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. rahul@company.com" className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" />
                             </div>
                         </div>
                         <div>
                             <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">Password *</label>
                             <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/20 pointer-events-none" />
-                                <input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Min 4 characters" className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" />
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/35 pointer-events-none" />
+                                <input value={password} onChange={e => setPassword(e.target.value)} type="password" placeholder="Min 4 characters" className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" />
                             </div>
                         </div>
                         <div>
-                            <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">Phone <span className="text-foreground/25 normal-case">(optional)</span></label>
+                            <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest block mb-1.5">Phone <span className="text-foreground/40 normal-case">(optional)</span></label>
                             <div className="relative">
-                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/20 pointer-events-none" />
-                                <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="e.g. +91 98765 43210" className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" />
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/35 pointer-events-none" />
+                                <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="e.g. +91 98765 43210" className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200" />
                             </div>
                         </div>
                         </div>

@@ -8,7 +8,6 @@ import {
   TrendingUp,
   LogOut,
   ArrowLeft,
-  Settings,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -117,41 +116,28 @@ const SideNav = () => {
                 to={item.path}
                 className={`flex items-center gap-3 rounded-xl transition-all duration-200 h-10 px-3 ${
                   isActive
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-sm"
-                    : "text-sidebar-foreground/35 hover:text-sidebar-foreground hover:bg-sidebar-accent"
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-sm ring-1 ring-sidebar-border/60"
+                    : "text-sidebar-foreground/55 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                 }`}
               >
                 <item.icon
                   className="h-[18px] w-[18px] shrink-0"
-                  strokeWidth={isActive ? 2 : 1.5}
+                  strokeWidth={isActive ? 2.25 : 1.5}
                 />
                 <span
                   className="text-[13px] font-medium truncate overflow-hidden whitespace-nowrap"
                   style={{ opacity: open ? 1 : 0, transition: "opacity 150ms ease" }}
                 >{item.label}</span>
-                {isActive && open && (
-                  <span className="ml-auto h-1.5 w-1.5 rounded-full bg-sidebar-foreground shrink-0" />
-                )}
               </Link>
             );
           })}
         </div>
 
-        {/* Bottom: settings + sign out */}
+        {/* Bottom: sign out */}
         <div className="border-t border-sidebar-border shrink-0 px-3 py-3 space-y-0.5">
           <button
-            onClick={() => navigate("/settings")}
-            className="w-full flex items-center gap-3 rounded-xl text-sidebar-foreground/30 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all duration-200 h-10 px-3"
-          >
-            <Settings className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
-            <span
-              className="text-[13px] font-medium truncate whitespace-nowrap overflow-hidden"
-              style={{ opacity: open ? 1 : 0, transition: "opacity 150ms ease" }}
-            >Settings</span>
-          </button>
-          <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 rounded-xl text-sidebar-foreground/30 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200 h-10 px-3"
+            className="w-full flex items-center gap-3 rounded-xl text-sidebar-foreground/50 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all duration-200 h-10 px-3"
           >
             <LogOut className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
             <span

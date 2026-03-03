@@ -7,6 +7,16 @@ import { db } from "@/integrations/turso/db";
 import { leads, call_logs } from "@/integrations/turso/schema";
 import { eq, and, gte } from "drizzle-orm";
 
+/** Returns the start date for a given period filter */
+function periodStart(period: string): Date {
+  const d = new Date();
+  if (period === "Quarter") d.setDate(d.getDate() - 89);
+  else if (period === "Month") d.setDate(d.getDate() - 29);
+  else d.setDate(d.getDate() - 6); // Week (default)
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 //  Lead funnel counts 
 export interface LeadFunnelItem {
   stage: string;
@@ -41,10 +51,11 @@ export interface SummaryStats {
   hitRate: string;
 }
 
-export async function fetchSummaryStats(opts?: { userId?: string; tenantId?: string }): Promise<SummaryStats> {
+export async function fetchSummaryStats(opts?: { userId?: string; tenantId?: string; period?: string }): Promise<SummaryStats> {
   const conditions = [];
   if (opts?.tenantId) conditions.push(eq(call_logs.tenant_id, opts.tenantId));
   if (opts?.userId) conditions.push(eq(call_logs.user_id, opts.userId));
+  if (opts?.period) conditions.push(gte(call_logs.created_at, periodStart(opts.period).toISOString()));
 
   const rows = conditions.length
     ? await db.select({ duration_seconds: call_logs.duration_seconds, outcome: call_logs.outcome }).from(call_logs).where(and(...conditions))
@@ -73,40 +84,55 @@ export interface DailyCallData {
   conversions: number;
 }
 
-export async function fetchWeeklyCallData(tenantId: string): Promise<DailyCallData[]> {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-  sevenDaysAgo.setHours(0, 0, 0, 0);
+export async function fetchWeeklyCallData(tenantId: string, period: string = "Week"): Promise<DailyCallData[]> {
+  const since = periodStart(period);
 
   const rows = await db
     .select({ created_at: call_logs.created_at, outcome: call_logs.outcome })
     .from(call_logs)
-    .where(and(eq(call_logs.tenant_id, tenantId), gte(call_logs.created_at, sevenDaysAgo.toISOString())));
+    .where(and(eq(call_logs.tenant_id, tenantId), gte(call_logs.created_at, since.toISOString())));
 
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const buckets: Record<string, { calls: number; conversions: number }> = {};
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(sevenDaysAgo);
-    d.setDate(d.getDate() + i);
-    buckets[dayNames[d.getDay()]] = { calls: 0, conversions: 0 };
-  }
-
-  for (const row of rows) {
-    const key = dayNames[new Date(row.created_at).getDay()];
-    if (buckets[key]) {
-      buckets[key].calls++;
-      if (row.outcome === "Interested" || row.outcome === "Closed Won") buckets[key].conversions++;
+  if (period === "Week") {
+    // Last 7 days — one bucket per day
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const buckets: Record<string, { calls: number; conversions: number }> = {};
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(since);
+      d.setDate(d.getDate() + i);
+      buckets[dayNames[d.getDay()]] = { calls: 0, conversions: 0 };
     }
+    for (const row of rows) {
+      const key = dayNames[new Date(row.created_at).getDay()];
+      if (buckets[key]) {
+        buckets[key].calls++;
+        if (row.outcome === "Interested" || row.outcome === "Closed Won") buckets[key].conversions++;
+      }
+    }
+    const result: DailyCallData[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(since);
+      d.setDate(d.getDate() + i);
+      const key = dayNames[d.getDay()];
+      result.push({ day: key, ...buckets[key] });
+    }
+    return result;
+  } else {
+    // Month (30 days → 4 weeks) or Quarter (90 days → 13 weeks) — bucket by week
+    const numWeeks = period === "Quarter" ? 13 : 4;
+    const weekBuckets: { calls: number; conversions: number }[] = Array.from(
+      { length: numWeeks },
+      () => ({ calls: 0, conversions: 0 })
+    );
+    for (const row of rows) {
+      const diffDays = Math.floor(
+        (new Date(row.created_at).getTime() - since.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      const weekIdx = Math.min(Math.floor(diffDays / 7), numWeeks - 1);
+      weekBuckets[weekIdx].calls++;
+      if (row.outcome === "Interested" || row.outcome === "Closed Won") weekBuckets[weekIdx].conversions++;
+    }
+    return weekBuckets.map((b, i) => ({ day: `Wk ${i + 1}`, ...b }));
   }
-
-  const result: DailyCallData[] = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(sevenDaysAgo);
-    d.setDate(d.getDate() + i);
-    const key = dayNames[d.getDay()];
-    result.push({ day: key, ...buckets[key] });
-  }
-  return result;
 }
 
 //  Hourly distribution (today) 
@@ -115,14 +141,14 @@ export interface HourlyCallData {
   calls: number;
 }
 
-export async function fetchHourlyCallData(tenantId: string): Promise<HourlyCallData[]> {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+export async function fetchHourlyCallData(tenantId: string, period: string = "Week"): Promise<HourlyCallData[]> {
+  // Week → today only; Month/Quarter → full period for aggregate distribution
+  const since = period === "Week" ? (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; })() : periodStart(period);
 
   const rows = await db
     .select({ created_at: call_logs.created_at })
     .from(call_logs)
-    .where(and(eq(call_logs.tenant_id, tenantId), gte(call_logs.created_at, today.toISOString())));
+    .where(and(eq(call_logs.tenant_id, tenantId), gte(call_logs.created_at, since.toISOString())));
 
   const hourLabels = ["9am", "10am", "11am", "12pm", "1pm", "2pm", "3pm", "4pm", "5pm"];
   const hourStart = 9;
@@ -144,11 +170,11 @@ export interface ConversionBreakdown {
   text: string;
 }
 
-export async function fetchConversionBreakdown(tenantId: string): Promise<ConversionBreakdown[]> {
+export async function fetchConversionBreakdown(tenantId: string, period: string = "Week"): Promise<ConversionBreakdown[]> {
   const rows = await db
     .select({ outcome: call_logs.outcome })
     .from(call_logs)
-    .where(eq(call_logs.tenant_id, tenantId));
+    .where(and(eq(call_logs.tenant_id, tenantId), gte(call_logs.created_at, periodStart(period).toISOString())));
 
   const total = rows.length || 1;
   const conversions = rows.filter((r) => r.outcome === "Interested" || r.outcome === "Closed Won").length;

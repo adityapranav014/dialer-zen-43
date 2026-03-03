@@ -86,7 +86,7 @@ const AccountSettings = () => {
         <div className="lg:col-span-1 space-y-5">
           {/* Profile Info */}
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/40 px-1 mb-3">
               Profile
             </p>
             <div className="surface-card p-5">
@@ -128,7 +128,7 @@ const AccountSettings = () => {
 
           {/* Appearance */}
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/40 px-1 mb-3">
               Appearance
             </p>
             <div className="surface-card p-4">
@@ -165,7 +165,7 @@ const AccountSettings = () => {
         <div className="lg:col-span-2 space-y-5">
           {/* Notification Preferences */}
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/40 px-1 mb-3">
               Notifications
             </p>
             <div className="surface-card p-0 overflow-hidden">
@@ -190,7 +190,7 @@ const AccountSettings = () => {
 
           {/* Workflow */}
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-3">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/40 px-1 mb-3">
               Workflow
             </p>
             <div className="surface-card p-0 overflow-hidden">

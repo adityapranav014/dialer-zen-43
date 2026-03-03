@@ -15,13 +15,14 @@ import {
 import {
     Phone,
     Clock,
-    UserCheck,
     X,
     Check,
     Search,
     AlertCircle,
     TrendingUp,
     Plus,
+    UserPlus,
+    ChevronDown,
 } from "lucide-react";
 import { useLeads, LeadStatus as DbLeadStatus } from "@/hooks/useLeads";
 import { useTeam } from "@/hooks/useTeam";
@@ -110,10 +111,10 @@ const getInitials = (n: string) => n.split(" ").map(w => w[0]).join("").toUpperC
 // ─── Column Config ────────────────────────────────────────────────────────────
 
 const columns: { id: DbLeadStatus; label: string; icon: string; color: string; bg: string; headerBg: string; border: string; dot: string; dropBg: string }[] = [
-    { id: "new", label: "New", icon: "🔵", color: "text-foreground", bg: "bg-muted/50 dark:bg-muted/30", headerBg: "bg-card dark:bg-card", border: "border-border/60", dot: "bg-foreground/70", dropBg: "bg-foreground/[0.02]" },
-    { id: "contacted", label: "Contacted", icon: "📞", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50/40 dark:bg-blue-950/20", headerBg: "bg-white dark:bg-blue-950/60", border: "border-blue-200/40 dark:border-blue-800/50", dot: "bg-blue-500", dropBg: "bg-blue-50/30 dark:bg-blue-950/10" },
-    { id: "interested", label: "Interested", icon: "🔥", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50/40 dark:bg-emerald-950/20", headerBg: "bg-white dark:bg-emerald-950/60", border: "border-emerald-200/40 dark:border-emerald-800/50", dot: "bg-emerald-500", dropBg: "bg-emerald-50/30 dark:bg-emerald-950/10" },
-    { id: "closed", label: "Closed", icon: "✅", color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50/40 dark:bg-purple-950/20", headerBg: "bg-white dark:bg-purple-950/60", border: "border-purple-200/40 dark:border-purple-800/50", dot: "bg-purple-500", dropBg: "bg-purple-50/30 dark:bg-purple-950/10" },
+    { id: "new", label: "New", icon: "🔵", color: "text-foreground", bg: "bg-muted/50 dark:bg-muted/30", headerBg: "bg-card", border: "border-border/60", dot: "bg-foreground/70", dropBg: "bg-foreground/[0.02]" },
+    { id: "contacted", label: "Contacted", icon: "📞", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50/40 dark:bg-blue-950/20", headerBg: "bg-card", border: "border-blue-200/40 dark:border-blue-800/50", dot: "bg-blue-500", dropBg: "bg-blue-50/30 dark:bg-blue-950/10" },
+    { id: "interested", label: "Interested", icon: "🔥", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50/40 dark:bg-emerald-950/20", headerBg: "bg-card", border: "border-emerald-200/40 dark:border-emerald-800/50", dot: "bg-emerald-500", dropBg: "bg-emerald-50/30 dark:bg-emerald-950/10" },
+    { id: "closed", label: "Closed", icon: "✅", color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50/40 dark:bg-purple-950/20", headerBg: "bg-card", border: "border-purple-200/40 dark:border-purple-800/50", dot: "bg-purple-500", dropBg: "bg-purple-50/30 dark:bg-purple-950/10" },
 ];
 
 const statusBDACfg: Record<string, string> = {
@@ -142,40 +143,62 @@ const LeadCardContent = ({ lead, onAssign, onViewDetail, isDragOverlay = false }
             </div>
 
             {/* Phone */}
-            <div className="flex items-center gap-1.5 text-[11px] text-foreground/35 font-medium">
+            <div className="flex items-center gap-1.5 text-[11px] text-foreground/35 font-medium mb-3">
                 <Phone className="h-3 w-3" />
                 <span>{lead.phone}</span>
             </div>
 
-            {/* Assigned BDA badge */}
-            {lead.assignedTo && (
-                <div className="mt-2.5 flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-accent/60 dark:bg-accent/40">
-                    <div className={`h-5 w-5 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0 ${lead.assignedToColor || "bg-primary text-primary-foreground"}`}>
-                        {lead.assignedToInitials || lead.assignedTo.split(" ").map(n => n[0]).join("")}
-                    </div>
-                    <span className="text-[10px] font-medium text-foreground/50 truncate">{lead.assignedTo}</span>
+            {/* Assignee — always visible, fully clickable */}
+            {onAssign ? (
+                <button
+                    onClick={(e) => { e.stopPropagation(); onAssign(lead); }}
+                    className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl border transition-all duration-200 group/assign ${
+                        lead.assignedTo
+                            ? "bg-accent/60 dark:bg-accent/40 border-transparent hover:border-foreground/15 hover:bg-accent"
+                            : "bg-transparent border-dashed border-foreground/15 hover:border-primary/40 hover:bg-primary/[0.04]"
+                    }`}
+                >
+                    {lead.assignedTo ? (
+                        <>
+                            <div className={`h-5 w-5 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0 ${lead.assignedToColor || "bg-primary text-primary-foreground"}`}>
+                                {lead.assignedToInitials || lead.assignedTo.split(" ").map(n => n[0]).join("")}
+                            </div>
+                            <span className="text-[11px] font-medium text-foreground/60 truncate flex-1 text-left">{lead.assignedTo}</span>
+                            <ChevronDown className="h-3 w-3 text-foreground/20 shrink-0 opacity-0 group-hover/assign:opacity-100 transition-opacity duration-150" />
+                        </>
+                    ) : (
+                        <>
+                            <UserPlus className="h-3.5 w-3.5 text-foreground/40 shrink-0" />
+                            <span className="text-[11px] font-medium text-foreground/30 flex-1 text-left">Unassigned</span>
+                            <ChevronDown className="h-3 w-3 text-foreground/20 shrink-0 opacity-0 group-hover/assign:opacity-100 transition-opacity duration-150" />
+                        </>
+                    )}
+                </button>
+            ) : (
+                /* Drag overlay — non-interactive version */
+                <div className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl ${lead.assignedTo ? "bg-accent/60" : "border border-dashed border-foreground/10"}`}>
+                    {lead.assignedTo ? (
+                        <>
+                            <div className={`h-5 w-5 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0 ${lead.assignedToColor || "bg-primary text-primary-foreground"}`}>
+                                {lead.assignedToInitials}
+                            </div>
+                            <span className="text-[11px] font-medium text-foreground/60 truncate">{lead.assignedTo}</span>
+                        </>
+                    ) : (
+                        <>
+                            <UserPlus className="h-3.5 w-3.5 text-foreground/20 shrink-0" />
+                            <span className="text-[11px] font-medium text-foreground/25">Unassigned</span>
+                        </>
+                    )}
                 </div>
             )}
 
-            {/* Footer: time + assign */}
+            {/* Footer: time only */}
             <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-border/30">
                 <span className="text-[10px] text-foreground/25 font-medium flex items-center gap-1">
                     <Clock className="h-2.5 w-2.5" />
                     {timeAgo(lead.created_at)}
                 </span>
-                {onAssign && (
-                    <button
-                        onClick={(e) => { e.stopPropagation(); onAssign(lead); }}
-                        className={`flex items-center gap-1 text-[10px] font-bold rounded-lg px-2 py-1 transition-all duration-200 ${
-                            lead.assignedTo
-                                ? "text-foreground/30 opacity-0 group-hover/card:opacity-100 hover:!text-primary hover:!bg-primary/10"
-                                : "text-primary bg-primary/[0.06] hover:bg-primary/10"
-                        }`}
-                    >
-                        <UserCheck className="h-2.5 w-2.5" />
-                        {lead.assignedTo ? "Reassign" : "Assign"}
-                    </button>
-                )}
             </div>
         </div>
     </div>
@@ -256,7 +279,7 @@ const KanbanColumn = ({ colId, dropBg, leads, onAssign, onViewDetail }: KanbanCo
                         <div className="text-foreground/15 mb-1">
                             <TrendingUp className="h-5 w-5 mx-auto" />
                         </div>
-                        <p className="text-[11px] text-foreground/25 font-medium">{isOver ? "Drop here" : "No leads yet"}</p>
+                        <p className="text-[11px] text-foreground/40 font-medium">{isOver ? "Drop here" : "No leads yet"}</p>
                     </div>
                 )}
                 {leads.map((lead) => (
@@ -332,7 +355,7 @@ const AssignSheet = ({ lead, bdas, onAssign, onClose }: AssignSheetProps) => {
                                         <p className="text-xs font-medium text-foreground">{bda.name}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-lg border ${statusBDACfg[bda.status]}`}>
+                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-lg border ${statusBDACfg[bda.status]}`}>
                                             {bda.status}
                                         </span>
                                         {lead.assigned_to === bda.id && <Check className="h-3.5 w-3.5 text-foreground" />}
@@ -621,7 +644,7 @@ const AdminLeads = () => {
                         <div className="flex items-center gap-2.5">
                             {/* Search */}
                             <div className="relative group">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/25 group-focus-within:text-foreground transition-colors pointer-events-none" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/40 group-focus-within:text-foreground transition-colors pointer-events-none" />
                                 <input
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
@@ -645,7 +668,7 @@ const AdminLeads = () => {
                         <div className="flex items-center gap-2.5 min-w-0">
                                 {/* BDA search — fixed, does not scroll */}
                                 <div className="relative shrink-0 group">
-                                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/25 group-focus-within:text-foreground transition-colors pointer-events-none" />
+                                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/40 group-focus-within:text-foreground transition-colors pointer-events-none" />
                                     <input
                                         value={bdaSearch}
                                         onChange={(e) => setBdaSearch(e.target.value)}
@@ -757,7 +780,7 @@ const AdminLeads = () => {
                     </div>
 
                 {/* ── Kanban Board — Jira-style: fixed headers + single scroll ── */}
-                <div className="flex-1 min-h-0 -mx-4 sm:-mx-6 px-4 sm:px-6 overflow-auto pb-4 scroll-container">
+                <div className="flex-1 min-h-0 -mx-4 sm:-mx-6 px-4 sm:px-6 overflow-auto pb-6 scroll-container">
                     <div style={{ minWidth: `${columns.length * 280}px` }}>
                         {/* ── Sticky Column Headers — pointer-events-none so they don't block drag ── */}
                         <div className="sticky top-0 z-20 pb-3 pointer-events-none">

@@ -353,12 +353,12 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                     Full Name *
                                 </label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/20 pointer-events-none" />
+                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/35 pointer-events-none" />
                                     <input
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         placeholder="e.g. Rahul Sharma"
-                                        className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200"
+                                        className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200"
                                         autoFocus
                                     />
                                 </div>
@@ -370,12 +370,12 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                     Phone Number *
                                 </label>
                                 <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/20 pointer-events-none" />
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/35 pointer-events-none" />
                                     <input
                                         value={phone}
                                         onChange={(e) => setPhone(e.target.value)}
                                         placeholder="e.g. +91 98765 43210"
-                                        className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200"
+                                        className="w-full h-10 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200"
                                     />
                                 </div>
                             </div>

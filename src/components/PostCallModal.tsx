@@ -13,12 +13,12 @@ interface PostCallModalProps {
 }
 
 const dispositions = [
-  { id: "Interested", label: "Interested", icon: ThumbsUp, color: "text-emerald-600", bg: "bg-emerald-50 hover:bg-emerald-100/60 border-emerald-200/60 data-[selected=true]:border-emerald-400 data-[selected=true]:bg-emerald-50" },
-  { id: "Not Interested", label: "Not Interested", icon: ThumbsDown, color: "text-red-500", bg: "bg-red-50 hover:bg-red-100/60 border-red-200/60 data-[selected=true]:border-red-400 data-[selected=true]:bg-red-50" },
+  { id: "Interested", label: "Interested", icon: ThumbsUp, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100/60 dark:hover:bg-emerald-950/50 border-emerald-200/60 dark:border-emerald-800/60 data-[selected=true]:border-emerald-400 dark:data-[selected=true]:border-emerald-600 data-[selected=true]:bg-emerald-50 dark:data-[selected=true]:bg-emerald-950/40" },
+  { id: "Not Interested", label: "Not Interested", icon: ThumbsDown, color: "text-red-500 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/30 hover:bg-red-100/60 dark:hover:bg-red-950/50 border-red-200/60 dark:border-red-800/60 data-[selected=true]:border-red-400 dark:data-[selected=true]:border-red-600 data-[selected=true]:bg-red-50 dark:data-[selected=true]:bg-red-950/40" },
   { id: "Follow Up", label: "Follow Up", icon: Calendar, color: "text-foreground", bg: "bg-accent hover:bg-accent/80 border-border data-[selected=true]:border-foreground/30 data-[selected=true]:bg-accent" },
-  { id: "Voicemail", label: "Voicemail", icon: Voicemail, color: "text-amber-600", bg: "bg-amber-50 hover:bg-amber-100/60 border-amber-200/60 data-[selected=true]:border-amber-400 data-[selected=true]:bg-amber-50" },
-  { id: "Wrong Number", label: "Wrong Number", icon: AlertCircle, color: "text-foreground/40", bg: "bg-accent hover:bg-accent/80 border-border data-[selected=true]:border-foreground/20 data-[selected=true]:bg-accent" },
-  { id: "Closed Won", label: "Closed Won", icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50 hover:bg-emerald-100/60 border-emerald-200/60 data-[selected=true]:border-emerald-400 data-[selected=true]:bg-emerald-50" },
+  { id: "Voicemail", label: "Voicemail", icon: Voicemail, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100/60 dark:hover:bg-amber-950/50 border-amber-200/60 dark:border-amber-800/60 data-[selected=true]:border-amber-400 dark:data-[selected=true]:border-amber-600 data-[selected=true]:bg-amber-50 dark:data-[selected=true]:bg-amber-950/40" },
+  { id: "Wrong Number", label: "Wrong Number", icon: AlertCircle, color: "text-foreground/50", bg: "bg-accent hover:bg-accent/80 border-border data-[selected=true]:border-foreground/20 data-[selected=true]:bg-accent" },
+  { id: "Closed Won", label: "Closed Won", icon: CheckCircle2, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100/60 dark:hover:bg-emerald-950/50 border-emerald-200/60 dark:border-emerald-800/60 data-[selected=true]:border-emerald-400 dark:data-[selected=true]:border-emerald-600 data-[selected=true]:bg-emerald-50 dark:data-[selected=true]:bg-emerald-950/40" },
 ];
 
 const formatDuration = (seconds: number) => {
@@ -38,6 +38,7 @@ const PostCallModal = ({ open, onClose, leadId, leadName, duration, leadStatus =
     try {
       await logCall({
         leadId,
+        leadName,
         durationSeconds: duration,
         notes,
         outcome: selectedDisposition,

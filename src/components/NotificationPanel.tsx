@@ -102,7 +102,7 @@ function NotificationRow({
           >
             {notification.title}
           </p>
-          <span className="text-[10px] text-foreground/30 whitespace-nowrap shrink-0 mt-0.5">
+          <span className="text-[10px] text-foreground/45 whitespace-nowrap shrink-0 mt-0.5">
             {timeAgo(notification.created_at)}
           </span>
         </div>
@@ -133,7 +133,7 @@ function NotificationRow({
               e.stopPropagation();
               onRead(notification.id);
             }}
-            className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-card text-foreground/30 hover:text-foreground transition-colors"
+            className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-card text-foreground/45 hover:text-foreground transition-colors"
             title="Mark as read"
           >
             <Check className="h-3 w-3" />
@@ -144,7 +144,7 @@ function NotificationRow({
             e.stopPropagation();
             onDelete(notification.id);
           }}
-          className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-card text-foreground/30 hover:text-red-500 transition-colors"
+          className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-card text-foreground/45 hover:text-red-500 transition-colors"
           title="Dismiss"
         >
           <X className="h-3 w-3" />
@@ -214,10 +214,10 @@ const NotificationPanel = () => {
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4">
             <div className="h-10 w-10 rounded-full bg-accent flex items-center justify-center mb-3">
-              <Bell className="h-4 w-4 text-foreground/25" />
+              <Bell className="h-4 w-4 text-foreground/40" />
             </div>
             <p className="text-sm font-medium text-foreground/40">No notifications</p>
-            <p className="text-[11px] text-foreground/25 mt-0.5">You're all caught up!</p>
+            <p className="text-[11px] text-foreground/45 mt-0.5">You’re all caught up!</p>
           </div>
         ) : (
           <div className="overflow-y-auto max-h-[400px] scroll-container">

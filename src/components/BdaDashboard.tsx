@@ -69,14 +69,14 @@ const BdaDashboard = () => {
                         </div>
                         <div>
                             <p className="text-2xl font-bold tracking-tight leading-none mb-1 text-foreground">{stat.value}</p>
-                            <p className="text-[10px] text-foreground/35 font-medium uppercase tracking-widest leading-tight">{stat.label}</p>
+                            <p className="text-[11px] text-foreground/45 font-medium uppercase tracking-widest leading-tight">{stat.label}</p>
                         </div>
                     </div>
                 ))}
             </div>
             </div>
 
-            <div className="md:flex-1 md:min-h-0 md:overflow-y-auto scroll-container pb-4">
+            <div className="md:flex-1 md:min-h-0 md:overflow-y-auto scroll-container pb-6">
             {/* Main content grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
                 {/* Leaderboard */}
@@ -118,7 +118,7 @@ const BdaDashboard = () => {
                                     </div>
                                     <div className="text-right shrink-0">
                                         <p className="text-xs font-semibold text-foreground">{entry.calls} calls</p>
-                                        <p className="text-[10px] text-emerald-600 font-medium">{entry.conversions} conv.</p>
+                                        <p className="text-[11px] text-emerald-600 font-medium">{entry.conversions} conv.</p>
                                     </div>
                                 </div>
                             );

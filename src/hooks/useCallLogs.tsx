@@ -32,6 +32,7 @@ export const useCallLogs = () => {
             currentLeadStatus = "new",
         }: {
             leadId: string;
+            leadName?: string;
             durationSeconds: number;
             notes: string;
             outcome: string;
@@ -61,11 +62,13 @@ export const useCallLogs = () => {
             // Log activity
             if (user && currentTenantId) {
                 const outcomeLabel = variables.outcome || "Call";
+                const actorName = user.display_name?.split(" ")[0] || "Someone";
+                const target = variables.leadName || "a lead";
                 createActivity({
                     tenant_id: currentTenantId,
                     user_id: user.id,
                     action: outcomeLabel === "Closed Won" || outcomeLabel === "Interested" ? "success" : "neutral",
-                    description: `Logged call — ${outcomeLabel}`,
+                    description: `${actorName} called ${target} · ${outcomeLabel}`,
                 }).catch(() => {});
 
                 // Trigger conversion notification for admins when a deal is closed

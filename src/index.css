@@ -257,7 +257,24 @@
     @apply flex flex-col items-center justify-center text-center py-16 px-8;
   }
   .empty-state-icon {
-    @apply h-12 w-12 rounded-2xl bg-accent flex items-center justify-center mb-4 text-foreground/50;
+    @apply h-14 w-14 rounded-2xl bg-accent flex items-center justify-center mb-4 text-foreground/50;
+  }
+
+  /* Focus visible — consistent keyboard ring */
+  :focus-visible {
+    outline: 2px solid lab(var(--ring));
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+
+  /* Card fade-in animation  */
+  .animate-card-in {
+    animation: cardIn 0.18s ease-out both;
+  }
+
+  /* Smooth hover lift for interactive cards */
+  .surface-card.hover-lift:hover {
+    transform: translateY(-1px);
   }
 }
 
@@ -269,6 +286,52 @@
     box-shadow: 0 0 0 4px lab(var(--success) / 0);
   }
 }
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ─── Global Search modal animations ──────────────────────── */
+@keyframes searchOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes searchOverlayOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes searchModalIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.97) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1) translateY(0);
+  }
+}
+@keyframes searchModalOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.97) translateY(-8px);
+  }
+}
+
+.search-overlay[data-state="open"]   { animation: searchOverlayIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.search-overlay[data-state="closed"] { animation: searchOverlayOut 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.search-modal[data-state="open"]     { animation: searchModalIn  0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.search-modal[data-state="closed"]   { animation: searchModalOut 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
 /* ─── Professional shimmer gradient for skeletons ─────────── */
 .bg-shimmer {

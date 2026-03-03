@@ -246,7 +246,7 @@ const Platform = () => {
           <h2 className="text-lg font-bold text-foreground">Companies</h2>
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/25" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
               <input
                 type="text"
                 value={search}

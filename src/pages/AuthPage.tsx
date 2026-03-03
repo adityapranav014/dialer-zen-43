@@ -138,10 +138,10 @@ const AuthPage = () => {
             {/* Company URL — always shown */}
             <div>
               <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-2 block">
-                Company URL {!isSignUp && <span className="text-foreground/25 normal-case">(leave empty for super admin)</span>}
+                Company URL
               </label>
               <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/25" />
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
                 <input
                   type="text"
                   value={companySlug}
@@ -149,10 +149,10 @@ const AuthPage = () => {
                   placeholder="your-company"
                   required={isSignUp}
                   autoComplete="organization"
-                  className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
+                  className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
                 />
                 {companySlug && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-foreground/30">
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-foreground/45">
                     .dialflow.app
                   </span>
                 )}
@@ -167,7 +167,7 @@ const AuthPage = () => {
                     Full Name
                   </label>
                   <div className="relative">
-                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/25" />
+                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
                     <input
                       type="text"
                       value={displayName}
@@ -175,7 +175,7 @@ const AuthPage = () => {
                       placeholder="John Doe"
                       required
                       autoComplete="name"
-                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
+                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
                     />
                   </div>
                 </div>
@@ -186,7 +186,7 @@ const AuthPage = () => {
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/25" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
                     <input
                       type="email"
                       value={email}
@@ -194,7 +194,7 @@ const AuthPage = () => {
                       placeholder="you@company.com"
                       required
                       autoComplete="email"
-                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
+                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
                     />
                   </div>
                 </div>
@@ -202,17 +202,17 @@ const AuthPage = () => {
                 {/* Phone (optional) */}
                 <div>
                   <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-1.5 block">
-                    Phone Number <span className="text-foreground/25 normal-case">(optional)</span>
+                    Phone Number <span className="text-foreground/40 normal-case">(optional)</span>
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/25" />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
                     <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+91 98765 43210"
                       autoComplete="tel"
-                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
+                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
                     />
                   </div>
                 </div>
@@ -225,7 +225,7 @@ const AuthPage = () => {
                     Email or Phone Number
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/25" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
                     <input
                       type="text"
                       value={identifier}
@@ -233,7 +233,7 @@ const AuthPage = () => {
                       placeholder="you@company.com or +91 98765 43210"
                       required
                       autoComplete="email"
-                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
+                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
                     />
                   </div>
                 </div>
@@ -246,7 +246,7 @@ const AuthPage = () => {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/25" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -255,19 +255,19 @@ const AuthPage = () => {
                   required
                   minLength={6}
                   autoComplete={isSignUp ? "new-password" : "current-password"}
-                  className="w-full h-11 pl-10 pr-11 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
+                  className="w-full h-11 pl-10 pr-11 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/25 hover:text-foreground/50 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground/70 transition-colors"
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               {isSignUp && (
-                <p className="text-[10px] text-foreground/30 mt-1.5">Minimum 6 characters</p>
+                <p className="text-[11px] text-foreground/45 mt-1.5">Minimum 6 characters</p>
               )}
             </div>
 
@@ -302,7 +302,7 @@ const AuthPage = () => {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-[11px] text-foreground/20 mt-8 font-medium">
+        <p className="text-center text-[11px] text-foreground/35 mt-8 font-medium">
           DialFlow &middot; Secure cookie-based authentication
         </p>
       </div>

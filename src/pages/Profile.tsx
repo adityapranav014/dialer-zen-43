@@ -31,7 +31,7 @@ const Profile = () => {
   ];
 
   return (
-    <AppLayout title="Profile" maxWidthClass="max-w-lg">
+    <AppLayout title="Profile" maxWidthClass="max-w-2xl">
       {/* Profile card */}
       <div className="surface-card p-6 mb-6">
         <div className="flex items-center gap-4">
@@ -74,7 +74,7 @@ const Profile = () => {
 
       {/* Appearance / Theme picker */}
       <div className="mb-5">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-2">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/45 px-1 mb-2">
           Appearance
         </p>
         <div className="surface-card p-5">
@@ -108,7 +108,7 @@ const Profile = () => {
 
       {/* Quick links */}
       <div className="mb-5">
-        <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/30 px-1 mb-2">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-foreground/45 px-1 mb-2">
           Quick Links
         </p>
         <div className="surface-card p-0 overflow-hidden">
@@ -145,7 +145,7 @@ const Profile = () => {
             </div>
             <div className="flex-1 text-left">
               <p className="text-sm font-medium text-red-600 dark:text-red-400">Sign Out</p>
-              <p className="text-[11px] text-foreground/30">End your current session</p>
+              <p className="text-[11px] text-foreground/45">End your current session</p>
             </div>
           </button>
         </div>

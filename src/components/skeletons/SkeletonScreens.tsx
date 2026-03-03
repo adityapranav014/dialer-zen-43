@@ -32,7 +32,7 @@ export const AdminDashboardSkeleton = () => (
       <SkeletonStatsRow count={4} />
     </div>
 
-    <div className="md:flex-1 md:min-h-0 md:overflow-y-auto scroll-container pb-4">
+    <div className="md:flex-1 md:min-h-0 md:overflow-y-auto scroll-container pb-6">
       {/* BDA Table + Activity */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-4">
         <SkeletonBentoCard className="xl:col-span-2">
@@ -78,7 +78,7 @@ export const BdaDashboardSkeleton = () => (
       <SkeletonStatsRow count={4} />
     </div>
 
-    <div className="md:flex-1 md:min-h-0 md:overflow-y-auto scroll-container pb-4">
+    <div className="md:flex-1 md:min-h-0 md:overflow-y-auto scroll-container pb-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         {/* Leaderboard */}
         <SkeletonBentoCard className="lg:col-span-2">
