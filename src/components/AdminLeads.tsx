@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useLeads, LeadStatus as DbLeadStatus } from "@/hooks/useLeads";
 import { useTeam } from "@/hooks/useTeam";
+import { useStatusConfig } from "@/hooks/useStatusConfig";
 import AddLeadModal from "./AddLeadModal";
 import LeadDetailPopup from "./LeadDetailPopup";
 import { AdminLeadsSkeleton } from "@/components/skeletons";
@@ -108,14 +109,7 @@ const getAvatarColor = (id: string) => {
 };
 const getInitials = (n: string) => n.split(" ").map(w => w[0]).join("").toUpperCase();
 
-// ─── Column Config ────────────────────────────────────────────────────────────
-
-const columns: { id: DbLeadStatus; label: string; icon: string; color: string; bg: string; headerBg: string; border: string; dot: string; dropBg: string }[] = [
-    { id: "new", label: "New", icon: "🔵", color: "text-foreground", bg: "bg-muted/50 dark:bg-muted/30", headerBg: "bg-card", border: "border-border/60", dot: "bg-foreground/70", dropBg: "bg-foreground/[0.02]" },
-    { id: "contacted", label: "Contacted", icon: "📞", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50/40 dark:bg-blue-950/20", headerBg: "bg-card", border: "border-blue-200/40 dark:border-blue-800/50", dot: "bg-blue-500", dropBg: "bg-blue-50/30 dark:bg-blue-950/10" },
-    { id: "interested", label: "Interested", icon: "🔥", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50/40 dark:bg-emerald-950/20", headerBg: "bg-card", border: "border-emerald-200/40 dark:border-emerald-800/50", dot: "bg-emerald-500", dropBg: "bg-emerald-50/30 dark:bg-emerald-950/10" },
-    { id: "closed", label: "Closed", icon: "✅", color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50/40 dark:bg-purple-950/20", headerBg: "bg-card", border: "border-purple-200/40 dark:border-purple-800/50", dot: "bg-purple-500", dropBg: "bg-purple-50/30 dark:bg-purple-950/10" },
-];
+// ─── Column Config (now derived from useStatusConfig inside component) ──────
 
 const statusBDACfg: Record<string, string> = {
     active: "bg-emerald-50 text-emerald-600 border-emerald-200/60 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800",
@@ -386,6 +380,23 @@ const AssignSheet = ({ lead, bdas, onAssign, onClose }: AssignSheetProps) => {
 const AdminLeads = () => {
     const { allLeads: leadsData, loading: loadingLeads, updateStatus, assignLead } = useLeads();
     const { members: teamMembers, loading: loadingUsers } = useTeam();
+    const { statuses: resolvedStatuses } = useStatusConfig();
+
+    // Derive kanban columns from dynamic status config
+    const columns = useMemo(
+        () => resolvedStatuses.map((s) => ({
+            id: s.id as DbLeadStatus,
+            label: s.label,
+            icon: s.icon,
+            color: s.kanban.color,
+            bg: s.kanban.bg,
+            headerBg: s.kanban.headerBg,
+            border: s.kanban.border,
+            dot: s.kanban.dot,
+            dropBg: s.kanban.dropBg,
+        })),
+        [resolvedStatuses],
+    );
 
     const [search, setSearch] = useState("");
     const [bdaSearch, setBdaSearch] = useState("");

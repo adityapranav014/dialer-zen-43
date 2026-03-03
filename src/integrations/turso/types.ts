@@ -36,6 +36,6 @@ export type NewNotification = InferInsertModel<typeof notifications>;
 export type NewUserSettings = InferInsertModel<typeof user_settings>;
 export type NewActivityLog = InferInsertModel<typeof activity_logs>;
 
-// Lead status enum (runtime values)
+// Lead status enum (runtime values — defaults; tenants may configure additional statuses)
 export const LEAD_STATUSES = ["new", "contacted", "interested", "closed"] as const;
-export type LeadStatus = (typeof LEAD_STATUSES)[number];
+export type LeadStatus = string;

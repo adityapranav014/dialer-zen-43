@@ -1,12 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from "recharts";
 import { useLeadFunnel } from "@/hooks/useLeadFunnel";
-
-const barColors = [
-  "lab(var(--foreground))",
-  "lab(var(--foreground) / 0.6)",
-  "lab(var(--foreground) / 0.35)",
-  "#10b981",
-];
+import { useStatusConfig } from "@/hooks/useStatusConfig";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -24,6 +18,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const LeadConversionChart = () => {
   const { funnel, isLoading } = useLeadFunnel();
+  const { statuses } = useStatusConfig();
+
+  // Dynamic bar colors from status config
+  const barColors = statuses.map((s) => s.hex);
 
   // Compute percentage relative to the first stage (max)
   const maxCount = funnel.length > 0 ? funnel[0].count : 1;

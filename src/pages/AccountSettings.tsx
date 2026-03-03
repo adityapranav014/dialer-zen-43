@@ -11,6 +11,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useSettings } from "@/hooks/useSettings";
+import { useStatusConfig } from "@/hooks/useStatusConfig";
 
 /* ── Toggle component ── */
 const Toggle = ({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) => (
@@ -62,6 +63,7 @@ const AccountSettings = () => {
   const { user, isAdmin, isSuperAdmin, avatarUrl, displayName } = useAuth();
   const { theme, setTheme } = useTheme();
   const { settings, toggle, set } = useSettings();
+  const { statuses } = useStatusConfig();
   const email = user?.email || "";
 
   const initials = displayName
@@ -209,9 +211,9 @@ const AccountSettings = () => {
                     onChange={(e) => set("default_lead_status", e.target.value)}
                     className="text-[11px] font-semibold text-foreground bg-muted/60 border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors duration-200"
                   >
-                    <option value="new">New</option>
-                    <option value="contacted">Contacted</option>
-                    <option value="qualified">Qualified</option>
+                    {statuses.map((s) => (
+                      <option key={s.id} value={s.id}>{s.label}</option>
+                    ))}
                   </select>
                 </SettingRow>
               )}

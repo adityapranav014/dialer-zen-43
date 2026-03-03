@@ -1,16 +1,14 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
     Phone,
     Clock,
     Search,
     CheckCircle2,
-    TrendingUp,
     Star,
     Flame,
     UserCheck,
     ChevronDown,
     X,
-    IndianRupee,
     StickyNote,
     ArrowLeft,
     Copy,
@@ -28,6 +26,8 @@ import {
 } from "@/components/ui/tooltip";
 import { MyLeadsSkeleton } from "@/components/skeletons";
 import { useLeads, LeadStatus as DbLeadStatus } from "@/hooks/useLeads";
+import { useStatusConfig } from "@/hooks/useStatusConfig";
+import type { ResolvedStatus } from "@/config/statusConfig";
 import { db } from "@/integrations/turso/db";
 import { call_logs as call_logs_table } from "@/integrations/turso/schema";
 import { eq, desc } from "drizzle-orm";
@@ -42,7 +42,6 @@ interface Lead {
     phone: string;
     status: DbLeadStatus;
     created_at: string;
-    value?: string;
     note?: string;
 }
 
@@ -55,20 +54,7 @@ interface CallLog {
     outcome: string | null;
 }
 
-const STATUS_CFG: Record<DbLeadStatus, { label: string; pill: string; dot: string; border: string }> = {
-    new: { label: "New", pill: "bg-accent text-foreground", dot: "bg-foreground", border: "border-border" },
-    contacted: { label: "Contacted", pill: "bg-blue-50 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400", dot: "bg-blue-500", border: "border-blue-200/60 dark:border-blue-800/60" },
-    interested: { label: "Interested", pill: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400", dot: "bg-emerald-500", border: "border-emerald-200/60 dark:border-emerald-800/60" },
-    closed: { label: "Closed", pill: "bg-purple-50 text-purple-600 dark:bg-purple-950/30 dark:text-purple-400", dot: "bg-purple-500", border: "border-purple-200/60 dark:border-purple-800/60" },
-};
-
-const FILTER_TABS: { id: LeadStatus | "all"; label: string }[] = [
-    { id: "all", label: "All" },
-    { id: "new", label: "New" },
-    { id: "contacted", label: "Contacted" },
-    { id: "interested", label: "Interested" },
-    { id: "closed", label: "Closed" },
-];
+// STATUS_CFG and FILTER_TABS are now derived from useStatusConfig inside the component
 
 const avatarColors = [
     "bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400",
@@ -115,9 +101,9 @@ const OUTCOME_CFG: Record<string, { color: string; bg: string }> = {
 // ─── Lead List Row ────────────────────────────────────────────────────────────
 
 const LeadListRow = ({
-    lead, isSelected, onSelect,
-}: { lead: Lead; isSelected: boolean; onSelect: () => void }) => {
-    const cfg = STATUS_CFG[lead.status];
+    lead, isSelected, onSelect, statusMap,
+}: { lead: Lead; isSelected: boolean; onSelect: () => void; statusMap: Record<string, ResolvedStatus> }) => {
+    const cfg = statusMap[lead.status] || statusMap[Object.keys(statusMap)[0]!];
 
     return (
         <button
@@ -142,11 +128,6 @@ const LeadListRow = ({
                         <span className={`h-1 w-1 rounded-full ${cfg.dot}`} />
                         {cfg.label}
                     </span>
-                    {lead.value && (
-                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                            {lead.value}
-                        </span>
-                    )}
                 </div>
             </div>
         </button>
@@ -162,6 +143,8 @@ const LeadDetailPanel = ({
     onCall,
     onStatusChange,
     onBack,
+    statusMap,
+    statusIds,
 }: {
     lead: Lead;
     callLogs: CallLog[];
@@ -169,11 +152,26 @@ const LeadDetailPanel = ({
     onCall: () => void;
     onStatusChange: (status: DbLeadStatus) => void;
     onBack: () => void;
+    statusMap: Record<string, ResolvedStatus>;
+    statusIds: string[];
 }) => {
     const [statusOpen, setStatusOpen] = useState(false);
     const [copied, setCopied] = useState(false);
-    const cfg = STATUS_CFG[lead.status];
-    const statuses: DbLeadStatus[] = ["new", "contacted", "interested", "closed"];
+    const statusRef = useRef<HTMLDivElement>(null);
+
+    // Close status dropdown on outside click
+    useEffect(() => {
+        if (!statusOpen) return;
+        const handler = (e: MouseEvent) => {
+            if (statusRef.current && !statusRef.current.contains(e.target as Node)) {
+                setStatusOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, [statusOpen]);
+    const cfg = statusMap[lead.status] || statusMap[Object.keys(statusMap)[0]!];
+    const statuses = statusIds;
     const daysSinceCreated = Math.floor((Date.now() - new Date(lead.created_at).getTime()) / 86400000);
     const totalCalls = callLogs.length;
     const totalTalkTime = callLogs.reduce((s, c) => s + (c.duration_seconds || 0), 0);
@@ -245,7 +243,7 @@ const LeadDetailPanel = ({
                             </div>
 
                             {/* Status dropdown */}
-                            <div className="relative shrink-0">
+                            <div className="relative shrink-0" ref={statusRef}>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <button
@@ -261,19 +259,23 @@ const LeadDetailPanel = ({
                                 </Tooltip>
                                 {statusOpen && (
                                     <div className="absolute right-0 top-full mt-1 z-30 w-40 bg-card border border-border rounded-xl p-1 shadow-lg">
-                                        {statuses.map(s => (
+                                        {statuses.map(s => {
+                                            const sc = statusMap[s];
+                                            if (!sc) return null;
+                                            return (
                                             <button
                                                 key={s}
                                                 onClick={() => { onStatusChange(s); setStatusOpen(false); }}
                                                 className={`flex items-center gap-2 w-full px-2.5 py-2 rounded-lg text-left text-xs font-medium transition-colors duration-200 ${
-                                                    lead.status === s ? STATUS_CFG[s].pill : "text-foreground/60 hover:text-foreground hover:bg-accent"
+                                                    lead.status === s ? sc.pill : "text-foreground/60 hover:text-foreground hover:bg-accent"
                                                 }`}
                                             >
-                                                <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${STATUS_CFG[s].dot}`} />
-                                                {STATUS_CFG[s].label}
+                                                <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${sc.dot}`} />
+                                                {sc.label}
                                                 {lead.status === s && <CheckCircle2 className="h-3 w-3 ml-auto" />}
                                             </button>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>
@@ -300,9 +302,8 @@ const LeadDetailPanel = ({
             </div>
 
             {/* ── Stats Strip ───────────────────────────────────────── */}
-            <div className="shrink-0 grid grid-cols-4 gap-px bg-border border-b border-border">
+            <div className="shrink-0 grid grid-cols-3 gap-px bg-border border-b border-border">
                 {[
-                    { label: "Value", tip: "Estimated deal value", value: lead.value || "—", Icon: IndianRupee, col: "text-emerald-600 dark:text-emerald-400" },
                     { label: "Age", tip: "Days since lead was created", value: `${daysSinceCreated}d`, Icon: Calendar, col: "text-foreground/60" },
                     { label: "Calls", tip: "Total calls made to this lead", value: `${totalCalls}`, Icon: PhoneCall, col: "text-blue-600 dark:text-blue-400" },
                     { label: "Avg Call", tip: "Average call duration", value: formatDuration(avgDuration), Icon: Timer, col: "text-amber-600 dark:text-amber-400" },
@@ -440,6 +441,7 @@ const LeadDetailPanel = ({
 
 const MyLeads = () => {
     const { myLeads: leads, loading, updateStatus } = useLeads();
+    const { map: statusMap, ids: statusIds, filterTabs: FILTER_TABS } = useStatusConfig();
     const [search, setSearch] = useState("");
     const [activeTab, setActiveTab] = useState<LeadStatus>("all");
     const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
@@ -495,21 +497,16 @@ const MyLeads = () => {
         return <MyLeadsSkeleton />;
     }
 
-    const { counts, hotLeads, closed, totalValue } = (() => {
+    const { counts, hotLeads, closed } = (() => {
         const c: Record<string, number> = {};
-        let hot = 0, cl = 0, val = 0;
+        let hot = 0, cl = 0;
         for (const l of leads) {
             c[l.status] = (c[l.status] || 0) + 1;
             if (l.status === "interested") hot++;
             if (l.status === "closed") cl++;
-            const v = (l as any).value || "0";
-            val += parseInt(v.replace(/[₹,]/g, "")) || 0;
         }
-        return { counts: c, hotLeads: hot, closed: cl, totalValue: val };
+        return { counts: c, hotLeads: hot, closed: cl };
     })();
-
-    const fmtValue = (v: number) =>
-        v >= 100000 ? `₹${(v / 100000).toFixed(1)}L` : `₹${(v / 1000).toFixed(0)}K`;
 
     // Mobile: if lead selected, show detail full-screen
     const showDetail = !!selectedLead;
@@ -547,15 +544,7 @@ const MyLeads = () => {
                                     <TooltipContent side="bottom" className="text-xs">Hot leads (Interested)</TooltipContent>
                                 </Tooltip>
                             )}
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 cursor-default">
-                                        <TrendingUp className="h-3.5 w-3.5" />
-                                        {fmtValue(totalValue)}
-                                    </div>
-                                </TooltipTrigger>
-                                <TooltipContent side="bottom" className="text-xs">Total pipeline value</TooltipContent>
-                            </Tooltip>
+
                         </div>
                     </div>
 
@@ -640,6 +629,7 @@ const MyLeads = () => {
                                     lead={l}
                                     isSelected={selectedLeadId === l.id}
                                     onSelect={() => setSelectedLeadId(l.id)}
+                                    statusMap={statusMap}
                                 />
                             ))}
                         </div>
@@ -677,6 +667,8 @@ const MyLeads = () => {
                             onCall={() => handleCall(selectedLead.id, selectedLead.name, selectedLead.status)}
                             onStatusChange={(s) => handleStatusUpdate(selectedLead.id, s)}
                             onBack={() => setSelectedLeadId(null)}
+                            statusMap={statusMap}
+                            statusIds={statusIds}
                         />
                     </div>
                 ) : (

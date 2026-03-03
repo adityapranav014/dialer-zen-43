@@ -15,14 +15,9 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useLeads, type Lead } from "@/hooks/useLeads";
 import { useTeam, type TeamMember } from "@/hooks/useTeam";
 import { useAuth } from "@/hooks/useAuth";
+import { useStatusConfig } from "@/hooks/useStatusConfig";
 
-// ─── Status badge config ──────────────────────────────────────────────
-const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-  new: { label: "New", color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/30" },
-  contacted: { label: "Contacted", color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30" },
-  interested: { label: "Interested", color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
-  closed: { label: "Closed", color: "text-foreground", bg: "bg-muted" },
-};
+// ─── Status badge config (now derived from useStatusConfig inside component) ──
 
 // ─── Search result type ───────────────────────────────────────────────
 type ResultCategory = "leads" | "team";
@@ -72,6 +67,12 @@ const GlobalSearch = () => {
   const { isAdmin } = useAuth();
   const { allLeads } = useLeads();
   const { members: teamMembers } = useTeam();
+  const { map: statusConfigMap } = useStatusConfig();
+
+  // Adapter: statusConfig used as Record<string, { label, color → pill, bg → pill }>
+  const statusConfig = Object.fromEntries(
+    Object.entries(statusConfigMap).map(([k, v]) => [k, { label: v.label, color: v.pill.split(" ").find(c => c.startsWith("text-")) || "text-foreground", bg: v.pill }])
+  ) as Record<string, { label: string; color: string; bg: string }>;
 
   // ── Keyboard shortcut ⌘K / Ctrl+K ──────────────────────────────────
   useEffect(() => {

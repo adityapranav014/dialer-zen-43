@@ -30,6 +30,7 @@ import {
 import { db } from "@/integrations/turso/db";
 import { call_logs as call_logs_table } from "@/integrations/turso/schema";
 import { eq, desc } from "drizzle-orm";
+import { useStatusConfig } from "@/hooks/useStatusConfig";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -61,14 +62,7 @@ interface LeadDetailPopupProps {
     onClose: () => void;
 }
 
-// ─── Status Config ────────────────────────────────────────────────────────────
-
-const statusConfig: Record<string, { label: string; color: string; bg: string; dot: string; border: string }> = {
-    new: { label: "New", color: "text-foreground", bg: "bg-accent", dot: "bg-foreground", border: "border-border" },
-    contacted: { label: "Contacted", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/30", dot: "bg-blue-500", border: "border-blue-200/60 dark:border-blue-800" },
-    interested: { label: "Interested", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/30", dot: "bg-emerald-500", border: "border-emerald-200/60 dark:border-emerald-800" },
-    closed: { label: "Closed", color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/30", dot: "bg-purple-500", border: "border-purple-200/60 dark:border-purple-800" },
-};
+// ─── Status Config (now derived from useStatusConfig inside component) ────────
 
 const OUTCOME_COLORS: Record<string, string> = {
     interested: "#10b981",
@@ -100,6 +94,12 @@ const LeadDetailPopup = ({ lead, onClose }: LeadDetailPopupProps) => {
     const [callLogs, setCallLogs] = useState<CallLog[]>([]);
     const [loadingCalls, setLoadingCalls] = useState(false);
     const [copied, setCopied] = useState(false);
+    const { map: statusConfigMap } = useStatusConfig();
+
+    // Adapter: produce the shape used throughout this component
+    const statusConfig = Object.fromEntries(
+        Object.entries(statusConfigMap).map(([k, v]) => [k, { label: v.label, color: v.pill.split(" ").find(c => c.startsWith("text-")) || "text-foreground", bg: v.pill, dot: v.dot, border: v.border }])
+    ) as Record<string, { label: string; color: string; bg: string; dot: string; border: string }>;
 
     // Fetch call logs for this lead from DB
     useEffect(() => {

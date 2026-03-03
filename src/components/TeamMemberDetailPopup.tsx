@@ -34,6 +34,7 @@ import { db } from "@/integrations/turso/db";
 import { call_logs as call_logs_table, leads as leads_table } from "@/integrations/turso/schema";
 import { eq, desc } from "drizzle-orm";
 import type { TeamMember } from "@/hooks/useTeam";
+import { useStatusConfig } from "@/hooks/useStatusConfig";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -81,7 +82,7 @@ const AVATAR_COLOR_MAP: Record<string, { bg: string; text: string }> = {
     teal:    { bg: "bg-teal-100 dark:bg-teal-900/40",      text: "text-teal-600 dark:text-teal-300" },
 };
 
-const LEADS_PIE_COLORS = ["#8b5cf6", "#3b82f6", "#10b981", "#a855f7"];
+// LEADS_PIE_COLORS removed — now derived from useStatusConfig
 const OUTCOME_COLORS: Record<string, string> = {
     interested: "#10b981",
     callback: "#3b82f6",
@@ -131,6 +132,7 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
     const [leads, setLeads] = useState<LeadRow[]>([]);
     const [loadingCalls, setLoadingCalls] = useState(false);
     const [loadingLeads, setLoadingLeads] = useState(false);
+    const { statuses, map: statusMap } = useStatusConfig();
 
     // Fetch data from DB
     useEffect(() => {
@@ -167,17 +169,14 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
 
     // Lead status breakdown for pie chart
     const leadStatusData = useMemo(() => {
-        const map: Record<string, number> = { new: 0, contacted: 0, interested: 0, closed: 0 };
+        const counts: Record<string, number> = {};
         for (const l of leads) {
-            map[l.status] = (map[l.status] || 0) + 1;
+            counts[l.status] = (counts[l.status] || 0) + 1;
         }
-        return [
-            { name: "New", value: map.new, color: LEADS_PIE_COLORS[0] },
-            { name: "Contacted", value: map.contacted, color: LEADS_PIE_COLORS[1] },
-            { name: "Interested", value: map.interested, color: LEADS_PIE_COLORS[2] },
-            { name: "Closed", value: map.closed, color: LEADS_PIE_COLORS[3] },
-        ].filter(d => d.value > 0);
-    }, [leads]);
+        return statuses
+            .map((s) => ({ name: s.label, value: counts[s.id] || 0, color: s.hex }))
+            .filter((d) => d.value > 0);
+    }, [leads, statuses]);
 
     // Call activity by day (last 14 days)
     const callActivityData = useMemo(() => {
@@ -604,13 +603,8 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                             ) : (
                                 <div className="space-y-2 max-h-52 overflow-y-auto scroll-container">
                                     {leads.slice(0, 20).map((lead) => {
-                                        const leadSc: Record<string, { label: string; dot: string; bg: string; text: string; border: string }> = {
-                                            new: { label: "New", dot: "bg-foreground", bg: "bg-accent", text: "text-foreground", border: "border-border" },
-                                            contacted: { label: "Contacted", dot: "bg-blue-500", bg: "bg-blue-50 dark:bg-blue-950/30", text: "text-blue-600 dark:text-blue-400", border: "border-blue-200/60 dark:border-blue-800" },
-                                            interested: { label: "Interested", dot: "bg-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-950/30", text: "text-emerald-600 dark:text-emerald-400", border: "border-emerald-200/60 dark:border-emerald-800" },
-                                            closed: { label: "Closed", dot: "bg-purple-500", bg: "bg-purple-50 dark:bg-purple-950/30", text: "text-purple-600 dark:text-purple-400", border: "border-purple-200/60 dark:border-purple-800" },
-                                        };
-                                        const lsc = leadSc[lead.status] || leadSc.new;
+                                        const rs = statusMap[lead.status] || statuses[0];
+                                        const lsc = rs ? { label: rs.label, dot: rs.dot, bg: rs.pill.split(" ").find(c => c.startsWith("bg-")) || "bg-accent", text: rs.pill.split(" ").find(c => c.startsWith("text-")) || "text-foreground", border: rs.border } : { label: lead.status, dot: "bg-foreground", bg: "bg-accent", text: "text-foreground", border: "border-border" };
                                         return (
                                             <div key={lead.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-card border border-foreground/[0.04] hover:border-foreground/[0.08] transition-all duration-200">
                                                 <div className="flex-1 min-w-0">

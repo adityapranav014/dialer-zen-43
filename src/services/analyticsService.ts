@@ -24,19 +24,19 @@ export interface LeadFunnelItem {
   pct: string;
 }
 
-export async function fetchLeadFunnel(tenantId: string): Promise<LeadFunnelItem[]> {
+export async function fetchLeadFunnel(tenantId: string, statusOrder?: string[]): Promise<LeadFunnelItem[]> {
   const rows = await db
     .select({ status: leads.status })
     .from(leads)
     .where(eq(leads.tenant_id, tenantId));
 
-  const statusOrder = ["new", "contacted", "interested", "closed"] as const;
+  const order = statusOrder ?? ["new", "contacted", "interested", "closed"];
   const counts: Record<string, number> = {};
   for (const row of rows) {
     counts[row.status] = (counts[row.status] || 0) + 1;
   }
   const total = rows.length || 1;
-  return statusOrder.map((s) => ({
+  return order.map((s) => ({
     stage: s.charAt(0).toUpperCase() + s.slice(1),
     count: counts[s] || 0,
     pct: `${Math.round(((counts[s] || 0) / total) * 100)}%`,

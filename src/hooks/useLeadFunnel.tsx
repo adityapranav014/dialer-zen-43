@@ -6,20 +6,22 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
+import { useStatusConfig } from "./useStatusConfig";
 import { fetchLeadFunnel, type LeadFunnelItem } from "@/services/analyticsService";
 
 export type { LeadFunnelItem };
 
 export const useLeadFunnel = () => {
   const { user } = useAuth();
+  const { ids: statusIds } = useStatusConfig();
 
   const { data: funnel = [], isLoading } = useQuery({
-    queryKey: ["lead-funnel", user?.tenant_id],
+    queryKey: ["lead-funnel", user?.tenant_id, statusIds],
     enabled: !!user?.id && !!user?.tenant_id,
     queryFn: async () => {
       const tenantId = user!.tenant_id;
       if (!tenantId) return [];
-      return fetchLeadFunnel(tenantId);
+      return fetchLeadFunnel(tenantId, statusIds);
     },
     staleTime: 30_000,
   });

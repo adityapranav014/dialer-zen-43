@@ -22,7 +22,9 @@ import {
   Moon,
   Sun,
   Monitor,
+  Settings2,
 } from "lucide-react";
+import StatusConfigModal from "@/components/StatusConfigModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { db } from "@/integrations/turso/db";
@@ -40,6 +42,7 @@ const Platform = () => {
   const [showNewCompany, setShowNewCompany] = useState(false);
   const [newCompany, setNewCompany] = useState({ name: "", slug: "", plan: "free" });
   const [creating, setCreating] = useState(false);
+  const [configTenant, setConfigTenant] = useState<{ id: string; name: string } | null>(null);
 
   // Redirect non-super-admins
   if (!isSuperAdmin) {
@@ -378,6 +381,13 @@ const Platform = () => {
                     {/* Actions */}
                     <div className="flex items-center gap-1.5">
                       <button
+                        onClick={() => setConfigTenant({ id: tenant.id, name: tenant.name })}
+                        className="h-8 w-8 flex items-center justify-center rounded-xl text-foreground/30 hover:text-foreground hover:bg-accent transition-colors"
+                        title="Configure statuses"
+                      >
+                        <Settings2 className="h-4 w-4" />
+                      </button>
+                      <button
                         onClick={() => toggleTenantActive.mutate({ id: tenant.id, isActive: tenant.is_active })}
                         className="h-8 w-8 flex items-center justify-center rounded-xl text-foreground/30 hover:text-foreground hover:bg-accent transition-colors"
                         title={tenant.is_active ? "Deactivate" : "Activate"}
@@ -409,6 +419,15 @@ const Platform = () => {
           </div>
         )}
       </main>
+
+      {/* Status config modal */}
+      {configTenant && (
+        <StatusConfigModal
+          tenantId={configTenant.id}
+          tenantName={configTenant.name}
+          onClose={() => setConfigTenant(null)}
+        />
+      )}
     </div>
   );
 };

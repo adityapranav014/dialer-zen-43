@@ -15,6 +15,7 @@ import { AdminDashboardSkeleton } from "@/components/skeletons";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { useActivities } from "@/hooks/useActivities";
+import { useStatusConfig } from "@/hooks/useStatusConfig";
 
 // ─── Avatar helpers (mirrors TeamManagement) ─────────────────────────────────
 const AVATAR_COLOR_MAP: Record<string, { bg: string; text: string }> = {
@@ -62,11 +63,36 @@ const HitRateBadge = ({ calls, conversions }: { calls: number; conversions: numb
     );
 };
 
+/** Status pill colours for activity descriptions — derived from useStatusConfig in component */
+
+/** Render activity description with status names as coloured pills */
+const ActivityDescription = ({ text, statusPillMap, statusLabels }: { text: string; statusPillMap: Record<string, string>; statusLabels: string[] }) => {
+    const pattern = statusLabels.length > 0 ? new RegExp(`^(.+?)\\s*→\\s*(${statusLabels.join("|")})$`, "i") : null;
+    const match = pattern ? text.match(pattern) : null;
+    if (!match) return <span>{text}</span>;
+    const [, prefix, status] = match;
+    const label = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+    const pill = statusPillMap[label] || "bg-accent text-foreground";
+    return (
+        <span>
+            {prefix} →{" "}
+            <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold leading-none ${pill}`}>
+                {label}
+            </span>
+        </span>
+    );
+};
+
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const { stats, leaderboard, loading } = useDashboardStats();
     const { activities: teamActivities } = useActivities("team");
+    const { statuses: resolvedStatuses } = useStatusConfig();
+
+    // Build activity pill map + label list from dynamic config
+    const statusPillMap = Object.fromEntries(resolvedStatuses.map(s => [s.label, s.activityPill]));
+    const statusLabels = resolvedStatuses.map(s => s.label);
 
     const firstName = user?.display_name?.split(" ")[0] || "Admin";
     const hour = new Date().getHours();
@@ -277,7 +303,7 @@ const AdminDashboard = () => {
                                             />
                                             <div className="min-w-0">
                                                 <p className="text-[13px] text-foreground leading-snug">
-                                                    {activity.description}
+                                                    <ActivityDescription text={activity.description} statusPillMap={statusPillMap} statusLabels={statusLabels} />
                                                 </p>
                                                 <p className="text-[11px] text-foreground/30 mt-0.5 font-medium">
                                                     {new Date(activity.created_at).toLocaleString(

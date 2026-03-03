@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useLeads, LeadStatus } from "@/hooks/useLeads";
+import { useStatusConfig } from "@/hooks/useStatusConfig";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -38,7 +39,7 @@ interface ValidationError {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const VALID_STATUSES: LeadStatus[] = ["new", "contacted", "interested", "closed"];
+// VALID_STATUSES is now derived from useStatusConfig inside the component
 
 const PHONE_REGEX = /^[\+]?[\d\s\-\(\)]{7,20}$/;
 
@@ -65,7 +66,7 @@ function parseCSV(text: string): { headers: string[]; rows: string[][] } {
     return { headers, rows };
 }
 
-function validateCSV(headers: string[], rows: string[][]): { parsed: CSVRow[]; errors: ValidationError[] } {
+function validateCSV(headers: string[], rows: string[][], validStatuses: string[]): { parsed: CSVRow[]; errors: ValidationError[] } {
     const errors: ValidationError[] = [];
     const parsed: CSVRow[] = [];
 
@@ -101,11 +102,11 @@ function validateCSV(headers: string[], rows: string[][]): { parsed: CSVRow[]; e
             errors.push({ row: rowNum, field: "phone", message: `Row ${rowNum}: Invalid phone number "${phone}"` });
         }
 
-        if (status && !VALID_STATUSES.includes(status as LeadStatus)) {
+        if (status && !validStatuses.includes(status)) {
             errors.push({
                 row: rowNum,
                 field: "status",
-                message: `Row ${rowNum}: Invalid status "${status}"  (allowed: ${VALID_STATUSES.join(", ")})`,
+                message: `Row ${rowNum}: Invalid status "${status}"  (allowed: ${validStatuses.join(", ")})`,
             });
         }
 
@@ -131,6 +132,8 @@ function validateCSV(headers: string[], rows: string[][]): { parsed: CSVRow[]; e
 
 const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
     const { addLead, addLeadsBulk, addingLead, addingBulk } = useLeads();
+    const { ids: statusIds, statuses: resolvedStatuses, map: statusMap } = useStatusConfig();
+    const VALID_STATUSES = statusIds;
 
     const [tab, setTab] = useState<Tab>("manual");
 
@@ -225,7 +228,7 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
             return;
         }
 
-        const { parsed, errors } = validateCSV(headers, rows);
+        const { parsed, errors } = validateCSV(headers, rows, VALID_STATUSES);
         setCsvErrors(errors);
         setCsvPreview(parsed);
     }, [parseXLSX]);
@@ -280,7 +283,13 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
     }, [csvPreview, addLeadsBulk]);
 
     const downloadSampleCSV = useCallback(() => {
-        const sample = `name,phone,status\nRahul Sharma,+91 98765 43210,new\nPriya Patel,+91 87654 32109,contacted\nAmit Singh,+91 76543 21098,interested`;
+        const sampleStatuses = VALID_STATUSES.slice(0, 3);
+        const sampleRows = [
+            `Rahul Sharma,+91 98765 43210,${sampleStatuses[0] || "new"}`,
+            `Priya Patel,+91 87654 32109,${sampleStatuses[1] || sampleStatuses[0] || "new"}`,
+            `Amit Singh,+91 76543 21098,${sampleStatuses[2] || sampleStatuses[0] || "new"}`,
+        ];
+        const sample = `name,phone,status\n${sampleRows.join("\n")}`;
         const blob = new Blob([sample], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -288,7 +297,7 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
         a.download = "leads_sample.csv";
         a.click();
         URL.revokeObjectURL(url);
-    }, []);
+    }, [VALID_STATUSES]);
 
     if (!open) return null;
 
@@ -386,7 +395,9 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                     Initial Status
                                 </label>
                                 <div className="flex gap-2">
-                                    {VALID_STATUSES.map((s) => (
+                                    {VALID_STATUSES.map((s) => {
+                                        const sc = statusMap[s];
+                                        return (
                                         <button
                                             key={s}
                                             onClick={() => setStatus(s)}
@@ -396,9 +407,10 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                                     : "bg-card text-foreground/50 border-border hover:border-foreground/20 hover:text-foreground"
                                             }`}
                                         >
-                                            {s}
+                                            {sc?.label || s}
                                         </button>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
 
@@ -458,22 +470,21 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                             <tr>
                                                 <td className="px-4 py-2 text-foreground/60">Rahul Sharma</td>
                                                 <td className="px-4 py-2 text-foreground/60">+91 98765 43210</td>
-                                                <td className="px-4 py-2 text-foreground/40">new</td>
+                                                <td className="px-4 py-2 text-foreground/40">{VALID_STATUSES[0] || "new"}</td>
                                             </tr>
                                             <tr>
                                                 <td className="px-4 py-2 text-foreground/60">Priya Patel</td>
                                                 <td className="px-4 py-2 text-foreground/60">+91 87654 32109</td>
-                                                <td className="px-4 py-2 text-foreground/40">contacted</td>
+                                                <td className="px-4 py-2 text-foreground/40">{VALID_STATUSES[1] || VALID_STATUSES[0] || "new"}</td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                                 <div className="px-4 py-2 bg-muted/50 border-t border-foreground/[0.04]">
                                     <p className="text-[10px] text-foreground/30">
-                                        Status accepts: <span className="font-medium">new</span>,{" "}
-                                        <span className="font-medium">contacted</span>,{" "}
-                                        <span className="font-medium">interested</span>,{" "}
-                                        <span className="font-medium">closed</span>. Defaults to "new" if omitted.
+                                        Status accepts: {VALID_STATUSES.map((s, i) => (
+                                            <span key={s}><span className="font-medium">{s}</span>{i < VALID_STATUSES.length - 1 ? ", " : ""}</span>
+                                        ))}. Defaults to "{VALID_STATUSES[0]}" if omitted.
                                     </p>
                                 </div>
                             </div>
