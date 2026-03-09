@@ -110,10 +110,10 @@ const Analytics = () => {
                   return (
                     <div
                       key={m.id}
-                      className={`rounded-2xl border p-4 ${
+                      className={`rounded-2xl p-4 surface-card ${
                         i === 0
-                          ? "border-amber-200/60 dark:border-amber-800/40 bg-amber-50/40 dark:bg-amber-950/20"
-                          : "border-border/60 bg-accent/30"
+                          ? "!bg-amber-50/40 dark:!bg-amber-950/20 !border-amber-200/60 dark:!border-amber-800/40"
+                          : ""
                       }`}
                     >
                       <div className="flex items-center gap-3 mb-3">
@@ -131,15 +131,15 @@ const Analytics = () => {
                         </div>
                       </div>
                       <div className="grid grid-cols-3 gap-2">
-                        <div className="text-center px-2 py-1.5 rounded-xl bg-card">
+                        <div className="text-center px-2 py-1.5 rounded-xl surface-inset">
                           <p className="text-sm font-bold text-emerald-600">{hitRate}%</p>
                           <p className="text-[10px] text-foreground/45 font-medium uppercase tracking-wide">Hit rate</p>
                         </div>
-                        <div className="text-center px-2 py-1.5 rounded-xl bg-card">
+                        <div className="text-center px-2 py-1.5 rounded-xl surface-inset">
                           <p className="text-sm font-bold text-foreground">{m.conversions}</p>
                           <p className="text-[10px] text-foreground/45 font-medium uppercase tracking-wide">Conv.</p>
                         </div>
-                        <div className="text-center px-2 py-1.5 rounded-xl bg-card">
+                        <div className="text-center px-2 py-1.5 rounded-xl surface-inset">
                           <p className="text-sm font-bold text-foreground">{m.calls}</p>
                           <p className="text-[10px] text-foreground/45 font-medium uppercase tracking-wide">Calls</p>
                         </div>

@@ -120,10 +120,10 @@ const statusBDACfg: Record<string, string> = {
 // ─── Lead Card Content (pure presentational) ─────────────────────────────────
 
 const LeadCardContent = ({ lead, onAssign, onViewDetail, isDragOverlay = false }: { lead: Lead; onAssign?: (lead: Lead) => void; onViewDetail?: (lead: Lead) => void; isDragOverlay?: boolean }) => (
-    <div className={`group/card bg-card rounded-2xl select-none transition-all duration-200 ${
+    <div className={`group/card rounded-2xl select-none transition-all duration-200 ${
         isDragOverlay
-            ? "shadow-2xl ring-2 ring-primary/20 scale-[1.02] rotate-[1deg] p-4"
-            : "shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] border border-border/50 hover:border-border p-4"
+            ? "bg-card shadow-2xl ring-2 ring-primary/20 scale-[1.02] rotate-[1deg] p-4"
+            : "surface-card border-border/50 hover:border-border p-4"
     }`}>
         <div className="flex-1 min-w-0">
             {/* Name + value */}

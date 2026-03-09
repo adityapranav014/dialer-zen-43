@@ -133,7 +133,7 @@ const AuthPage = () => {
         )}
 
         {/* ── Form Card ── */}
-        <div className="surface-card p-7 sm:p-8">
+        <div className="surface-elevated p-7 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Company URL — always shown */}
             <div>
@@ -275,7 +275,7 @@ const AuthPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-primary text-primary-foreground font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 mt-3 shadow-sm"
+              className="w-full h-12 bg-primary text-primary-foreground font-bold text-sm rounded-xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 mt-3 btn-depth"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

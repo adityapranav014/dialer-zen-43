@@ -10,7 +10,8 @@
 @layer base {
   :root {
     /* Core surfaces — lab() channel values (L a b) */
-    --background: 100% 0 0;
+    /* Background is intentionally off-white so cards (pure white) float above it */
+    --background: 96.8% 0 0;
     --foreground: 2.75381% 0 0;
 
     --card: 100% 0 0;
@@ -25,10 +26,10 @@
     --secondary: 96.52% -.0000298023 .0000119209;
     --secondary-foreground: 7.78201% -.0000149012 0;
 
-    --muted: 96.52% -.0000298023 .0000119209;
+    --muted: 95.5% -.0000298023 .0000119209;
     --muted-foreground: 48.496% 0 0;
 
-    --accent: 96.52% -.0000298023 .0000119209;
+    --accent: 94.8% -.0000298023 .0000119209;
     --accent-foreground: 7.78201% -.0000149012 0;
 
     --destructive: 48.4493% 77.4328 61.5452;
@@ -50,12 +51,12 @@
     /* Chart foreground token (raw RGB for scrollbar/shadow usage) */
     --chart-fg: 7 7 7;
 
-    /* Sidebar */
-    --sidebar-background: 98.26% 0 0;
+    /* Sidebar — slightly lighter than bare background so it reads as elevated */
+    --sidebar-background: 98.5% 0 0;
     --sidebar-foreground: 2.75381% 0 0;
     --sidebar-primary: 7.78201% -.0000149012 0;
     --sidebar-primary-foreground: 98.26% 0 0;
-    --sidebar-accent: 96.52% -.0000298023 .0000119209;
+    --sidebar-accent: 94.8% -.0000298023 .0000119209;
     --sidebar-accent-foreground: 7.78201% -.0000149012 0;
     --sidebar-border: 90.952% 0 -.0000119209;
     --sidebar-ring: 66.128% -.0000298023 .0000119209;
@@ -71,13 +72,15 @@
 
   /* ─── Dark Theme ─────────────────────────────────────────────── */
   .dark {
-    --background: 2.75381% 0 0;
+    /* Background is deepest layer; card floats above it */
+    --background: 5.5% 0 0;
     --foreground: 98.26% 0 0;
 
-    --card: 7.78201% -.0000149012 0;
+    /* Card is slightly lighter than bg to create depth */
+    --card: 9.5% -.0000149012 0;
     --card-foreground: 98.26% 0 0;
 
-    --popover: 7.78201% -.0000149012 0;
+    --popover: 9.5% -.0000149012 0;
     --popover-foreground: 98.26% 0 0;
 
     --primary: 90.952% 0 -.0000119209;
@@ -86,10 +89,10 @@
     --secondary: 15.204% 0 -.00000596046;
     --secondary-foreground: 98.26% 0 0;
 
-    --muted: 15.204% 0 -.00000596046;
+    --muted: 13% 0 -.00000596046;
     --muted-foreground: 66.128% -.0000298023 .0000119209;
 
-    --accent: 27.036% 0 0;
+    --accent: 16% 0 0;
     --accent-foreground: 98.26% 0 0;
 
     --destructive: 63.7053% 60.745 31.3109;
@@ -101,19 +104,19 @@
     --warning: 76% 10 72;
     --warning-foreground: 100% 0 0;
 
-    --border: 17% 0 0;
+    --border: 19% 0 0;
     --input: 21.6% 0 0;
     --ring: 48.496% 0 0;
 
     --chart-fg: 251 251 251;
 
-    --sidebar-background: 7.78201% -.0000149012 0;
+    --sidebar-background: 8% -.0000149012 0;
     --sidebar-foreground: 98.26% 0 0;
     --sidebar-primary: 36.9089% 35.0961 -85.6872;
     --sidebar-primary-foreground: 98.26% 0 0;
-    --sidebar-accent: 15.204% 0 -.00000596046;
+    --sidebar-accent: 16% 0 0;
     --sidebar-accent-foreground: 98.26% 0 0;
-    --sidebar-border: 17% 0 0;
+    --sidebar-border: 18% 0 0;
     --sidebar-ring: 34.924% 0 0;
 
     /* Extended tokens */
@@ -200,22 +203,122 @@
     scrollbar-width: none;
   }
 
-  /* Card — clean white sheet with warm shadow */
+  /*
+   * ── DEPTH SYSTEM ────────────────────────────────────────────────────────
+   * Cards exist on physical layers. Light source is from above.
+   * Inset top highlight = light bounces off top edge.
+   * Bottom shadow = card drops below the light source.
+   * ────────────────────────────────────────────────────────────────────────
+   */
+
+  /* Layer 1 — base card: sits on the background, gentle lift */
   .surface-card {
     @apply rounded-2xl bg-card transition-all duration-200;
     border: 1px solid lab(var(--border));
-    box-shadow: 0 1px 2px rgb(var(--chart-fg) / 0.04), 0 1px 4px rgb(var(--chart-fg) / 0.02);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.75),    /* top rim highlight */
+      0 1px 2px rgba(0, 0, 0, 0.055),              /* close shadow */
+      0 3px 10px rgba(0, 0, 0, 0.045);             /* soft depth halo */
   }
 
   .surface-card:hover {
-    box-shadow: 0 4px 20px rgb(var(--chart-fg) / 0.06), 0 1px 3px rgb(var(--chart-fg) / 0.04);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.75),
+      0 4px 16px rgba(0, 0, 0, 0.10),
+      0 1px 4px rgba(0, 0, 0, 0.055);
   }
 
-  /* Elevated card — for overlays / modals */
+  /* Dark mode overrides — darker shadow, subtle rim */
+  .dark .surface-card {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),    /* barely-visible top rim */
+      0 2px 6px rgba(0, 0, 0, 0.40),
+      0 1px 3px rgba(0, 0, 0, 0.25);
+  }
+
+  .dark .surface-card:hover {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 6px 24px rgba(0, 0, 0, 0.50),
+      0 2px 6px rgba(0, 0, 0, 0.30);
+  }
+
+  /* Layer 2 — elevated: modals, popovers, drawers — float high */
   .surface-elevated {
     @apply rounded-2xl bg-card;
     border: 1px solid lab(var(--border));
-    box-shadow: 0 12px 40px rgb(var(--chart-fg) / 0.08), 0 2px 6px rgb(var(--chart-fg) / 0.04);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.80),
+      0 4px 20px rgba(0, 0, 0, 0.11),
+      0 2px 6px rgba(0, 0, 0, 0.06),
+      0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .dark .surface-elevated {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 12px 40px rgba(0, 0, 0, 0.60),
+      0 4px 12px rgba(0, 0, 0, 0.40);
+  }
+
+  /* Layer 3 — float: hero KPI tiles / stat cards — biggest pop */
+  .surface-float {
+    @apply rounded-2xl bg-card transition-all duration-200;
+    border: 1px solid lab(var(--border));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.85),
+      0 6px 24px rgba(0, 0, 0, 0.11),
+      0 2px 8px rgba(0, 0, 0, 0.06),
+      0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .dark .surface-float {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 8px 32px rgba(0, 0, 0, 0.55),
+      0 3px 10px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Recessed / de-emphasized: tables, log lists — sinks below card */
+  .surface-inset {
+    border-radius: 0.75rem;
+    background: lab(var(--accent));
+    box-shadow:
+      inset 0 2px 5px rgba(0, 0, 0, 0.07),    /* sinks INTO the surface */
+      inset 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .dark .surface-inset {
+    background: lab(var(--muted));
+    box-shadow:
+      inset 0 2px 8px rgba(0, 0, 0, 0.40),
+      inset 0 1px 3px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Interactive button depth (gradient + inset + shadow) */
+  .btn-depth {
+    background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.06) 100%),
+      lab(var(--primary));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.20),
+      0 2px 6px rgba(0, 0, 0, 0.20),
+      0 1px 2px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 150ms ease, transform 100ms ease;
+  }
+
+  .btn-depth:hover {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.20),
+      0 4px 12px rgba(0, 0, 0, 0.24),
+      0 2px 4px rgba(0, 0, 0, 0.14);
+    transform: translateY(-1px);
+  }
+
+  .btn-depth:active {
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.20),
+      0 1px 2px rgba(0, 0, 0, 0.10);
+    transform: translateY(0);
   }
 
   /* Warm selection / active / unread state */
@@ -246,9 +349,20 @@
     color-scheme: dark;
   }
 
-  /* Nav active — warm highlight */
+  /* Nav active — gradient lift with inner highlight */
   .nav-active {
-    @apply bg-accent text-foreground;
+    background: linear-gradient(135deg, lab(var(--accent)) 0%, lab(var(--accent) / 0.7) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      0 1px 3px rgba(0, 0, 0, 0.08);
+    font-weight: 600;
+  }
+
+  .dark .nav-active {
+    background: linear-gradient(135deg, lab(var(--accent)) 0%, lab(var(--accent) / 0.7) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 1px 4px rgba(0, 0, 0, 0.40);
     font-weight: 600;
   }
 
@@ -274,7 +388,28 @@
 
   /* Smooth hover lift for interactive cards */
   .surface-card.hover-lift:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.75),
+      0 8px 28px rgba(0, 0, 0, 0.12),
+      0 3px 8px rgba(0, 0, 0, 0.07);
+  }
+
+  .dark .surface-card.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 10px 36px rgba(0, 0, 0, 0.55),
+      0 4px 10px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Input depth — recessed look for text inputs and selects */
+  .input-depth {
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(0, 0, 0, 0.04);
+  }
+
+  .dark .input-depth {
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(0, 0, 0, 0.20);
   }
 }
 
@@ -296,6 +431,106 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* ─── Global primary button depth (auto-applies to all bg-primary buttons) ─ */
+button.bg-primary,
+a.bg-primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.20),
+    0 1px 2px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 150ms ease, transform 100ms ease, background-color 150ms ease;
+}
+
+button.bg-primary:hover,
+a.bg-primary:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 5px 14px rgba(0, 0, 0, 0.24),
+    0 2px 4px rgba(0, 0, 0, 0.14);
+  transform: translateY(-1px);
+}
+
+button.bg-primary:active,
+a.bg-primary:active {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.20),
+    0 1px 2px rgba(0, 0, 0, 0.10);
+  transform: translateY(0);
+}
+
+/* Disabled state — no depth illusion */
+button.bg-primary:disabled {
+  box-shadow: none;
+  transform: none;
+}
+
+/* ─── Tab/segment strip auto-recessed tray ─────────────────── */
+/* Any rounded container holding a selected (bg-primary) button tab */
+.rounded-xl.shadow-sm:has(> button.bg-primary),
+.rounded-xl.shadow-sm:has(> .bg-primary) {
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.06),
+    inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.dark .rounded-xl.shadow-sm:has(> button.bg-primary),
+.dark .rounded-xl.shadow-sm:has(> .bg-primary) {
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.40),
+    inset 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* ─── Popovers / dropdowns elevated depth ───────────────────── */
+[data-radix-popper-content-wrapper] > * {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 8px 32px rgba(0, 0, 0, 0.14),
+    0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+.dark [data-radix-popper-content-wrapper] > * {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 12px 44px rgba(0, 0, 0, 0.60),
+    0 4px 12px rgba(0, 0, 0, 0.40) !important;
+}
+
+/* ─── Modals / sheets — deep elevated shadow + top rim ──────── */
+.shadow-xl,
+.shadow-2xl {
+  --tw-shadow: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.70),
+    0 12px 48px rgba(0, 0, 0, 0.16),
+    0 4px 14px rgba(0, 0, 0, 0.09),
+    0 1px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .shadow-xl,
+.dark .shadow-2xl {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 20px 60px rgba(0, 0, 0, 0.65),
+    0 6px 20px rgba(0, 0, 0, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.30) !important;
+}
+
+/* Keep the shadow-lg for smaller overlays (dropdowns, tooltips) */
+.shadow-lg {
+  --tw-shadow: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 6px 24px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.07) !important;
+}
+
+.dark .shadow-lg {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 28px rgba(0, 0, 0, 0.50),
+    0 3px 10px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* ─── Global Search modal animations ──────────────────────── */
@@ -332,6 +567,60 @@
 .search-overlay[data-state="closed"] { animation: searchOverlayOut 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .search-modal[data-state="open"]     { animation: searchModalIn  0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .search-modal[data-state="closed"]   { animation: searchModalOut 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+/* ─── Global input / select depth ───────────────────────────── */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="number"],
+textarea,
+select {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.07), inset 0 1px 1px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 150ms ease, border-color 150ms ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="search"],
+.dark input[type="tel"],
+.dark input[type="number"],
+.dark textarea,
+.dark select {
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.40), inset 0 1px 2px rgba(0, 0, 0, 0.20);
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.30), 0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+
+/* ─── Recharts tooltip elevated depth ──────────────────────── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.70),
+    0 8px 24px rgba(0, 0, 0, 0.14),
+    0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  border-radius: 12px !important;
+}
+
+.dark .recharts-tooltip-wrapper .recharts-default-tooltip {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 28px rgba(0, 0, 0, 0.50),
+    0 3px 10px rgba(0, 0, 0, 0.35) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
 
 /* ─── Professional shimmer gradient for skeletons ─────────── */
 .bg-shimmer {

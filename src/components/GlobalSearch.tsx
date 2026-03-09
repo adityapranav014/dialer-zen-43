@@ -269,32 +269,34 @@ const GlobalSearch = () => {
         <DialogPortal>
           <DialogOverlay className="search-overlay bg-black/50 backdrop-blur-sm !animate-none" />
           <DialogPrimitive.Content
-            className="search-modal fixed left-[50%] top-[12%] sm:top-[18%] z-50 w-[calc(100vw-32px)] max-w-[560px] rounded-2xl border border-border/80 shadow-[0_8px_40px_rgba(0,0,0,0.12),0_2px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4),0_2px_12px_rgba(0,0,0,0.2)] bg-card overflow-hidden outline-none"
+            className="search-modal surface-elevated fixed left-[50%] top-[12%] sm:top-[18%] z-50 w-[calc(100vw-32px)] max-w-[560px] !rounded-2xl border-border/80 overflow-hidden outline-none"
           >
             <DialogTitle className="sr-only">Global Search</DialogTitle>
 
             {/* Search input */}
-            <div className="flex items-center gap-3 px-4 sm:px-5 h-14 border-b border-border/60">
-              <Search className="h-4 w-4 text-foreground/35 shrink-0" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Search leads, team members, phone numbers…"
-                autoFocus
-                className="flex-1 bg-transparent text-[14px] text-foreground placeholder:text-foreground/30 focus:outline-none font-medium leading-normal"
-              />
-              {hasQuery ? (
-                <button
-                  onClick={() => setQuery("")}
-                  className="h-5 w-5 rounded-full flex items-center justify-center bg-foreground/8 hover:bg-foreground/15 text-foreground/40 hover:text-foreground/60 transition-colors duration-150 shrink-0"
-                  aria-label="Clear search"
-                >
-                  <X className="h-2.5 w-2.5" />
-                </button>
-              ) : (
-                <kbd className="hidden sm:block text-[10px] font-semibold text-foreground/25 border border-border/60 rounded-md px-1.5 py-0.5 bg-accent/60 leading-none shrink-0">ESC</kbd>
-              )}
+            <div className="px-4 sm:px-5 py-3 border-b border-border/60">
+              <div className="relative group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/40 group-focus-within:text-foreground transition-colors pointer-events-none" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Search leads, team members, phone numbers…"
+                  autoFocus
+                  className="w-full h-9 pl-9 pr-9 bg-muted/60 border border-border rounded-xl text-xs text-foreground placeholder:text-foreground/25 focus:outline-none focus:ring-2 focus:ring-foreground/10 focus:border-foreground/15 transition-all duration-200"
+                />
+                {hasQuery ? (
+                  <button
+                    onClick={() => setQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full flex items-center justify-center bg-foreground/10 hover:bg-foreground/20 text-foreground/40 hover:text-foreground/60 transition-colors duration-150 shrink-0"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-2.5 w-2.5" />
+                  </button>
+                ) : (
+                  <kbd className="hidden sm:block absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-foreground/25 border border-border/60 rounded-md px-1.5 py-0.5 bg-accent/60 leading-none shrink-0">ESC</kbd>
+                )}
+              </div>
             </div>
 
           {/* Results area */}

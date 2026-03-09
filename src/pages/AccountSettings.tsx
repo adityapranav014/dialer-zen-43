@@ -20,11 +20,19 @@ const Toggle = ({ enabled, onToggle }: { enabled: boolean; onToggle: () => void 
     className={`relative h-6 w-11 rounded-full transition-colors duration-200 shrink-0 ${
       enabled ? "bg-primary" : "bg-foreground/15"
     }`}
+    style={{
+      boxShadow: enabled
+        ? "inset 0 1px 3px rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.10)"
+        : "inset 0 2px 4px rgba(0,0,0,0.12), inset 0 1px 2px rgba(0,0,0,0.08)",
+    }}
   >
     <span
-      className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
+      className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-200 ${
         enabled ? "translate-x-5" : "translate-x-0"
       }`}
+      style={{
+        boxShadow: "0 1px 4px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.9)",
+      }}
     />
   </button>
 );
@@ -143,7 +151,7 @@ const AccountSettings = () => {
                   <p className="text-[11px] text-foreground/35">Choose your preferred appearance</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 p-1 bg-accent/60 rounded-xl">
+              <div className="flex items-center gap-2 p-1 bg-accent/60 rounded-xl surface-inset">
                 {themeOptions.map((opt) => (
                   <button
                     key={opt.id}

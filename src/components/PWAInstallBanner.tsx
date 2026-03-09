@@ -106,7 +106,7 @@ export function PWAInstallBanner() {
         .join(" ")}
       style={{ transition: "transform 380ms cubic-bezier(0.34,1.56,0.64,1), opacity 320ms ease" }}
     >
-      <div className="max-w-lg mx-auto md:ml-auto md:mr-4 bg-card border border-border shadow-[0_8px_32px_rgba(0,0,0,0.18)] rounded-2xl overflow-hidden">
+      <div className="max-w-lg mx-auto md:ml-auto md:mr-4 bg-card border border-border shadow-xl rounded-2xl overflow-hidden">
         {/* Top gradient accent bar */}
         <div className="h-0.5 bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500" />
 

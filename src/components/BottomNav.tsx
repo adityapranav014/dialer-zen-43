@@ -30,8 +30,11 @@ const BottomNav = () => {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card/95 backdrop-blur-lg border-t border-border shadow-[0_-1px_3px_rgba(0,0,0,0.04)]"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-card/95 backdrop-blur-lg border-t border-border"
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        boxShadow: "0 -2px 12px rgba(0,0,0,0.08), 0 -1px 4px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.6)",
+      }}
     >
       <nav className="flex items-center justify-around h-14">
         {isSuperAdmin && !isPlatformView && (
@@ -60,7 +63,15 @@ const BottomNav = () => {
               {isActive && (
                 <span className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-5 rounded-full bg-foreground" />
               )}
-              <div className={`p-1.5 rounded-xl transition-all duration-200 ${isActive ? "bg-accent shadow-sm" : ""}`}>
+              <div className={`p-1.5 rounded-xl transition-all duration-200 ${
+                isActive
+                  ? "bg-accent"
+                  : ""
+              }`}
+                style={isActive ? {
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.55), 0 1px 3px rgba(0,0,0,0.09)"
+                } : {}}
+              >
                 <tab.icon
                   className="h-[18px] w-[18px]"
                   strokeWidth={isActive ? 2.25 : 1.5}

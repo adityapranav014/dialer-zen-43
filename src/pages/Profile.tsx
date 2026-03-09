@@ -65,7 +65,7 @@ const Profile = () => {
           { label: "Conversions", value: profileStats.conversions.toLocaleString() },
           { label: "Hit Rate", value: profileStats.hitRate },
         ].map((s) => (
-          <div key={s.label} className="surface-card text-center py-5 px-2">
+          <div key={s.label} className="surface-float text-center py-5 px-2">
             <p className="text-xl font-bold text-foreground stat-number">{s.value}</p>
             <p className="text-[11px] text-foreground/35 mt-1 font-medium">{s.label}</p>
           </div>
@@ -87,7 +87,7 @@ const Profile = () => {
               <p className="text-[11px] text-foreground/35">Choose your preferred appearance</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 p-1 bg-muted rounded-lg">
+          <div className="flex items-center gap-2 p-1 bg-muted rounded-lg surface-inset">
             {themeOptions.map((opt) => (
               <button
                 key={opt.id}

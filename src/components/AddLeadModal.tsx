@@ -397,16 +397,18 @@ const AddLeadModal = ({ open, onClose }: AddLeadModalProps) => {
                                 <div className="flex gap-2">
                                     {VALID_STATUSES.map((s) => {
                                         const sc = statusMap[s];
+                                        const isSelected = status === s;
                                         return (
                                         <button
                                             key={s}
                                             onClick={() => setStatus(s)}
-                                            className={`flex-1 py-2 rounded-xl text-[11px] font-bold capitalize border transition-all duration-200 ${
-                                                status === s
-                                                    ? "bg-primary text-primary-foreground border-primary"
+                                            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-bold capitalize border transition-all duration-200 ${
+                                                isSelected
+                                                    ? `${sc?.pill ?? "bg-primary text-primary-foreground"} ${sc?.border ?? "border-primary"} shadow-sm`
                                                     : "bg-card text-foreground/50 border-border hover:border-foreground/20 hover:text-foreground"
                                             }`}
                                         >
+                                            <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${sc?.dot ?? "bg-foreground"} ${isSelected ? "" : "opacity-40"}`} />
                                             {sc?.label || s}
                                         </button>
                                         );

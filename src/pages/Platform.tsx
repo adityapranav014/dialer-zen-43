@@ -171,7 +171,12 @@ const Platform = () => {
   return (
     <div className="min-h-[100dvh] bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border bg-card">
+      <header
+        className="sticky top-0 z-40 border-b border-border bg-card"
+        style={{
+          boxShadow: "inset 0 -1px 0 rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.02)",
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
@@ -185,7 +190,7 @@ const Platform = () => {
 
           <div className="flex items-center gap-3">
             {/* Theme switcher */}
-            <div className="hidden sm:flex items-center gap-1 p-1 bg-accent/60 rounded-xl">
+            <div className="hidden sm:flex items-center gap-1 p-1 bg-accent/60 rounded-xl surface-inset">
               {themeOptions.map((opt) => (
                 <button
                   key={opt.id}
@@ -232,7 +237,7 @@ const Platform = () => {
             { label: "Total Leads", value: platformStats?.leads ?? 0, icon: TrendingUp, color: "text-purple-500" },
             { label: "Total Calls", value: platformStats?.calls ?? 0, icon: PhoneCall, color: "text-orange-500" },
           ].map((stat) => (
-            <div key={stat.label} className="surface-card p-4 flex items-center gap-3">
+            <div key={stat.label} className="surface-float p-4 flex items-center gap-3">
               <div className={`h-11 w-11 rounded-2xl bg-accent flex items-center justify-center ${stat.color}`}>
                 <stat.icon className="h-5 w-5" />
               </div>
@@ -260,7 +265,7 @@ const Platform = () => {
             </div>
             <button
               onClick={() => setShowNewCompany(true)}
-              className="h-10 px-4 bg-primary text-primary-foreground text-sm font-bold rounded-xl shadow-sm flex items-center gap-1.5 hover:bg-primary/90 transition-colors"
+              className="h-10 px-4 bg-primary text-primary-foreground text-sm font-bold rounded-xl flex items-center gap-1.5 transition-colors btn-depth"
             >
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">New Company</span>
@@ -311,7 +316,7 @@ const Platform = () => {
               <button
                 onClick={handleCreateCompany}
                 disabled={creating}
-                className="h-9 px-4 bg-primary text-primary-foreground text-sm font-bold rounded-xl hover:bg-primary/90 disabled:opacity-50 flex items-center gap-1.5"
+                className="h-9 px-4 bg-primary text-primary-foreground text-sm font-bold rounded-xl disabled:opacity-50 flex items-center gap-1.5 btn-depth"
               >
                 {creating && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 Create
@@ -332,7 +337,7 @@ const Platform = () => {
               return (
                 <div
                   key={tenant.id}
-                  className="surface-card p-4 sm:p-5 flex items-center justify-between gap-4 group hover:border-primary/20 transition-colors"
+                  className="surface-card p-4 sm:p-5 flex items-center justify-between gap-4 group hover:border-primary/20 transition-colors hover-lift"
                 >
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="h-11 w-11 rounded-xl bg-accent flex items-center justify-center shrink-0"><Building2 className="h-5 w-5 text-foreground/40" />

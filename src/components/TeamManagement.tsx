@@ -138,8 +138,18 @@ const RoleSheet = ({ member, onSave, onClose, saving }: RoleSheetProps) => {
                             <button
                                 onClick={() => setIsActive(!isActive)}
                                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isActive ? "bg-primary" : "bg-muted"}`}
+                                style={{
+                                    boxShadow: isActive
+                                        ? "inset 0 1px 3px rgba(0,0,0,0.20), 0 1px 2px rgba(0,0,0,0.10)"
+                                        : "inset 0 2px 4px rgba(0,0,0,0.12), inset 0 1px 2px rgba(0,0,0,0.08)",
+                                }}
                             >
-                                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${isActive ? "translate-x-6" : "translate-x-1"}`} />
+                                <span
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"}`}
+                                    style={{
+                                        boxShadow: "0 1px 4px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.9)",
+                                    }}
+                                />
                             </button>
                         </div>
                     </div>
@@ -363,7 +373,7 @@ const TeamManagement = () => {
 
             {/* Members Table */}
             <div className="md:flex-1 md:min-h-0 flex flex-col pb-6">
-                <div className="rounded-2xl border border-border bg-card flex flex-col overflow-hidden md:flex-1 md:min-h-0 shadow-sm">
+                <div className="rounded-2xl surface-card flex flex-col overflow-hidden md:flex-1 md:min-h-0">
                     {/* Header */}
                     <div className="shrink-0 border-b border-border bg-card/95 backdrop-blur-sm z-10">
                         <div className="overflow-x-auto">
@@ -527,7 +537,7 @@ const TeamManagement = () => {
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </button>
                                             {isMenuOpen && (
-                                                <div className="absolute right-2 top-full mt-1 z-30 w-44 bg-card border border-border rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] overflow-hidden py-1">
+                                                <div className="absolute right-2 top-full mt-1 z-30 w-44 bg-card border border-border rounded-xl shadow-xl overflow-hidden py-1">
                                                     <button onClick={() => { setEditingMember(member); setActionMenuId(null); }} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-medium text-foreground hover:bg-accent transition-colors duration-200">
                                                         <ShieldCheck className="h-3.5 w-3.5 text-foreground/35" />Edit Role & Status
                                                     </button>

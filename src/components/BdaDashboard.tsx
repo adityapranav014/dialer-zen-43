@@ -132,7 +132,7 @@ const BdaDashboard = () => {
             {/* ── KPI Strip ── */}
             <div className="shrink-0 grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
                 {myStatsDisplay.map((stat) => (
-                    <div key={stat.label} className="surface-card px-4 py-3 flex items-center gap-3">
+                    <div key={stat.label} className="surface-float px-4 py-3 flex items-center gap-3">
                         <div className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${stat.bg}`}>
                             <stat.icon className={`h-4 w-4 ${stat.colour}`} strokeWidth={1.75} />
                         </div>

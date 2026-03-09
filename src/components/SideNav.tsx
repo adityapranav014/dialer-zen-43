@@ -67,7 +67,9 @@ const SideNav = () => {
         style={{
           width: open ? 240 : 64,
           transition: "width 200ms cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 200ms ease",
-          boxShadow: open ? "4px 0 40px -4px rgba(0,0,0,0.08)" : "none",
+          boxShadow: open
+            ? "4px 0 40px -4px rgba(0,0,0,0.12), inset -1px 0 0 rgba(0,0,0,0.04)"
+            : "2px 0 8px -2px rgba(0,0,0,0.06)",
         }}
       >
         {/* Brand */}
@@ -116,7 +118,7 @@ const SideNav = () => {
                 to={item.path}
                 className={`flex items-center gap-3 rounded-xl transition-all duration-200 h-10 px-3 ${
                   isActive
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-sm ring-1 ring-sidebar-border/60"
+                    ? "nav-active text-sidebar-accent-foreground"
                     : "text-sidebar-foreground/55 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                 }`}
               >

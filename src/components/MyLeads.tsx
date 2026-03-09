@@ -513,7 +513,7 @@ const MyLeads = () => {
 
     return (
         <TooltipProvider delayDuration={200}>
-        <div className="flex h-full min-h-0 -mx-4 sm:-mx-6 -mt-6 border border-border rounded-xl overflow-hidden bg-card">
+        <div className="flex h-full min-h-0 -mx-4 sm:-mx-6 -mt-6 rounded-xl overflow-hidden surface-card">
 
             {/* ═══════════════════════════════════════════════════════════
                 LEFT PANEL — Lead List

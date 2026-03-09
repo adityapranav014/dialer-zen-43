@@ -322,7 +322,7 @@ export default function StatusConfigModal({ tenantId, tenantName, onClose }: Pro
             <button
               onClick={handleSave}
               disabled={saving}
-              className="h-9 px-5 bg-primary text-primary-foreground text-sm font-bold rounded-xl hover:bg-primary/90 disabled:opacity-50 flex items-center gap-1.5"
+              className="h-9 px-5 bg-primary text-primary-foreground text-sm font-bold rounded-xl disabled:opacity-50 flex items-center gap-1.5 btn-depth"
             >
               {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               Save Pipeline

@@ -158,7 +158,7 @@ const AdminDashboard = () => {
                 {todayKpis.map((k) => (
                     <div
                         key={k.label}
-                        className="surface-card px-4 py-3 flex items-center gap-3"
+                        className="surface-float px-4 py-3 flex items-center gap-3"
                     >
                         <div
                             className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${k.bg}`}

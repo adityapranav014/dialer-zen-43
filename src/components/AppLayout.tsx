@@ -93,7 +93,9 @@ export const AppLayout = ({
       {/* Main column */}
       <div className="flex-1 flex flex-col min-w-0 h-[100dvh] overflow-hidden">
         {/* ─── Global Header ─── */}
-        <header className="shrink-0 h-14 flex items-center justify-between px-4 sm:px-6 border-b border-border bg-card z-30 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+        <header className="shrink-0 h-14 flex items-center justify-between px-4 sm:px-6 border-b border-border bg-card z-30"
+          style={{ boxShadow: "inset 0 -1px 0 rgba(0,0,0,0.04), 0 1px 6px rgba(0,0,0,0.06), 0 2px 16px rgba(0,0,0,0.03)" }}
+        >
           {/* Left: Breadcrumb */}
           <div className="flex items-center gap-1.5 text-sm min-w-0">
             <button
@@ -157,7 +159,9 @@ export const AppLayout = ({
                   )}
                 </button>
               </PopoverTrigger>
-              <PopoverContent align="end" sideOffset={8} className="w-72 p-0 rounded-2xl border border-border shadow-xl bg-card">
+              <PopoverContent align="end" sideOffset={8} className="w-72 p-0 rounded-2xl border border-border bg-card"
+                style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08)" }}
+              >
                 {/* User info */}
                 <div className="p-4 flex items-center gap-3">
                   {avatarUrl ? (
@@ -216,7 +220,7 @@ export const AppLayout = ({
                       <ChevronRight className={`h-3.5 w-3.5 text-foreground/20 transition-transform duration-200 ${showThemePicker ? "rotate-90" : ""}`} />
                     </button>
                     {showThemePicker && (
-                      <div className="flex items-center gap-1.5 mt-2 p-1 bg-accent/60 rounded-xl">
+                      <div className="flex items-center gap-1.5 mt-2 p-1 bg-accent/60 rounded-xl surface-inset">
                         {themeOptions.map((opt) => (
                           <button
                             key={opt.id}
