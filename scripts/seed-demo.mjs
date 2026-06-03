@@ -37,8 +37,10 @@ const client = createClient({ url: DB_URL, authToken: DB_AUTH_TOKEN });
 
 // ─── 2. Timestamp helpers ──────────────────────────────────────────────────
 
-// Demo reference: March 1 2026, 10:00 AM IST (04:30 UTC)
-const REF = new Date("2026-03-01T04:30:00.000Z");
+// Demo reference: current date at 6:30 PM IST (13:00 UTC) — keeps today's calls spread
+// across full business hours (9am–6pm IST) regardless of when the seed is run.
+const today = new Date();
+const REF = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 13, 0, 0, 0));
 
 /** Returns ISO timestamp offset by hours + days from demo reference date. */
 function ts(hours = 0, days = 0) {
@@ -234,6 +236,24 @@ function randomDuration(outcome) {
 
 const stmts = [];
 
+// ── 0. Cleanup — wipe existing demo data so every seed run is fresh ────────
+// Delete in FK-safe order: child tables first, then parents.
+const demoUserIds = [SA, A1, ...Object.values(M)];
+stmts.push({ sql: `DELETE FROM activity_logs     WHERE tenant_id = ?`, args: [T1] });
+stmts.push({ sql: `DELETE FROM notifications      WHERE tenant_id = ?`, args: [T1] });
+stmts.push({ sql: `DELETE FROM call_logs          WHERE tenant_id = ?`, args: [T1] });
+stmts.push({ sql: `DELETE FROM leads              WHERE tenant_id = ?`, args: [T1] });
+stmts.push({ sql: `DELETE FROM tenant_memberships WHERE tenant_id = ?`, args: [T1] });
+stmts.push({ sql: `DELETE FROM auth_sessions      WHERE tenant_id = ?`, args: [T1] });
+for (const uid of demoUserIds) {
+  stmts.push({ sql: `DELETE FROM auth_sessions  WHERE user_id = ?`,    args: [uid] });
+  stmts.push({ sql: `DELETE FROM user_settings  WHERE user_id = ?`,    args: [uid] });
+}
+for (const uid of demoUserIds) {
+  stmts.push({ sql: `DELETE FROM app_users WHERE id = ?`, args: [uid] });
+}
+stmts.push({ sql: `DELETE FROM tenants WHERE id = ?`, args: [T1] });
+
 // ── a. Tenant
 stmts.push({ sql: `INSERT OR IGNORE INTO tenants (id, name, slug, plan, is_active, settings, created_at, updated_at)
   VALUES (?, ?, ?, ?, 1, '{}', ?, ?)`,
@@ -309,6 +329,9 @@ addCall(33, M[7], 0, 4,  "Follow Up",   "Bharat Solanki needs proposal PDF. Shar
 addCall(53, M[7], 0, 6,  "Interested",  "Santosh Naik wants to involve CFO. Great sign!");
 addCall(35, M[8], 0, 5,  "Not Interested", "Sanjeev Khanna — budget freeze until Q3. Reminding then.");
 addCall(55, M[8], 0, 7,  "Interested",  "Vinay Mahajan very positive. Follow-up call booked.");
+// Morning calls — ensure 9am & 10am IST buckets have data on the Hourly chart
+addCall(23, M[2], 0, 9,  "Follow Up",   "Morning check-in with Manish Trivedi. Setting demo for afternoon.");
+addCall(27, M[4], 0, 8,  "Voicemail",   "Called Pankaj Mathur at 10:30am — no answer yet. Will retry at 2pm.");
 
 // Yesterday's calls
 addCall(42, M[1], 1, 2,  "Follow Up",   "Nisha sent questions by email. Responding with detailed answers.");

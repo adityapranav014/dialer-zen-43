@@ -24,6 +24,7 @@ import { useTeam, TeamMember, MemberRole } from "@/hooks/useTeam";
 import AddBDAModal from "./AddBDAModal";
 import TeamMemberDetailPopup from "./TeamMemberDetailPopup";
 import { TeamManagementSkeleton } from "@/components/skeletons";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -422,8 +423,8 @@ const TeamManagement = () => {
                                     >
                                         {/* Member */}
                                         <div className="flex items-center gap-3.5 px-5 py-3.5 min-w-0">
-                                            <div className={`h-9 w-9 rounded-full ${getAvatarClasses(member.avatarColor, member.id)} flex items-center justify-center text-[10px] font-bold shrink-0 relative ring-2 ring-card shadow-sm`}>
-                                                {getInitials(member.name)}
+                                            <div className="relative shrink-0">
+                                                <UserAvatar name={member.name} avatarUrl={member.avatarUrl} className="h-9 w-9 rounded-full ring-2 ring-card shadow-sm" />
                                                 <span className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-[1.5px] border-card ${member.isActive ? "bg-emerald-500" : "bg-gray-400"}`} />
                                             </div>
                                             <div className="min-w-0">

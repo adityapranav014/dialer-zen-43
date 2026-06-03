@@ -12,6 +12,33 @@ import {
   fetchAllTenants,
 } from "@/services/authService";
 
+// ─── Demo user (seeded data) ──────────────────────────────────────────────────
+const DEMO_USER: AuthUser = {
+  id: "20000001-0000-0000-0000-000000000002",
+  email: "admin@nexgen.demo",
+  phone: null,
+  display_name: "Demo Admin",
+  avatar_url: null,
+  avatar_color: "blue",
+  is_super_admin: false,
+  tenant_id: "10000001-0000-0000-0000-000000000001",
+  tenant_slug: "nexgen",
+  tenant_name: "NexGen Solutions",
+  role: "admin" as AppRole,
+  created_at: "2026-01-01T00:00:00.000Z",
+};
+
+const DEMO_USER_KEY = "df_demo_user";
+
+function getDemoUser(): AuthUser {
+  try {
+    const raw = localStorage.getItem(DEMO_USER_KEY);
+    if (raw) return JSON.parse(raw) as AuthUser;
+  } catch { /* ignore */ }
+  localStorage.setItem(DEMO_USER_KEY, JSON.stringify(DEMO_USER));
+  return DEMO_USER;
+}
+
 // ─── Context type ─────────────────────────────────────────────────────────────
 
 interface TenantInfo {
@@ -61,19 +88,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const bootstrap = async () => {
       try {
-        // Quick check from cookie first for instant UI
+        // Try real session first (cookie-based)
         const cached = getStoredUser();
-        if (cached && mounted) {
-          setUser(cached);
-        }
+        if (cached && mounted) setUser(cached);
 
-        // Then validate against DB
         const validUser = await validateSession();
         if (mounted) {
-          setUser(validUser);
+          setUser(validUser ?? getDemoUser());
         }
       } catch {
-        if (mounted) setUser(null);
+        // Fall back to persistent demo user — no login required
+        if (mounted) setUser(getDemoUser());
       } finally {
         if (mounted) setLoading(false);
       }
@@ -135,7 +160,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // ── Sign Out ──────────────────────────────────────────────────────
   const signOut = useCallback(async () => {
     await signOutUser();
-    setUser(null);
+    setUser(getDemoUser()); // In demo mode, reset to demo user rather than null
     setTenants([]);
   }, []);
 

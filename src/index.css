@@ -1,6 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Landing page hero — scoped design tokens (HSL) ── */
+.lp-hero {
+  --lp-bg: 0 0% 100%;
+  --lp-fg: 210 14% 17%;
+  --lp-muted-fg: 184 5% 55%;
+  --lp-accent: 239 84% 67%;
+  --lp-border: 0 0% 90%;
+  --lp-secondary: 0 0% 96%;
+  --lp-shadow-dashboard: 0 25px 80px -12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  --font-display: 'Instrument Serif', serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Landing page overrides — allow natural document scroll */
+html.landing-page,
+html.landing-page body,
+html.landing-page #root {
+  overflow: auto !important;
+  height: auto !important;
+}
 
 /* ───────────────────────────────────────────────────────────
    DESIGN SYSTEM — Warm, clean, BizLink-inspired

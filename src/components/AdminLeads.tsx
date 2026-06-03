@@ -31,6 +31,7 @@ import AddLeadModal from "./AddLeadModal";
 import LeadDetailPopup from "./LeadDetailPopup";
 import { AdminLeadsSkeleton } from "@/components/skeletons";
 import { toast } from "sonner";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -54,6 +55,7 @@ interface BDA {
     initials: string;
     status: "active" | "idle" | "offline";
     avatarColor: string;
+    avatarUrl?: string | null;
 }
 
 const timeAgo = (isoDate: string) => {
@@ -154,8 +156,8 @@ const LeadCardContent = ({ lead, onAssign, onViewDetail, isDragOverlay = false }
                 >
                     {lead.assignedTo ? (
                         <>
-                            <div className={`h-5 w-5 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0 ${lead.assignedToColor || "bg-primary text-primary-foreground"}`}>
-                                {lead.assignedToInitials || lead.assignedTo.split(" ").map(n => n[0]).join("")}
+                    <div className={`h-5 w-5 rounded-full overflow-hidden flex items-center justify-center shrink-0 ${lead.assignedToColor || "bg-primary"}`}>
+                                <UserAvatar name={lead.assignedTo} className="h-full w-full rounded-full" />
                             </div>
                             <span className="text-[11px] font-medium text-foreground/60 truncate flex-1 text-left">{lead.assignedTo}</span>
                             <ChevronDown className="h-3 w-3 text-foreground/20 shrink-0 opacity-0 group-hover/assign:opacity-100 transition-opacity duration-150" />
@@ -173,9 +175,9 @@ const LeadCardContent = ({ lead, onAssign, onViewDetail, isDragOverlay = false }
                 <div className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl ${lead.assignedTo ? "bg-accent/60" : "border border-dashed border-foreground/10"}`}>
                     {lead.assignedTo ? (
                         <>
-                            <div className={`h-5 w-5 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0 ${lead.assignedToColor || "bg-primary text-primary-foreground"}`}>
-                                {lead.assignedToInitials}
-                            </div>
+                            <div className={`h-5 w-5 rounded-full overflow-hidden flex items-center justify-center shrink-0 ${lead.assignedToColor || "bg-primary"}`}>
+                                    <UserAvatar name={lead.assignedTo!} className="h-full w-full rounded-full" />
+                                </div>
                             <span className="text-[11px] font-medium text-foreground/60 truncate">{lead.assignedTo}</span>
                         </>
                     ) : (
@@ -342,9 +344,7 @@ const AssignSheet = ({ lead, bdas, onAssign, onClose }: AssignSheetProps) => {
                                     onClick={() => { onAssign(lead.id, bda.id); onClose(); }}
                                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-left group hover:border-foreground/15 hover:bg-accent/50 ${lead.assigned_to === bda.id ? "border-foreground/20 bg-accent" : "border-foreground/[0.04] bg-card"}`}
                                 >
-                                    <div className={`h-8 w-8 rounded-full ${bda.avatarColor} flex items-center justify-center text-[10px] font-bold shrink-0`}>
-                                        {bda.initials}
-                                    </div>
+                                    <UserAvatar name={bda.name} avatarUrl={bda.avatarUrl} className="h-8 w-8 rounded-full" />
                                     <div className="flex-1 min-w-0">
                                         <p className="text-xs font-medium text-foreground">{bda.name}</p>
                                     </div>
@@ -528,7 +528,8 @@ const AdminLeads = () => {
         name: m.name || "Unknown",
         initials: getInitials(m.name || "U"),
         status: (m.isActive ? "active" : "offline") as "active" | "idle" | "offline",
-        avatarColor: getAvatarClasses(m.avatarColor, m.id)
+        avatarColor: getAvatarClasses(m.avatarColor, m.id),
+        avatarUrl: m.avatarUrl,
     })) as BDA[], [teamMembers]);
 
     const sensors = useSensors(
@@ -748,9 +749,7 @@ const AdminLeads = () => {
                                             }`}
                                         >
                                             <div className="relative">
-                                                <div className={`h-6 w-6 rounded-full ${bda.avatarColor} flex items-center justify-center text-[8px] font-bold shrink-0`}>
-                                                    {bda.initials}
-                                                </div>
+                                                <UserAvatar name={bda.name} avatarUrl={bda.avatarUrl} className="h-6 w-6 rounded-full shrink-0" />
                                                 <span className={`absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border-2 border-card ${
                                                     bda.status === "active" ? "bg-emerald-400" : bda.status === "idle" ? "bg-amber-400" : "bg-gray-300 dark:bg-gray-600"
                                                 }`} />

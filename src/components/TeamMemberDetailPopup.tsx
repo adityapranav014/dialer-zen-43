@@ -35,6 +35,7 @@ import { call_logs as call_logs_table, leads as leads_table } from "@/integratio
 import { eq, desc } from "drizzle-orm";
 import type { TeamMember } from "@/hooks/useTeam";
 import { useStatusConfig } from "@/hooks/useStatusConfig";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -257,9 +258,7 @@ const TeamMemberDetailPopup = ({ member, onClose }: TeamMemberDetailPopupProps) 
                             <div className="flex items-center gap-4 min-w-0">
                                 {/* Avatar */}
                                 <div className="relative">
-                                    <div className={`h-14 w-14 sm:h-16 sm:w-16 rounded-2xl ${avatarClasses} flex items-center justify-center text-base sm:text-lg font-bold shrink-0 ring-2 ring-card shadow-md`}>
-                                        {getInitials(member.name)}
-                                    </div>
+                                    <UserAvatar name={member.name} avatarUrl={member.avatarUrl} className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl ring-2 ring-card shadow-md" />
                                     <span className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-[2px] border-card ${sc.dot} ${member.isActive ? "animate-pulse" : ""}`} />
                                 </div>
                                 <div className="min-w-0">

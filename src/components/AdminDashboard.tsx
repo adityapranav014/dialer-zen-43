@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { useActivities } from "@/hooks/useActivities";
 import { useStatusConfig } from "@/hooks/useStatusConfig";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 // ─── Avatar helpers (mirrors TeamManagement) ─────────────────────────────────
 const AVATAR_COLOR_MAP: Record<string, { bg: string; text: string }> = {
@@ -232,9 +233,7 @@ const AdminDashboard = () => {
                                                         <span className="text-[10px] font-bold text-foreground/40 w-4 shrink-0 text-center">
                                                             {idx + 1}
                                                         </span>
-                                                        <div className={`h-7 w-7 rounded-full ${getAvatarClasses(bda.id)} flex items-center justify-center text-[10px] font-bold shrink-0 ring-2 ring-card shadow-sm`}>
-                                                            {bda.initials}
-                                                        </div>
+                                                        <UserAvatar name={bda.name} className="h-7 w-7 rounded-full shrink-0 ring-2 ring-card shadow-sm" />
                                                         <span className="font-medium text-foreground text-[13px]">
                                                             {bda.name}
                                                         </span>

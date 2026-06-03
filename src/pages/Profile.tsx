@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
 import { useProfileStats } from "@/hooks/useProfileStats";
 import { AppLayout } from "@/components/AppLayout";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -35,13 +36,7 @@ const Profile = () => {
       {/* Profile card */}
       <div className="surface-card p-6 mb-6">
         <div className="flex items-center gap-4">
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={displayName} className="h-16 w-16 rounded-2xl object-cover shrink-0 shadow-sm" referrerPolicy="no-referrer" />
-          ) : (
-            <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center text-lg font-bold text-primary-foreground shrink-0 shadow-sm">
-              {initials}
-            </div>
-          )}
+          <UserAvatar name={displayName} avatarUrl={avatarUrl} className="h-16 w-16 rounded-2xl shrink-0 shadow-sm" />
           <div className="min-w-0 flex-1">
             <h2 className="text-lg font-bold text-foreground truncate">{displayName}</h2>
             <p className="text-sm text-foreground/40 truncate">{email}</p>

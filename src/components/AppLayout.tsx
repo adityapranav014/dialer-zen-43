@@ -12,6 +12,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/hooks/useTheme";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 interface AppLayoutProps {
   title: string;
@@ -151,12 +152,8 @@ export const AppLayout = ({
             {/* Profile avatar popover */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-primary-foreground transition-all duration-200 hover:scale-105 active:scale-95 overflow-hidden ring-2 ring-background shadow-sm">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
-                  ) : (
-                    initials
-                  )}
+                <button className="h-8 w-8 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 overflow-hidden ring-2 ring-background shadow-sm">
+                  <UserAvatar name={displayName} avatarUrl={avatarUrl} className="h-full w-full rounded-full" />
                 </button>
               </PopoverTrigger>
               <PopoverContent align="end" sideOffset={8} className="w-72 p-0 rounded-2xl border border-border bg-card"
@@ -164,13 +161,7 @@ export const AppLayout = ({
               >
                 {/* User info */}
                 <div className="p-4 flex items-center gap-3">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt={displayName} className="h-10 w-10 rounded-full object-cover shrink-0" referrerPolicy="no-referrer" />
-                  ) : (
-                    <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-xs font-semibold text-primary-foreground shrink-0">
-                      {initials}
-                    </div>
-                  )}
+                  <UserAvatar name={displayName} avatarUrl={avatarUrl} className="h-10 w-10 rounded-full shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-foreground truncate">{displayName}</p>
                     <p className="text-[11px] text-foreground/50 truncate">{email}</p>

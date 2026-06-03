@@ -13,6 +13,7 @@ import {
 import BentoCard from "@/components/BentoCard";
 import TalkTimeChart from "@/components/TalkTimeChart";
 import { BdaDashboardSkeleton } from "@/components/skeletons";
+import UserAvatar from "@/components/ui/UserAvatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { useActivities } from "@/hooks/useActivities";
@@ -189,9 +190,7 @@ const BdaDashboard = () => {
                                                             <span className="text-[10px] font-bold text-foreground/40 w-4 shrink-0 text-center">
                                                                 {idx + 1}
                                                             </span>
-                                                            <div className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ring-2 ring-card shadow-sm ${getAvatarClasses(entry.id)}`}>
-                                                                {entry.initials}
-                                                            </div>
+                                                            <UserAvatar name={entry.name} className="h-7 w-7 rounded-full shrink-0 ring-2 ring-card shadow-sm" />
                                                             <span className="font-medium text-foreground text-[13px]">
                                                                 {entry.name}
                                                                 {isMe && <span className="ml-1 text-[11px] text-foreground/35">(You)</span>}

@@ -16,6 +16,8 @@ export default {
       fontFamily: {
         sans: ["'Inter'", "system-ui", "-apple-system", "sans-serif"],
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+        display: ["var(--font-display)", "serif"],
+        body: ["var(--font-body)", "sans-serif"],
       },
       colors: {
         border: "lab(var(--border) / <alpha-value>)",

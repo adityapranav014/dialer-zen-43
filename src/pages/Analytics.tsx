@@ -5,6 +5,7 @@ import {
 import BentoCard from "@/components/BentoCard";
 import { PhoneCall, TrendingUp, Clock, Target, BarChart2, Trophy } from "lucide-react";
 import { AppLayout } from "@/components/AppLayout";
+import UserAvatar from "@/components/ui/UserAvatar";
 import { useState } from "react";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
@@ -118,9 +119,7 @@ const Analytics = () => {
                     >
                       <div className="flex items-center gap-3 mb-3">
                         <div className="relative shrink-0">
-                          <div className={`h-10 w-10 rounded-full ${getAvatarClasses(m.id)} flex items-center justify-center text-xs font-bold ring-2 ring-card shadow-sm`}>
-                            {m.initials}
-                          </div>
+                          <UserAvatar name={m.name} className="h-10 w-10 rounded-full ring-2 ring-card shadow-sm" />
                           <span className={`absolute -top-1 -right-1 text-[10px] font-black ${PODIUM_COLOURS[i]}`}>
                             #{i + 1}
                           </span>
