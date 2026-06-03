@@ -676,32 +676,32 @@ const AdminShowcase = () => (
       </div>
       {/* Right: Admin mockup */}
       <div className="rounded-3xl overflow-hidden shadow-2xl border border-black/[0.05]" style={{ background: "#0c0c18" }}>
-        <div className="px-6 pt-5 pb-4 border-b border-white/[0.05] flex items-center justify-between">
-          <div>
-            <p className="text-white text-sm font-bold">Good morning, Rajiv 👋</p>
+        <div className="px-4 sm:px-6 pt-5 pb-4 border-b border-white/[0.05] flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-white text-sm font-bold truncate">Good morning, Rajiv 👋</p>
             <p className="text-white/25 text-xs mt-0.5 flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
-              Monday, June 3 · Team overview
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 inline-block animate-pulse shrink-0" />
+              <span className="truncate">Monday, June 3 · Team overview</span>
             </p>
           </div>
-          <button className="bg-indigo-600 text-white text-xs font-semibold px-3 py-1.5 rounded-xl">Manage Team</button>
+          <button className="bg-indigo-600 text-white text-xs font-semibold px-3 py-1.5 rounded-xl shrink-0">Manage Team</button>
         </div>
-        <div className="grid grid-cols-3 gap-3 px-6 py-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 px-4 sm:px-6 py-4">
           {[
             { label: "Calls Today", value: "47", emoji: "📞", bg: "bg-blue-900/40" },
-            { label: "Talk Time", value: "312m", emoji: "⏱", bg: "bg-violet-900/40" },
+            { label: "Talk Time", value: "312m", emoji: "🕑", bg: "bg-violet-900/40" },
             { label: "Conversions", value: "12", emoji: "📈", bg: "bg-emerald-900/40" },
           ].map(kpi => (
-            <div key={kpi.label} className="bg-white/[0.04] rounded-xl px-3 py-3 flex items-center gap-2.5">
-              <div className={`${kpi.bg} h-8 w-8 rounded-xl flex items-center justify-center text-sm shrink-0`}>{kpi.emoji}</div>
-              <div>
-                <p className="text-white text-base font-bold leading-none">{kpi.value}</p>
-                <p className="text-white/30 text-[10px] font-medium mt-0.5">{kpi.label}</p>
+            <div key={kpi.label} className="bg-white/[0.04] rounded-xl px-2 sm:px-3 py-3 flex items-center gap-2">
+              <div className={`${kpi.bg} h-7 w-7 sm:h-8 sm:w-8 rounded-xl flex items-center justify-center text-sm shrink-0`}>{kpi.emoji}</div>
+              <div className="min-w-0">
+                <p className="text-white text-sm sm:text-base font-bold leading-none">{kpi.value}</p>
+                <p className="text-white/30 text-[10px] font-medium mt-0.5 truncate">{kpi.label}</p>
               </div>
             </div>
           ))}
         </div>
-        <div className="px-6 pb-6">
+        <div className="px-4 sm:px-6 pb-6">
           <div className="flex items-center justify-between mb-2.5">
             <p className="text-white/25 text-[10px] font-semibold uppercase tracking-widest flex items-center gap-2">
               <Users className="w-3 h-3" /> BDA Performance Board
@@ -717,7 +717,7 @@ const AdminShowcase = () => (
               { name: "Vikram Singh", calls: 28, conv: 3, rate: 11, arrow: "↓", color: "text-white/25" },
             ].map((bda, i) => (
               <div key={bda.name} className="grid items-center py-2.5 px-2 rounded-lg hover:bg-white/[0.03] transition-colors"
-                style={{ gridTemplateColumns: "1fr auto auto auto", gap: "12px" }}>
+                style={{ gridTemplateColumns: "1fr auto auto auto", gap: "8px" }}>
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-[10px] text-white/20 font-bold w-3">{i + 1}</span>
                   <div className="h-6 w-6 rounded-full bg-gradient-to-br from-indigo-500/80 to-violet-600/80 flex items-center justify-center text-[9px] text-white font-bold shrink-0">
@@ -775,9 +775,9 @@ const PipelineShowcase = () => {
             </p>
           </div>
         </div>
-        <div className="flex gap-0 items-stretch">
+        <div className="grid grid-cols-2 gap-3 lg:flex lg:gap-0 lg:items-stretch">
           {stages.map((stage, idx) => (
-            <div key={stage.label} className="flex items-stretch flex-1">
+            <div key={stage.label} className="flex items-stretch lg:flex-1">
               <div className={`bg-white rounded-2xl border-t-4 ${stage.topColor} p-5 shadow-sm flex-1`}>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-black text-sm font-bold">{stage.label}</span>
