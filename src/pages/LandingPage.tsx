@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import {
   PhoneCall, TrendingUp, Users, BarChart2, ArrowRight,
   Target, Timer, Zap, CheckCircle, ChevronRight,
@@ -304,18 +304,38 @@ const HeroSection = () => {
   const fg = "hsl(210,14%,17%)";
   const mutedFg = "hsl(184,5%,55%)";
 
+  // Drive everything off raw window scrollY — no sticky, no pinning
+  const { scrollY } = useScroll();
+  const smooth = useSpring(scrollY, { stiffness: 70, damping: 22, restDelta: 0.5 });
+
+  // Image: clip-path reveals bottom from 32% → 0% over first 380px of scroll
+  const clipBottom = useTransform(smooth, [0, 380], [32, 0]);
+  const clipPath = useTransform(
+    clipBottom,
+    (v: number) => `inset(0 -2px ${v}% -2px round 16px)`
+  );
+  // Slight upward float as it reveals
+  const imgY = useTransform(smooth, [0, 380], [48, 0]);
+
   const fadeUp = (delay = 0, y = 16) => ({
     initial: { opacity: 0, y },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.6, delay, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.6, delay, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
   });
 
   return (
+    /*
+     * No h-screen + overflow-hidden here — that was the bug.
+     * The section is as tall as its content. The video covers it all.
+     * The image overflows slightly below the fold on desktop; the clip-path
+     * hides the bottom 32% until the user scrolls, then it animates open.
+     */
     <section
       id="hero"
-      className="lp-hero h-screen relative overflow-hidden flex flex-col"
+      className="lp-hero relative overflow-x-hidden flex flex-col"
+      style={{ minHeight: "100svh" }}
     >
-      {/* Background video */}
+      {/* Background video — covers full section height */}
       <video
         autoPlay
         muted
@@ -331,7 +351,7 @@ const HeroSection = () => {
       <Navbar />
 
       {/* Hero content */}
-      <div className="relative z-10 flex flex-col items-center w-full flex-1 pt-6 pb-0 px-6 overflow-hidden" style={{ fontFamily: "var(--font-body)" }}>
+      <div className="relative z-10 flex flex-col items-center w-full flex-1 pt-6 pb-16 px-6" style={{ fontFamily: "var(--font-body)" }}>
         {/* Badge */}
         <motion.div {...fadeUp(0, 10)} className="mb-6">
           <span
@@ -367,7 +387,7 @@ const HeroSection = () => {
           DialFlow is the all-in-one sales CRM for inside sales teams. Log every call, track every lead, and coach your reps with real-time analytics from one unified workspace.
         </motion.p>
 
-        {/* CTA Buttons */}
+        {/* CTA */}
         <motion.div {...fadeUp(0.3)} className="mt-5 flex items-center gap-3">
           <a
             href="#demo"
@@ -378,22 +398,27 @@ const HeroSection = () => {
           </a>
         </motion.div>
 
-        {/* Dashboard Preview */}
+        {/* Dashboard image
+            - Entrance: fades + rises on load
+            - Scroll: clipPath opens from bottom, image floats up into full view
+            - No overflow-hidden on parent means the image is never clipped by CSS
+        */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 64 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.9, delay: 0.45, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
+          style={{ y: imgY, clipPath, transformOrigin: "top center" }}
           className="mt-8 w-full max-w-5xl"
         >
           <div
-            className="rounded-2xl overflow-hidden"
             style={{
               background: "rgba(255,255,255,0.4)",
               border: "1px solid rgba(255,255,255,0.5)",
-              boxShadow: "0 25px 80px -12px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.06)",
+              boxShadow: "0 25px 80px -12px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.06)",
               padding: "12px 16px",
               backdropFilter: "blur(16px)",
               WebkitBackdropFilter: "blur(16px)",
+              borderRadius: "1rem",
             }}
           >
             <img
@@ -831,7 +856,7 @@ const AnalyticsShowcase = () => {
     <section id="analytics" className="bg-[#F5F5F5] px-6 pb-24" style={{ scrollMarginTop: "5rem" }}>
       <div className="max-w-[88rem] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         {/* Left: Analytics mockup */}
-        <div className="rounded-3xl overflow-hidden shadow-xl border border-black/[0.06] bg-white">
+        <div className="rounded-3xl overflow-hidden border border-black/[0.06] bg-white" style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.04), 0 8px 16px rgba(0,0,0,0.06), 0 24px 48px rgba(0,0,0,0.08)" }}>
           <div className="px-6 pt-5 pb-4 border-b border-black/[0.05]">
             <div className="flex items-center justify-between mb-1">
               <h4 className="text-black text-sm font-bold flex items-center gap-2">
