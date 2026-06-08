@@ -1,52 +1,48 @@
 import { useState, useEffect } from "react";
-import {
-  PhoneCall,
-  Mail,
-  Lock,
-  User as UserIcon,
-  Loader2,
-  Phone,
-  Eye,
-  EyeOff,
-  Building2,
-  AlertTriangle,
-  RefreshCw,
-} from "lucide-react";
+import { PhoneCall, BarChart2, Users, Loader2, ArrowRight, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { checkTursoConnection } from "@/integrations/turso/client";
 import { toast } from "sonner";
 
+// ─── Demo roles ───────────────────────────────────────────────────────────────
+const DEMO_ROLES = [
+  {
+    key: "admin",
+    label: "Admin",
+    description: "Full access to leads, team analytics, and company settings.",
+    icon: BarChart2,
+    iconBg: "bg-primary/10",
+    iconColor: "text-primary",
+    badgeColor: "bg-primary/10 text-primary",
+    credentials: { identifier: "admin@nexgen.demo", password: "Admin@2026", slug: "nexgen" },
+  },
+  {
+    key: "bda",
+    label: "Sales Agent",
+    description: "View assigned leads, log calls, and track personal performance.",
+    icon: Users,
+    iconBg: "bg-emerald-500/10",
+    iconColor: "text-emerald-500",
+    badgeColor: "bg-emerald-500/10 text-emerald-600",
+    credentials: { identifier: "rahul.sharma@nexgen.demo", password: "BDA@2026", slug: "nexgen" },
+  },
+  {
+    key: "superadmin",
+    label: "Super Admin",
+    description: "Platform-wide control — manage all tenants and global settings.",
+    icon: Shield,
+    iconBg: "bg-amber-500/10",
+    iconColor: "text-amber-500",
+    badgeColor: "bg-amber-500/10 text-amber-600",
+    credentials: { identifier: "superadmin@dialflow.io", password: "Super@2026", slug: "" },
+  },
+] as const;
+
 const AuthPage = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [companySlug, setCompanySlug] = useState("");
-  const [identifier, setIdentifier] = useState(""); // email or phone for sign-in
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [connectionError, setConnectionError] = useState<string | null>(null);
-  const [checkingConnection, setCheckingConnection] = useState(true);
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
 
-  const { signIn, signUp, user, isSuperAdmin, isPlatformView } = useAuth();
+  const { signIn, user, isSuperAdmin, isPlatformView } = useAuth();
   const navigate = useNavigate();
-
-  // Check Turso connectivity on mount
-  const checkConnection = async () => {
-    setCheckingConnection(true);
-    setConnectionError(null);
-    const result = await checkTursoConnection();
-    if (!result.ok) {
-      setConnectionError(result.error || "Cannot connect to the server.");
-    }
-    setCheckingConnection(false);
-  };
-
-  useEffect(() => {
-    checkConnection();
-  }, []);
 
   useEffect(() => {
     if (user) {
@@ -60,251 +56,73 @@ const AuthPage = () => {
 
   if (user) return null;
 
-  // ── Form submit ───────────────────────────────────────────────────
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      if (isSignUp) {
-        if (!displayName.trim()) throw new Error("Full name is required.");
-        if (!email.trim()) throw new Error("Email is required.");
-        if (!companySlug.trim()) throw new Error("Company URL is required.");
-        if (password.length < 6) throw new Error("Password must be at least 6 characters.");
-
-        const { error } = await signUp(email, password, displayName, companySlug, phone || undefined);
-        if (error) throw error;
-        toast.success("Account created successfully!");
-      } else {
-        if (!identifier.trim()) throw new Error("Email or phone number is required.");
-        if (!password) throw new Error("Password is required.");
-        // Super admins can leave company URL blank
-        const slug = companySlug.trim();
-
-        const { error } = await signIn(identifier, password, slug);
-        if (error) throw error;
-        toast.success("Welcome back!");
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Authentication failed.");
-    } finally {
-      setIsLoading(false);
+  const handleEnter = async (role: typeof DEMO_ROLES[number]) => {
+    setLoadingKey(role.key);
+    const { error } = await signIn(role.credentials.identifier, role.credentials.password, role.credentials.slug);
+    if (error) {
+      toast.error("Could not sign in. Please try again.");
+      setLoadingKey(null);
     }
-  };
-
-  const switchMode = () => {
-    setIsSignUp(!isSignUp);
-    setPassword("");
-    setShowPassword(false);
   };
 
   return (
     <div className="h-[100dvh] w-screen overflow-hidden flex items-center justify-center bg-background p-6">
-      <div className="w-full max-w-[420px]">
+      <div className="w-full max-w-[460px]">
         {/* ── Brand ── */}
         <div className="flex flex-col items-center mb-10 text-center">
-          <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-lg shadow-primary/10">
+          <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center mb-5 shadow-lg shadow-primary/10">
             <PhoneCall className="h-8 w-8 text-primary-foreground" />
           </div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">DialFlow</h1>
-          <p className="text-sm text-foreground/40 mt-2">
-            {isSignUp ? "Create your account to get started" : "Sign in to your account"}
+          <p className="text-sm text-foreground/40 mt-2 max-w-[280px] leading-relaxed">
+            Interactive demo — pick a role below to explore the platform instantly.
           </p>
         </div>
 
-        {/* ── Connection Error Banner ── */}
-        {connectionError && (
-          <div className="mb-4 p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-sm">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="font-medium text-destructive mb-1">Server Unreachable</p>
-                <p className="text-destructive/80 text-xs leading-relaxed">{connectionError}</p>
-              </div>
-              <button
-                type="button"
-                onClick={checkConnection}
-                disabled={checkingConnection}
-                className="shrink-0 p-1.5 rounded-xl hover:bg-destructive/10 text-destructive transition-all duration-200"
+        {/* ── Role Cards ── */}
+        <div className="space-y-3">
+          {DEMO_ROLES.map((role) => {
+            const Icon = role.icon;
+            const isLoading = loadingKey === role.key;
+            const isDisabled = loadingKey !== null;
+            return (
+              <div
+                key={role.key}
+                className="surface-elevated p-5 flex items-center gap-4 cursor-pointer group transition-all duration-200 hover:border-primary/25"
+                onClick={() => !isDisabled && handleEnter(role)}
               >
-                <RefreshCw className={`h-4 w-4 ${checkingConnection ? "animate-spin" : ""}`} />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ── Form Card ── */}
-        <div className="surface-elevated p-7 sm:p-8">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Company URL — always shown */}
-            <div>
-              <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-2 block">
-                Company URL
-              </label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
-                <input
-                  type="text"
-                  value={companySlug}
-                  onChange={(e) => setCompanySlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-                  placeholder="your-company"
-                  required={isSignUp}
-                  autoComplete="organization"
-                  className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
-                />
-                {companySlug && (
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-foreground/45">
-                    .dialflow.app
-                  </span>
-                )}
+                <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${role.iconBg}`}>
+                  <Icon className={`h-5 w-5 ${role.iconColor}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-sm font-semibold text-foreground">{role.label}</span>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide ${role.badgeColor}`}>
+                      Demo
+                    </span>
+                  </div>
+                  <p className="text-xs text-foreground/45 leading-snug">{role.description}</p>
+                </div>
+                <div className={`shrink-0 transition-all duration-200 ${isDisabled ? "opacity-40" : "group-hover:translate-x-0.5"}`}>
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 text-foreground/40 animate-spin" />
+                  ) : (
+                    <ArrowRight className="h-4 w-4 text-foreground/30" />
+                  )}
+                </div>
               </div>
-            </div>
-
-            {isSignUp ? (
-              <>
-                {/* Full Name */}
-                <div>
-                  <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-1.5 block">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
-                    <input
-                      type="text"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      placeholder="John Doe"
-                      required
-                      autoComplete="name"
-                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
-                    />
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-1.5 block">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@company.com"
-                      required
-                      autoComplete="email"
-                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
-                    />
-                  </div>
-                </div>
-
-                {/* Phone (optional) */}
-                <div>
-                  <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-1.5 block">
-                    Phone Number <span className="text-foreground/40 normal-case">(optional)</span>
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+91 98765 43210"
-                      autoComplete="tel"
-                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
-                    />
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                {/* Email or Phone */}
-                <div>
-                  <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-1.5 block">
-                    Email or Phone Number
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
-                    <input
-                      type="text"
-                      value={identifier}
-                      onChange={(e) => setIdentifier(e.target.value)}
-                      placeholder="you@company.com or +91 98765 43210"
-                      required
-                      autoComplete="email"
-                      className="w-full h-11 pl-10 pr-4 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Password */}
-            <div>
-              <label className="text-[11px] font-semibold text-foreground/50 uppercase tracking-widest mb-1.5 block">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/40" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  minLength={6}
-                  autoComplete={isSignUp ? "new-password" : "current-password"}
-                  className="w-full h-11 pl-10 pr-11 bg-muted/60 border border-border rounded-xl text-sm text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/15 focus:border-primary/30 transition-all duration-200"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground/70 transition-colors"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-              {isSignUp && (
-                <p className="text-[11px] text-foreground/45 mt-1.5">Minimum 6 characters</p>
-              )}
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-12 bg-primary text-primary-foreground font-bold text-sm rounded-xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all duration-200 disabled:opacity-50 mt-3 btn-depth"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : isSignUp ? (
-                "Create Account"
-              ) : (
-                "Sign In"
-              )}
-            </button>
-          </form>
-
-          {/* ── Toggle sign-in / sign-up ── */}
-          <div className="mt-6 pt-5 border-t border-foreground/[0.06] text-center">
-            <p className="text-[13px] text-foreground/40">
-              {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-              <button
-                onClick={switchMode}
-                className="font-bold text-primary hover:text-primary/80 transition-all duration-200"
-              >
-                {isSignUp ? "Sign in" : "Create one"}
-              </button>
-            </p>
-          </div>
+            );
+          })}
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-[11px] text-foreground/35 mt-8 font-medium">
-          DialFlow &middot; Secure cookie-based authentication
-        </p>
+        {/* ── Footer note ── */}
+        <div className="mt-6 text-center">
+          <p className="text-[11px] text-foreground/30 leading-relaxed">
+            This is a live demo environment. All data is pre-seeded for demonstration purposes.
+          </p>
+        </div>
+
+
       </div>
     </div>
   );

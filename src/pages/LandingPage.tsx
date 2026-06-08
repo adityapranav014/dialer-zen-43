@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   PhoneCall, TrendingUp, Users, BarChart2, ArrowRight,
   Target, Timer, Zap, CheckCircle, ChevronRight,
   Bell, ChevronDown, Search, Plus, MoreHorizontal, Home,
-  CreditCard, Settings, Building2,
+  CreditCard, Settings, Building2, Loader2, Shield,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 const Navbar = () => (
@@ -18,7 +21,6 @@ const Navbar = () => (
       {[
         { label: "Features", href: "#features" },
         { label: "How it Works", href: "#howitworks" },
-        { label: "Demo", href: "#demo" },
       ].map(link => (
         <a
           key={link.label}
@@ -33,7 +35,7 @@ const Navbar = () => (
       ))}
     </div>
     <a
-      href="/platform"
+      href="#demo"
       className="rounded-full px-5 py-2 text-sm font-medium transition-colors duration-200"
       style={{ background: "hsl(210,14%,17%)", color: "#fff" }}
     >
@@ -364,12 +366,13 @@ const HeroSection = () => {
 
         {/* CTA Buttons */}
         <motion.div {...fadeUp(0.3)} className="mt-5 flex items-center gap-3">
-          <button
+          <a
+            href="#demo"
             className="rounded-full px-6 py-2.5 text-sm font-medium transition-colors duration-200"
             style={{ background: fg, color: "#fff", fontFamily: "var(--font-body)" }}
           >
             Try it free
-          </button>
+          </a>
         </motion.div>
 
         {/* Dashboard Preview */}
@@ -945,11 +948,11 @@ const BDAShowcase = () => (
         </div>
         <div className="relative z-10 p-10 md:p-14 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <p className="text-white/35 text-sm mb-3">BDA Experience</p>
+            <p className="text-white/60 text-sm mb-3">BDA Experience</p>
             <h3 className="text-white text-4xl md:text-5xl font-medium leading-tight mb-5" style={{ letterSpacing: "-0.03em" }}>
               Every rep knows<br />exactly where<br />they stand.
             </h3>
-            <p className="text-white/45 text-base max-w-md mb-8 leading-relaxed">
+            <p className="text-white/70 text-base max-w-md mb-8 leading-relaxed">
               Each BDA gets a personal dashboard showing their calls, talk time, conversions, team rank, and a live activity feed. Built to motivate and focus every single day.
             </p>
             <ul className="space-y-2.5">
@@ -960,7 +963,7 @@ const BDAShowcase = () => (
                 "Talk time bar chart over the past 7 days",
                 "Post-call modal to log outcome & notes instantly",
               ].map(item => (
-                <li key={item} className="flex items-center gap-3 text-white/45 text-sm">
+                <li key={item} className="flex items-center gap-3 text-white/70 text-sm">
                   <div className="h-1.5 w-1.5 rounded-full bg-indigo-400 shrink-0" />
                   {item}
                 </li>
@@ -971,7 +974,7 @@ const BDAShowcase = () => (
           <div className="bg-white/[0.06] border border-white/[0.08] rounded-2xl overflow-hidden backdrop-blur-sm">
             <div className="px-5 pt-4 pb-3 border-b border-white/[0.05]">
               <p className="text-white text-sm font-bold">Good morning, Rahul</p>
-              <p className="text-white/25 text-xs mt-0.5 flex items-center gap-1.5">
+              <p className="text-white/50 text-xs mt-0.5 flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
                 Monday, June 3
               </p>
@@ -985,12 +988,12 @@ const BDAShowcase = () => (
               ].map(kpi => (
                 <div key={kpi.label} className="bg-white/[0.05] rounded-xl px-2 py-2.5 text-center">
                   <p className={`text-base font-bold leading-none ${kpi.color}`}>{kpi.value}</p>
-                  <p className="text-white/30 text-[10px] font-medium mt-1">{kpi.label}</p>
+                  <p className="text-white/55 text-[10px] font-medium mt-1">{kpi.label}</p>
                 </div>
               ))}
             </div>
             <div className="px-5 pb-5">
-              <p className="text-white/25 text-[10px] font-semibold uppercase tracking-widest mb-2.5 flex items-center gap-2">
+              <p className="text-white/55 text-[10px] font-semibold uppercase tracking-widest mb-2.5 flex items-center gap-2">
                 <Timer className="w-3 h-3" /> My Activity
               </p>
               <div className="space-y-2.5">
@@ -1003,8 +1006,8 @@ const BDAShowcase = () => (
                   <div key={i} className="flex items-start gap-2.5">
                     <div className={`h-1.5 w-1.5 rounded-full mt-1.5 shrink-0 ${act.dot}`} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-white/55 text-xs leading-snug">{act.text}</p>
-                      <p className="text-white/20 text-[10px] font-medium mt-0.5">{act.time}</p>
+                      <p className="text-white/80 text-xs leading-snug">{act.text}</p>
+                      <p className="text-white/45 text-[10px] font-medium mt-0.5">{act.time}</p>
                     </div>
                   </div>
                 ))}
@@ -1019,37 +1022,54 @@ const BDAShowcase = () => (
 
 // ─── Demo Access Section ──────────────────────────────────────────────────────
 const DemoSection = () => {
-  const [copied, setCopied] = useState<string | null>(null);
-
-  const copy = (text: string, key: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(key);
-    setTimeout(() => setCopied(null), 1500);
-  };
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
 
   const accounts = [
     {
+      key: "admin",
       role: "Admin",
-      emoji: "👔",
-      email: "admin@nexgen.demo",
-      password: "Admin@2026",
-      company: "nexgen",
-      gradient: "from-indigo-600 to-violet-700",
+      cta: "Enter as Admin",
+      icon: BarChart2,
+      bg: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
       description: "Team overview, lead management, analytics & team controls",
+      credentials: { identifier: "admin@nexgen.demo", password: "Admin@2026", slug: "nexgen" },
     },
     {
-      role: "Sales Rep (BDA)",
-      emoji: "📞",
-      email: "rahul.sharma@nexgen.demo",
-      password: "BDA@2026",
-      company: "nexgen",
-      gradient: "from-blue-600 to-indigo-700",
+      key: "bda",
+      role: "Sales Rep",
+      cta: "Enter as Sales Rep",
+      icon: Users,
+      bg: "linear-gradient(135deg, #2563eb 0%, #4338ca 100%)",
       description: "Personal dashboard, my leads, call logging & leaderboard",
+      credentials: { identifier: "rahul.sharma@nexgen.demo", password: "BDA@2026", slug: "nexgen" },
+    },
+    {
+      key: "superadmin",
+      role: "Super Admin",
+      cta: "Enter as Super Admin",
+      icon: Shield,
+      bg: "linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)",
+      description: "Platform-wide control — manage all tenants and global settings",
+      credentials: { identifier: "superadmin@dialflow.io", password: "Super@2026", slug: "" },
     },
   ];
 
+  const handleLogin = async (acc: typeof accounts[number]) => {
+    if (loadingKey) return;
+    setLoadingKey(acc.key);
+    const { error } = await signIn(acc.credentials.identifier, acc.credentials.password, acc.credentials.slug);
+    if (error) {
+      toast.error("Could not sign in. Please try again.");
+      setLoadingKey(null);
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
   return (
-    <section id="demo" className="bg-[#F5F5F5] px-6 pb-24">
+    <section id="demo" className="bg-[#F5F5F5] px-6 pb-24" style={{ scrollMarginTop: "4rem" }}>
       <div className="max-w-[88rem] mx-auto">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-black/[0.05] rounded-full px-4 py-1.5 mb-6">
@@ -1060,52 +1080,59 @@ const DemoSection = () => {
             Try it right now.
           </h2>
           <p className="text-black/50 text-lg max-w-sm mx-auto">
-            Real data. Real features. Pick a role and explore every corner of DialFlow instantly.
+            Real data. Real features. Pick a role and jump straight in.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-12">
-          {accounts.map(acc => (
-            <div key={acc.role} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-black/[0.06]">
-              <div className={`bg-gradient-to-r ${acc.gradient} px-6 py-4 flex items-center gap-3`}>
-                <span className="text-2xl">{acc.emoji}</span>
-                <div>
-                  <p className="text-white text-base font-bold">{acc.role}</p>
-                  <p className="text-white/55 text-xs font-medium mt-0.5">{acc.description}</p>
-                </div>
-              </div>
-              <div className="px-6 py-5 space-y-4">
-                {[
-                  { label: "Email", value: acc.email, key: acc.role + "email" },
-                  { label: "Password", value: acc.password, key: acc.role + "pass" },
-                  { label: "Company Slug", value: acc.company, key: acc.role + "slug" },
-                ].map(field => (
-                  <div key={field.label} className="flex items-center justify-between gap-3 pb-3 border-b border-black/[0.05] last:pb-0 last:border-0">
-                    <div>
-                      <p className="text-black/30 text-[10px] font-semibold uppercase tracking-wider">{field.label}</p>
-                      <p className="text-black text-sm font-semibold font-mono mt-0.5">{field.value}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+          {accounts.map(acc => {
+            const Icon = acc.icon;
+            const isLoading = loadingKey === acc.key;
+            const isDisabled = loadingKey !== null;
+            return (
+              <button
+                key={acc.key}
+                onClick={() => handleLogin(acc)}
+                disabled={isDisabled}
+                className="group relative text-left rounded-3xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                style={{ background: acc.bg }}
+              >
+                {/* Subtle noise overlay for depth */}
+                <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
+
+                <div className="relative p-6 flex flex-col min-h-[200px]">
+                  {/* Top row — icon + badge */}
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="h-11 w-11 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
-                    <button
-                      onClick={() => copy(field.value, field.key)}
-                      className="text-black/30 hover:text-black transition-colors text-xs font-medium px-2 py-1 rounded-lg hover:bg-black/[0.04]">
-                      {copied === field.key ? "✓ Copied" : "Copy"}
-                    </button>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/70 bg-white/15 px-2.5 py-1 rounded-full">
+                      Demo
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
+
+                  {/* Role + description */}
+                  <div className="flex-1">
+                    <h3 className="text-white text-lg font-bold leading-tight mb-1.5">{acc.role}</h3>
+                    <p className="text-white/65 text-sm leading-relaxed">{acc.description}</p>
+                  </div>
+
+                  {/* CTA row */}
+                  <div className="mt-6 pt-4 border-t border-white/20 flex items-center justify-between">
+                    <span className="text-white/90 text-sm font-semibold">
+                      {isLoading ? "Signing in…" : acc.cta}
+                    </span>
+                    <span className="h-8 w-8 rounded-full bg-white/20 group-hover:bg-white/30 flex items-center justify-center transition-colors duration-200 shrink-0">
+                      {isLoading
+                        ? <Loader2 className="w-3.5 h-3.5 text-white animate-spin" />
+                        : <ArrowRight className="w-3.5 h-3.5 text-white" />}
+                    </span>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
         </div>
-        <div className="text-center">
-          <a
-            href="/platform"
-            className="inline-flex items-center gap-3 bg-black text-white text-lg font-medium pl-8 pr-2 py-2.5 rounded-full hover:bg-gray-800 transition-colors duration-200">
-            Open DialFlow
-            <span className="bg-white rounded-full p-2.5">
-              <ArrowRight className="w-5 h-5 text-black" />
-            </span>
-          </a>
-          <p className="text-black/30 text-sm mt-3 font-medium">No credit card. No setup. Just DialFlow.</p>
-        </div>
+        <p className="text-center text-black/30 text-sm mt-8 font-medium">No credit card. No setup. Just DialFlow.</p>
       </div>
     </section>
   );
@@ -1122,25 +1149,25 @@ const Footer = () => (
               <img src="/favicon.svg" alt="DialFlow" className="w-7 h-7 rounded-lg" />
               <span className="text-2xl font-medium tracking-tight text-white" style={{ letterSpacing: "-0.03em" }}>DialFlow</span>
             </div>
-            <p className="text-white/30 text-sm max-w-xs leading-relaxed">
+            <p className="text-white/55 text-sm max-w-xs leading-relaxed">
               The intelligent sales CRM for inside sales teams. Built for dialers. Designed to convert.
             </p>
             <div className="flex items-center gap-2 mt-4">
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-white/25 text-xs font-medium">All systems operational</span>
+              <span className="text-white/50 text-xs font-medium">All systems operational</span>
             </div>
           </div>
           <div className="flex flex-col items-start md:items-end gap-4">
             <div className="flex flex-wrap gap-6">
               {["Features", "Pipeline", "Analytics", "Team", "Demo"].map(link => (
                 <a key={link} href={`#${link.toLowerCase()}`}
-                  className="text-white/30 hover:text-white text-sm font-medium transition-colors duration-200">
+                  className="text-white/55 hover:text-white text-sm font-medium transition-colors duration-200">
                   {link}
                 </a>
               ))}
             </div>
             <a
-              href="/platform"
+              href="/auth"
               className="inline-flex items-center gap-3 bg-white text-black text-base font-medium pl-7 pr-2 py-2 rounded-full hover:bg-white/90 transition-colors duration-200">
               Start Demo
               <span className="bg-black/10 rounded-full p-2">
@@ -1150,7 +1177,7 @@ const Footer = () => (
           </div>
         </div>
         <div className="border-t border-white/[0.08] pt-8">
-          <p className="text-white/20 text-sm">© 2026 DialFlow. Built for sales teams that mean business.</p>
+          <p className="text-white/45 text-sm">© 2026 DialFlow. Built for sales teams that mean business.</p>
         </div>
       </div>
     </footer>

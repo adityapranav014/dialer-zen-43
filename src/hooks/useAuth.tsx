@@ -94,11 +94,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         const validUser = await validateSession();
         if (mounted) {
-          setUser(validUser ?? getDemoUser());
+          setUser(validUser ?? null);
         }
       } catch {
-        // Fall back to persistent demo user — no login required
-        if (mounted) setUser(getDemoUser());
+        if (mounted) setUser(null);
       } finally {
         if (mounted) setLoading(false);
       }
