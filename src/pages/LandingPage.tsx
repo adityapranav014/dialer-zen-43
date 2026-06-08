@@ -583,7 +583,7 @@ const HowItWorksSection = () => {
       <div className="max-w-[88rem] mx-auto">
         <div className="mb-12">
           <p className="text-black/40 text-sm mb-2">How it works</p>
-          <h2 className="text-5xl md:text-6xl font-medium leading-none" style={{ letterSpacing: "-0.04em" }}>
+          <h2 className="text-5xl md:text-6xl font-medium leading-none text-black" style={{ letterSpacing: "-0.04em" }}>
             Five steps.<br />One platform.
           </h2>
         </div>
@@ -647,7 +647,7 @@ const AdminShowcase = () => (
       {/* Left: text */}
       <div className="md:pr-12 md:pt-2">
         <p className="text-black/45 text-sm mb-2">Admin Dashboard</p>
-        <h2 className="text-5xl md:text-6xl font-medium leading-none mb-6" style={{ letterSpacing: "-0.04em" }}>
+        <h2 className="text-5xl md:text-6xl font-medium leading-none mb-6 text-black" style={{ letterSpacing: "-0.04em" }}>
           Command<br />your floor.
         </h2>
         <p className="text-black/55 text-base leading-relaxed max-w-sm mb-8">
@@ -767,7 +767,7 @@ const PipelineShowcase = () => {
         <div className="mb-12">
           <p className="text-black/40 text-sm mb-2">Lead Pipeline</p>
           <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-20">
-            <h2 className="text-5xl md:text-6xl font-medium leading-none shrink-0" style={{ letterSpacing: "-0.04em" }}>
+            <h2 className="text-5xl md:text-6xl font-medium leading-none shrink-0 text-black" style={{ letterSpacing: "-0.04em" }}>
               80 leads.<br />Zero lost.
             </h2>
             <p className="text-black/50 text-base leading-relaxed max-w-md mb-1">
@@ -905,7 +905,7 @@ const AnalyticsShowcase = () => {
         {/* Right: text */}
         <div className="md:pl-8 md:pt-2">
           <p className="text-black/40 text-sm mb-2">Analytics &amp; Reports</p>
-          <h2 className="text-5xl md:text-6xl font-medium leading-none mb-6" style={{ letterSpacing: "-0.04em" }}>
+          <h2 className="text-5xl md:text-6xl font-medium leading-none mb-6 text-black" style={{ letterSpacing: "-0.04em" }}>
             Data that<br />coaches.
           </h2>
           <p className="text-black/55 text-base leading-relaxed max-w-sm mb-8">
