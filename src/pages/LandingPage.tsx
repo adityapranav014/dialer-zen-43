@@ -21,6 +21,9 @@ const Navbar = () => (
       {[
         { label: "Features", href: "#features" },
         { label: "How it Works", href: "#howitworks" },
+        { label: "Lead Pipeline", href: "#pipeline" },
+        { label: "Analytics", href: "#analytics" },
+        { label: "Admin Dashboard", href: "#team" },
       ].map(link => (
         <a
           key={link.label}
@@ -433,7 +436,7 @@ const StatsMarquee = () => {
 
 // ─── Features Section ─────────────────────────────────────────────────────────
 const FeaturesSection = () => (
-  <section id="features" className="bg-[#F5F5F5] px-6 py-24">
+  <section id="features" className="bg-[#F5F5F5] px-6 py-24" style={{ scrollMarginTop: "5rem" }}>
     <div className="max-w-[88rem] mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 items-start">
         <div>
@@ -582,7 +585,7 @@ const HowItWorksSection = () => {
   ];
 
   return (
-    <section id="howitworks" className="bg-[#F5F5F5] px-6 pb-24">
+    <section id="howitworks" className="bg-[#F5F5F5] px-6 pb-24" style={{ scrollMarginTop: "5rem" }}>
       <div className="max-w-[88rem] mx-auto">
         <div className="mb-12">
           <p className="text-black/40 text-sm mb-2">How it works</p>
@@ -645,7 +648,7 @@ const HowItWorksSection = () => {
 
 // ─── Admin Dashboard Showcase ─────────────────────────────────────────────────
 const AdminShowcase = () => (
-  <section id="team" className="bg-[#F5F5F5] px-6 pb-24">
+  <section id="team" className="bg-[#F5F5F5] px-6 pb-24" style={{ scrollMarginTop: "5rem" }}>
     <div className="max-w-[88rem] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
       {/* Left: text */}
       <div className="md:pr-12 md:pt-2">
@@ -765,7 +768,7 @@ const PipelineShowcase = () => {
     },
   ];
   return (
-    <section id="pipeline" className="bg-[#F5F5F5] px-6 pb-24">
+    <section id="pipeline" className="bg-[#F5F5F5] px-6 pb-24" style={{ scrollMarginTop: "5rem" }}>
       <div className="max-w-[88rem] mx-auto">
         <div className="mb-12">
           <p className="text-black/40 text-sm mb-2">Lead Pipeline</p>
@@ -825,7 +828,7 @@ const AnalyticsShowcase = () => {
   ];
   const maxCalls = Math.max(...weekData.map(d => d.calls));
   return (
-    <section id="analytics" className="bg-[#F5F5F5] px-6 pb-24">
+    <section id="analytics" className="bg-[#F5F5F5] px-6 pb-24" style={{ scrollMarginTop: "5rem" }}>
       <div className="max-w-[88rem] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         {/* Left: Analytics mockup */}
         <div className="rounded-3xl overflow-hidden shadow-xl border border-black/[0.06] bg-white">
@@ -1141,43 +1144,73 @@ const DemoSection = () => {
 // ─── Footer ───────────────────────────────────────────────────────────────────
 const Footer = () => (
   <>
-    <footer className="bg-black px-6 py-16">
+    <footer className="bg-black px-6 pt-16 pb-10">
       <div className="max-w-[88rem] mx-auto">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-12">
+        {/* Top row */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-12 pb-12 border-b border-white/[0.08]">
+          {/* Brand */}
           <div>
             <div className="flex items-center gap-2.5 mb-4">
               <img src="/favicon.svg" alt="DialFlow" className="w-7 h-7 rounded-lg" />
               <span className="text-2xl font-medium tracking-tight text-white" style={{ letterSpacing: "-0.03em" }}>DialFlow</span>
             </div>
-            <p className="text-white/55 text-sm max-w-xs leading-relaxed">
+            <p className="text-white/50 text-sm max-w-xs leading-relaxed mb-5">
               The intelligent sales CRM for inside sales teams. Built for dialers. Designed to convert.
             </p>
-            <div className="flex items-center gap-2 mt-4">
+            <div className="flex items-center gap-2">
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-white/50 text-xs font-medium">All systems operational</span>
+              <span className="text-white/40 text-xs font-medium">All systems operational</span>
             </div>
           </div>
-          <div className="flex flex-col items-start md:items-end gap-4">
-            <div className="flex flex-wrap gap-6">
-              {["Features", "Pipeline", "Analytics", "Team", "Demo"].map(link => (
-                <a key={link} href={`#${link.toLowerCase()}`}
-                  className="text-white/55 hover:text-white text-sm font-medium transition-colors duration-200">
-                  {link}
-                </a>
+
+          {/* Product links */}
+          <div>
+            <p className="text-white/30 text-xs font-semibold uppercase tracking-widest mb-4">Product</p>
+            <ul className="space-y-3">
+              {[
+                { label: "Features", href: "#features" },
+                { label: "How it Works", href: "#howitworks" },
+                { label: "Lead Pipeline", href: "#pipeline" },
+                { label: "Analytics", href: "#analytics" },
+              ].map(link => (
+                <li key={link.label}>
+                  <a href={link.href} className="text-white/55 hover:text-white text-sm transition-colors duration-200">
+                    {link.label}
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
+          </div>
+
+          {/* Platform + CTA */}
+          <div>
+            <p className="text-white/30 text-xs font-semibold uppercase tracking-widest mb-4">Platform</p>
+            <ul className="space-y-3 mb-8">
+              {[
+                { label: "Admin Dashboard", href: "#team" },
+                { label: "Try Demo", href: "#demo" },
+              ].map(link => (
+                <li key={link.label}>
+                  <a href={link.href} className="text-white/55 hover:text-white text-sm transition-colors duration-200">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
             <a
               href="/auth"
-              className="inline-flex items-center gap-3 bg-white text-black text-base font-medium pl-7 pr-2 py-2 rounded-full hover:bg-white/90 transition-colors duration-200">
+              className="inline-flex items-center gap-3 bg-white text-black text-sm font-medium pl-5 pr-2 py-2 rounded-full hover:bg-white/90 transition-colors duration-200">
               Start Demo
-              <span className="bg-black/10 rounded-full p-2">
-                <ArrowRight className="w-4 h-4 text-black" />
+              <span className="bg-black/10 rounded-full p-1.5">
+                <ArrowRight className="w-3.5 h-3.5 text-black" />
               </span>
             </a>
           </div>
         </div>
-        <div className="border-t border-white/[0.08] pt-8">
-          <p className="text-white/45 text-sm">© 2026 DialFlow. Built for sales teams that mean business.</p>
+
+        {/* Bottom bar */}
+        <div className="pt-6">
+          <p className="text-white/35 text-sm">© 2026 DialFlow. Built for sales teams that mean business.</p>
         </div>
       </div>
     </footer>
